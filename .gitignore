@@ -1,0 +1,14 @@
+# Şifreler
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editör / sistem
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
