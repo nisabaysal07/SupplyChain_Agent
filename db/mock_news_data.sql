@@ -130,7 +130,7 @@ FROM (VALUES
    NULL, NULL, NULL, 4),
   ('https://example.com/news/2026/10/korea-turkey-fta-ssd-tariff',
    TRUE,  30, 'tariff_decrease',      'Kore-Türkiye STA kapsamında SSD dahil bazı BT ürünlerinde gümrük vergisi 2027''den itibaren sıfırlanıyor.',
-   'gv', 0.00, 0.00, NULL),
+   NULL, NULL, NULL, NULL),
   ('https://example.com/news/2026/10/intel-core-ultra-price-cut',
    TRUE,  25, 'price_change',         'Intel Core Ultra 200S işlemcilerde ~%5 liste fiyatı indirimi.',
    NULL, NULL, NULL, NULL)
