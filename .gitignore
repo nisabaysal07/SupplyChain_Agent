@@ -1,0 +1,21 @@
+# Gizli bilgiler (şifreler, API anahtarları) — asla commit'leme
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.sql.tmp
+db/__pycache__/
+
+# Node / Nuxt (web/.gitignore da var)
+node_modules/
+
+# Editör / işletim sistemi
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
