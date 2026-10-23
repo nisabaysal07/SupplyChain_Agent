@@ -1,0 +1,96 @@
+# Ürünler — items_download.py 'items' tablosuna kaydeder.
+# Oranlar yüzde olarak: 20 = %20 (otv_rate sabit tutarlıysa birim başına tutar)
+# hs6 / gtip tırnak içinde yazılır ki baştaki sıfırlar korunsun
+# source: rate_source.yaml'daki kaynak adı (yoksa null), checked_at: YYYY-AA-GG veya null
+
+items:
+  - id: 1
+    name: "İşlemci"
+    hs6: "854231"
+    gtip: "854231900000"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 0
+    source: null
+    checked_at: null
+  - id: 2
+    name: "Anakart"
+    hs6: "847330"
+    gtip: "847330200000"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 0
+    source: null
+    checked_at: null
+  - id: 3
+    name: "Bellek"
+    hs6: "847330"
+    gtip: "847330200000"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 0
+    source: null
+    checked_at: null
+  - id: 4
+    name: "SSD"
+    hs6: "847170"
+    gtip: "847170989000"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 1
+    source: null
+    checked_at: null
+  - id: 5
+    name: "Ekran kartı"
+    hs6: "847330"
+    gtip: "847330200000"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 0
+    source: null
+    checked_at: null
+  - id: 6
+    name: "Güç kaynağı"
+    hs6: "850440"
+    gtip: "850440839019"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 0
+    source: null
+    checked_at: null
+  - id: 7
+    name: "Kasa"
+    hs6: "847330"
+    gtip: "847330800000"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 0
+    source: null
+    checked_at: null
+  - id: 8
+    name: "Soğutucu"
+    hs6: "841459"
+    gtip: "841459150000"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 0
+    source: null
+    checked_at: null
+  - id: 9
+    name: "Monitör"
+    hs6: "852852"
+    gtip: "852852100000"
+    unit: "adet"
+    kdv_rate: 20
+    otv_rate: 0
+    kultur_fonu_rate: 0
+    source: null
+    checked_at: null

@@ -1,0 +1,255 @@
+# Ülkeler — country_download.py bu dosyayı okuyup 'countries' tablosuna kaydeder.
+# has_trade_agreement: Türkiye ile yürürlükte STA veya Gümrük Birliği (AB) varsa true
+# Kaynak: T.C. Ticaret Bakanlığı, yürürlükteki STA listesi (Ekim 2026)
+
+countries:
+  - id: 1
+    iso_code: "MYS"
+    name_tr: "Malezya"
+    name_en: "Malaysia"
+    has_trade_agreement: true
+  - id: 2
+    iso_code: "KOR"
+    name_tr: "Güney Kore"
+    name_en: "South Korea"
+    has_trade_agreement: true
+  - id: 3
+    iso_code: "TWN"
+    name_tr: "Tayvan"
+    name_en: "Taiwan"
+    has_trade_agreement: false
+  - id: 4
+    iso_code: "CHN"
+    name_tr: "Çin"
+    name_en: "China"
+    has_trade_agreement: false
+  - id: 5
+    iso_code: "VNM"
+    name_tr: "Vietnam"
+    name_en: "Vietnam"
+    has_trade_agreement: false
+  - id: 6
+    iso_code: "TUR"
+    name_tr: "Türkiye"
+    name_en: "Türkiye"
+    has_trade_agreement: false
+  - id: 7
+    iso_code: "JPN"
+    name_tr: "Japonya"
+    name_en: "Japan"
+    has_trade_agreement: false
+  - id: 8
+    iso_code: "THA"
+    name_tr: "Tayland"
+    name_en: "Thailand"
+    has_trade_agreement: false
+  - id: 9
+    iso_code: "IDN"
+    name_tr: "Endonezya"
+    name_en: "Indonesia"
+    has_trade_agreement: false
+  - id: 10
+    iso_code: "PHL"
+    name_tr: "Filipinler"
+    name_en: "Philippines"
+    has_trade_agreement: false
+  - id: 11
+    iso_code: "IND"
+    name_tr: "Hindistan"
+    name_en: "India"
+    has_trade_agreement: false
+  - id: 12
+    iso_code: "SGP"
+    name_tr: "Singapur"
+    name_en: "Singapore"
+    has_trade_agreement: true
+  - id: 13
+    iso_code: "HKG"
+    name_tr: "Hong Kong"
+    name_en: "Hong Kong"
+    has_trade_agreement: false
+  - id: 14
+    iso_code: "BGD"
+    name_tr: "Bangladeş"
+    name_en: "Bangladesh"
+    has_trade_agreement: false
+  - id: 15
+    iso_code: "KHM"
+    name_tr: "Kamboçya"
+    name_en: "Cambodia"
+    has_trade_agreement: false
+  - id: 16
+    iso_code: "AUS"
+    name_tr: "Avustralya"
+    name_en: "Australia"
+    has_trade_agreement: false
+  - id: 17
+    iso_code: "USA"
+    name_tr: "Amerika Birleşik Devletleri"
+    name_en: "United States"
+    has_trade_agreement: false
+  - id: 18
+    iso_code: "CAN"
+    name_tr: "Kanada"
+    name_en: "Canada"
+    has_trade_agreement: false
+  - id: 19
+    iso_code: "MEX"
+    name_tr: "Meksika"
+    name_en: "Mexico"
+    has_trade_agreement: false
+  - id: 20
+    iso_code: "BRA"
+    name_tr: "Brezilya"
+    name_en: "Brazil"
+    has_trade_agreement: false
+  - id: 21
+    iso_code: "CHL"
+    name_tr: "Şili"
+    name_en: "Chile"
+    has_trade_agreement: true
+  - id: 22
+    iso_code: "DEU"
+    name_tr: "Almanya"
+    name_en: "Germany"
+    has_trade_agreement: true
+  - id: 23
+    iso_code: "NLD"
+    name_tr: "Hollanda"
+    name_en: "Netherlands"
+    has_trade_agreement: true
+  - id: 24
+    iso_code: "FRA"
+    name_tr: "Fransa"
+    name_en: "France"
+    has_trade_agreement: true
+  - id: 25
+    iso_code: "ITA"
+    name_tr: "İtalya"
+    name_en: "Italy"
+    has_trade_agreement: true
+  - id: 26
+    iso_code: "ESP"
+    name_tr: "İspanya"
+    name_en: "Spain"
+    has_trade_agreement: true
+  - id: 27
+    iso_code: "POL"
+    name_tr: "Polonya"
+    name_en: "Poland"
+    has_trade_agreement: true
+  - id: 28
+    iso_code: "CZE"
+    name_tr: "Çekya"
+    name_en: "Czechia"
+    has_trade_agreement: true
+  - id: 29
+    iso_code: "HUN"
+    name_tr: "Macaristan"
+    name_en: "Hungary"
+    has_trade_agreement: true
+  - id: 30
+    iso_code: "ROU"
+    name_tr: "Romanya"
+    name_en: "Romania"
+    has_trade_agreement: true
+  - id: 31
+    iso_code: "IRL"
+    name_tr: "İrlanda"
+    name_en: "Ireland"
+    has_trade_agreement: true
+  - id: 32
+    iso_code: "SWE"
+    name_tr: "İsveç"
+    name_en: "Sweden"
+    has_trade_agreement: true
+  - id: 33
+    iso_code: "AUT"
+    name_tr: "Avusturya"
+    name_en: "Austria"
+    has_trade_agreement: true
+  - id: 34
+    iso_code: "GBR"
+    name_tr: "Birleşik Krallık"
+    name_en: "United Kingdom"
+    has_trade_agreement: true
+  - id: 35
+    iso_code: "CHE"
+    name_tr: "İsviçre"
+    name_en: "Switzerland"
+    has_trade_agreement: true
+  - id: 36
+    iso_code: "NOR"
+    name_tr: "Norveç"
+    name_en: "Norway"
+    has_trade_agreement: true
+  - id: 37
+    iso_code: "UKR"
+    name_tr: "Ukrayna"
+    name_en: "Ukraine"
+    has_trade_agreement: true
+  - id: 38
+    iso_code: "MDA"
+    name_tr: "Moldova"
+    name_en: "Moldova"
+    has_trade_agreement: true
+  - id: 39
+    iso_code: "SRB"
+    name_tr: "Sırbistan"
+    name_en: "Serbia"
+    has_trade_agreement: true
+  - id: 40
+    iso_code: "MKD"
+    name_tr: "Kuzey Makedonya"
+    name_en: "North Macedonia"
+    has_trade_agreement: true
+  - id: 41
+    iso_code: "BIH"
+    name_tr: "Bosna-Hersek"
+    name_en: "Bosnia and Herzegovina"
+    has_trade_agreement: true
+  - id: 42
+    iso_code: "ALB"
+    name_tr: "Arnavutluk"
+    name_en: "Albania"
+    has_trade_agreement: true
+  - id: 43
+    iso_code: "GEO"
+    name_tr: "Gürcistan"
+    name_en: "Georgia"
+    has_trade_agreement: true
+  - id: 44
+    iso_code: "AZE"
+    name_tr: "Azerbaycan"
+    name_en: "Azerbaijan"
+    has_trade_agreement: false
+  - id: 45
+    iso_code: "ARE"
+    name_tr: "Birleşik Arap Emirlikleri"
+    name_en: "United Arab Emirates"
+    has_trade_agreement: true
+  - id: 46
+    iso_code: "QAT"
+    name_tr: "Katar"
+    name_en: "Qatar"
+    has_trade_agreement: true
+  - id: 47
+    iso_code: "SAU"
+    name_tr: "Suudi Arabistan"
+    name_en: "Saudi Arabia"
+    has_trade_agreement: false
+  - id: 48
+    iso_code: "EGY"
+    name_tr: "Mısır"
+    name_en: "Egypt"
+    has_trade_agreement: true
+  - id: 49
+    iso_code: "MAR"
+    name_tr: "Fas"
+    name_en: "Morocco"
+    has_trade_agreement: true
+  - id: 50
+    iso_code: "TUN"
+    name_tr: "Tunus"
+    name_en: "Tunisia"
+    has_trade_agreement: true

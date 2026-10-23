@@ -1,0 +1,7 @@
+# Oran kaynakları — rate_source_download.py bu dosyayı 'rate_sources' tablosuna kaydeder.
+# id yoksa 'name' ile eşleştirilir (name benzersizdir).
+
+rate_sources:
+  - id: 1
+    name: "TARA (Ticaret Bakanlığı)"
+    url: "https://ticaret.gov.tr"

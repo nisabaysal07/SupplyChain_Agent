@@ -1,0 +1,66 @@
+# Lokasyonlar (liman, havalimanı, sınır kapısı, boğaz/kanal) — location_download.py 'locations' tablosuna kaydeder.
+# code: UN/LOCODE (liman) veya IATA (havalimanı); yoksa null
+# location_type: port | airport | border_gate | chokepoint
+# country: ülkenin iso_code'u (country.yaml); uluslararası noktalar için null
+
+locations:
+  - id: 1
+    name: "Kuala Lumpur Uluslararası Havalimanı"
+    code: "KUL"
+    location_type: airport
+    country: "MYS"
+  - id: 2
+    name: "Penang Uluslararası Havalimanı"
+    code: "PEN"
+    location_type: airport
+    country: "MYS"
+  - id: 3
+    name: "Incheon Uluslararası Havalimanı"
+    code: "ICN"
+    location_type: airport
+    country: "KOR"
+  - id: 4
+    name: "Kaohsiung Limanı"
+    code: "TWKHH"
+    location_type: port
+    country: "TWN"
+  - id: 5
+    name: "Taoyuan Uluslararası Havalimanı"
+    code: "TPE"
+    location_type: airport
+    country: "TWN"
+  - id: 6
+    name: "Yantian Limanı (Shenzhen)"
+    code: "CNYTN"
+    location_type: port
+    country: "CHN"
+  - id: 7
+    name: "Shekou Limanı (Shenzhen)"
+    code: "CNSHK"
+    location_type: port
+    country: "CHN"
+  - id: 8
+    name: "Ningbo Limanı"
+    code: "CNNBG"
+    location_type: port
+    country: "CHN"
+  - id: 9
+    name: "Port of Cai Mep"
+    code: "VNTOT"
+    location_type: port
+    country: "VNM"
+  - id: 10
+    name: "Mersin Limanı"
+    code: "TRMER"
+    location_type: port
+    country: "TUR"
+  - id: 11
+    name: "İstanbul Havalimanı"
+    code: "IST"
+    location_type: airport
+    country: "TUR"
+  - id: 12
+    name: "Süveyş Kanalı"
+    code: null
+    location_type: chokepoint
+    country: null
