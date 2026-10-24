@@ -22,10 +22,14 @@ INSERT INTO scan_logs (triggered_by, status, started_at, finished_at, error_mess
 
 -- =====================================================================
 -- ADIM 2: articles
--- scan_log_id = haberi getiren taramanın başlangıç zamanı ile eşlenir
+-- first_seen_scan_id = last_seen_scan_id = haberi getiren tarama (başlangıç zamanı ile eşlenir)
+-- content_hash = sha256(küçük harf + boşlukları tek boşluğa indirgenmiş "title content"), hex
 -- =====================================================================
-INSERT INTO articles (scan_log_id, url, title, content, language, published_at, affective_date)
-SELECT sl.id, v.url, v.title, v.content, v.lang, v.published, v.affective
+INSERT INTO articles (first_seen_scan_id, last_seen_scan_id, url, content_hash, title, content,
+                      language, published_at, effective_date)
+SELECT sl.id, sl.id, v.url,
+       encode(sha256(convert_to(lower(regexp_replace(trim(v.title || ' ' || coalesce(v.content, '')), '\s+', ' ', 'g')), 'UTF8')), 'hex'),
+       v.title, v.content, v.lang, v.published, v.effective
 FROM (VALUES
   (TIMESTAMPTZ '2026-10-18 06:00:00+03',
    'https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi',
@@ -87,15 +91,15 @@ FROM (VALUES
    'Intel trims prices of Core Ultra 200S desktop CPUs',
    'Intel reduced list prices for several Core Ultra 200S processors by around 5% ahead of the holiday season.',
    'en', TIMESTAMPTZ '2026-10-21 19:00:00+03', TIMESTAMPTZ '2026-10-25 00:00:00+03')
-) AS v(scan_started, url, title, content, lang, published, affective)
+) AS v(scan_started, url, title, content, lang, published, effective)
 JOIN scan_logs sl ON sl.started_at = v.scan_started;
 
 -- =====================================================================
--- ADIM 3: article_analyses  (makale başına bir analiz)
+-- ADIM 3: article_analyses  (haberin geldiği taramadaki analizi)
 -- =====================================================================
-INSERT INTO article_analyses (article_id, is_relevant, impact_score, event_type, summary,
-                              rate_type, old_rate_pct, new_rate_pct, expected_delay_days, created_at)
-SELECT a.id, v.relevant, v.score, v.event, v.summary, v.rate_type, v.old_rate, v.new_rate, v.delay,
+INSERT INTO article_analyses (article_id, scan_log_id, is_relevant, impact_score, event_type, summary,
+                                          rate_type, old_rate_pct, new_rate_pct, expected_delay_days, created_at)
+SELECT a.id, a.first_seen_scan_id, v.relevant, v.score, v.event, v.summary, v.rate_type, v.old_rate, v.new_rate, v.delay,
        a.published_at + INTERVAL '8 hours'
 FROM (VALUES
   ('https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi',

@@ -1,4 +1,4 @@
-CREATE DATABASE supply_db
+CREATE DATABASE supply_db;
 
 CREATE TABLE countries (
     id          SERIAL PRIMARY KEY,
@@ -129,21 +129,30 @@ CREATE TABLE scan_logs (
 );
 
 CREATE TABLE articles (
-    id            SERIAL PRIMARY KEY,
-    scan_log_id   INT NOT NULL REFERENCES scan_logs(id),
-    url           TEXT NOT NULL UNIQUE,                -- dedupe across scans
-    title         TEXT NOT NULL,
-    content       TEXT,
-    language      CHAR(2),                             -- ISO 639-1
-    published_at  TIMESTAMPTZ,
-    affective_date     TIMESTAMPTZ
+    id                  SERIAL PRIMARY KEY,
+    first_seen_scan_id  INT NOT NULL REFERENCES scan_logs(id),   -- haberi ilk getiren tarama (eski scan_log_id)
+    last_seen_scan_id   INT NOT NULL REFERENCES scan_logs(id),   -- haberin en son görüldüğü tarama
+    url                 TEXT NOT NULL UNIQUE,                    -- aynı URL tekrar eklenmez
+    content_hash        CHAR(64) NOT NULL,                       -- sha256(normalize(title + content)), hex
+    title               TEXT NOT NULL,
+    content             TEXT,
+    language            CHAR(2),                                 -- ISO 639-1
+    published_at        TIMESTAMPTZ,
+    effective_date      TIMESTAMPTZ,                             -- kararın / olayın yürürlük tarihi
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),      -- içerik (hash) en son ne zaman değişti
+    CHECK (content_hash ~ '^[0-9a-f]{64}$'),
+    CHECK (last_seen_scan_id >= first_seen_scan_id)
 );
 CREATE INDEX idx_articles_published ON articles(published_at);
+CREATE INDEX idx_articles_hash      ON articles(content_hash);   -- farklı URL'de aynı metin (ajans haberleri)
+CREATE INDEX idx_articles_last_seen ON articles(last_seen_scan_id);
 
--- One analysis per article (re-analysis overwrites).
+-- Her taramada her haber için bir analiz satırı (eski analizler silinmez,
+-- böylece "skor değişti mi?" sorusu cevaplanabilir). En güncel analiz = en büyük scan_log_id.
 CREATE TABLE article_analyses (
     id                   SERIAL PRIMARY KEY,
-    article_id           INT NOT NULL UNIQUE REFERENCES articles(id) ON DELETE CASCADE,
+    article_id           INT NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+    scan_log_id          INT NOT NULL REFERENCES scan_logs(id) ON DELETE CASCADE,
     is_relevant          BOOLEAN NOT NULL,
     impact_score         SMALLINT CHECK (impact_score BETWEEN 1 AND 100),
     event_type           VARCHAR(30)
@@ -155,8 +164,10 @@ CREATE TABLE article_analyses (
     old_rate_pct         NUMERIC(6,2),
     new_rate_pct         NUMERIC(6,2),
     expected_delay_days  INT CHECK (expected_delay_days >= 0),
-    created_at           TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (article_id, scan_log_id)                 -- aynı haber aynı taramada bir kez analiz edilir
 );
+CREATE INDEX idx_analyses_scan ON article_analyses(scan_log_id);
 
 -- What the article affects. This is the link between news and supply.
 -- Each row points at exactly one target.
@@ -174,6 +185,109 @@ CREATE INDEX idx_impacts_country  ON article_impacts(country_id);
 CREATE INDEX idx_impacts_location ON article_impacts(location_id);
 CREATE INDEX idx_impacts_supplier ON article_impacts(supplier_id);
 CREATE INDEX idx_impacts_item     ON article_impacts(item_id);
+
+-- ---------------------------------------------------------------------
+-- 4. ALERTS (Görev 4: hafıza ve değişiklik tespiti)
+-- ---------------------------------------------------------------------
+-- articles / article_analyses = "hangi haberde ne yazıyor"  (ham bilgi, haber başına)
+-- alerts                      = "şirketimiz için hangi RİSK var" (panelde görünen kart, risk başına)
+--
+-- Aynı risk birden fazla haberde geçebilir. Örnek:
+--   Haber A (Reuters):  "Süveyş'te saldırı, gemiler Ümit Burnu'na yönleniyor"
+--   Haber B (Bloomberg):"Asya-Avrupa hattında 12 gün gecikme"
+--   Haber C (AA):       "Kızıldeniz krizi navlunu artırdı"
+-- Üçü de aynı riski anlatıyor: transport_disruption + Süveyş Kanalı.
+-- Panelde 3 ayrı kart yerine 1 alert gösterilir; A, B, C bu alert'in kaynaklarıdır
+-- (bağlantı alert_articles tablosunda tutulur).
+--
+-- Risk kimliği = olay türü + etkilenen tek hedef (ülke / lokasyon / tedarikçi / ürün).
+-- Bu ikili risk_key sütununda otomatik üretilir, ör. 'transport_disruption:location:12'.
+--
+-- Her taramada her alert'in durumu güncellenir:
+--   new       → bu risk ilk kez görüldü
+--   changed   → risk önceden vardı ama skor / oran / gecikme değişti ya da yeni kaynak geldi
+--   unchanged → risk hâlâ var, değişen bir şey yok (bildirim gönderilmez)
+--   resolved  → risk son N başarılı taramada hiç görülmedi, kapandı
+CREATE TABLE alerts (
+    id                  SERIAL PRIMARY KEY,
+
+    -- Riskin ne olduğu: olay türü + tek hedef (article_impacts ile aynı mantık)
+    event_type          VARCHAR(30) NOT NULL
+                        CHECK (event_type IN ('tariff_increase','tariff_decrease','trade_restriction',
+                                              'transport_disruption','price_change','other')),
+    country_id          INT REFERENCES countries(id),
+    location_id         INT REFERENCES locations(id),
+    supplier_id         INT REFERENCES suppliers(id),
+    item_id             INT REFERENCES items(id),
+    CHECK (num_nonnulls(country_id, location_id, supplier_id, item_id) = 1),
+
+    -- Otomatik hesaplanır, elle yazılmaz. Aynı riski bulmak için kullanılır.
+    risk_key            TEXT GENERATED ALWAYS AS (
+                            event_type || ':' ||
+                            CASE
+                              WHEN supplier_id IS NOT NULL THEN 'supplier:' || supplier_id::text
+                              WHEN item_id     IS NOT NULL THEN 'item:'     || item_id::text
+                              WHEN location_id IS NOT NULL THEN 'location:' || location_id::text
+                              ELSE                              'country:'  || country_id::text
+                            END
+                        ) STORED,
+
+    -- 4.3: değişiklik durumu
+    status              VARCHAR(10) NOT NULL DEFAULT 'new'
+                        CHECK (status IN ('new','changed','unchanged','resolved')),
+    change_reason       TEXT,                             -- ör. 'impact_score 58 → 72', 'İGV %11 → %20'
+
+    -- 4.4: önem
+    current_score       SMALLINT CHECK (current_score BETWEEN 1 AND 100),  -- son taramadaki impact_score
+    prev_score          SMALLINT CHECK (prev_score    BETWEEN 1 AND 100),  -- bir önceki taramadaki
+    priority_score      NUMERIC(8,2),                     -- sıralama puanı: skor × maliyet payı × yenilik
+    severity            VARCHAR(6) NOT NULL
+                        CHECK (severity IN ('low','medium','high')),       -- eşikler Görev 3.4 ile ortak
+
+    -- Ne zaman görüldü
+    latest_analysis_id  INT REFERENCES article_analyses(id) ON DELETE SET NULL,  -- kartta gösterilecek özet
+    first_seen_scan_id  INT NOT NULL REFERENCES scan_logs(id),
+    last_seen_scan_id   INT NOT NULL REFERENCES scan_logs(id),
+    resolved_scan_id    INT REFERENCES scan_logs(id),     -- sadece status = 'resolved' iken dolu
+
+    -- Panel ve bildirim (Görev 5.3, 6.3)
+    is_read             BOOLEAN NOT NULL DEFAULT FALSE,   -- kullanıcı kartı gördü mü
+    read_at             TIMESTAMPTZ,
+    notified_at         TIMESTAMPTZ,                      -- e-posta / bildirim gönderildi mi
+
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CHECK ((status = 'resolved') = (resolved_scan_id IS NOT NULL)),
+    CHECK (last_seen_scan_id >= first_seen_scan_id)
+);
+
+-- Aynı risk için aynı anda yalnızca BİR açık alert olabilir.
+-- Risk kapanıp (resolved) sonra yeniden ortaya çıkarsa yeni satır açılır.
+CREATE UNIQUE INDEX uq_alerts_open_risk ON alerts(risk_key) WHERE status <> 'resolved';
+CREATE INDEX idx_alerts_status   ON alerts(status);
+CREATE INDEX idx_alerts_priority ON alerts(priority_score DESC) WHERE status <> 'resolved';
+CREATE INDEX idx_alerts_supplier ON alerts(supplier_id);
+CREATE INDEX idx_alerts_location ON alerts(location_id);
+
+-- Bir alert'i hangi haberler destekliyor? (çoka-çok bağlantı tablosu)
+-- Bir alert'in birden fazla haberi olabilir (yukarıdaki A, B, C örneği),
+-- bir haber de birden fazla alert'e kaynak olabilir
+-- (ör. "Çin'e ek vergi" haberi hem FSP hem Cooler Master alert'ini besler).
+-- Uyarı kartındaki kaynak linkleri buradan gelir (Görev 5.3, 7.2 kaynak doğrulama).
+CREATE TABLE alert_articles (
+    alert_id            INT NOT NULL REFERENCES alerts(id) ON DELETE CASCADE,
+    article_id          INT NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
+    added_scan_id       INT NOT NULL REFERENCES scan_logs(id),   -- bu kaynak hangi taramada eklendi
+    PRIMARY KEY (alert_id, article_id)
+);
+CREATE INDEX idx_alert_articles_article ON alert_articles(article_id);
+
+-- Panel için hazır sorgu: açık alert'ler önem sırasına göre
+--   SELECT a.*, aa.summary
+--   FROM alerts a LEFT JOIN article_analyses aa ON aa.id = a.latest_analysis_id
+--   WHERE a.status <> 'resolved'
+--   ORDER BY a.priority_score DESC NULLS LAST;
 
 
 -- oran kaynağı ticaret bakanlığı

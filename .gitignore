@@ -19,3 +19,6 @@ node_modules/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Veritabanı yedekleri (db/rebuild_db.py üretir)
+db/backup/
