@@ -6,48 +6,48 @@
 tariffs:
   - id: 1
     item_id: 1   # İşlemci
-    country: "MYS"
+    country: "VNM"
     gv_rate: 0
     igv_rate: 0
     valid_from: 2026-01-01
     valid_to: null
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 2
-    item_id: 4   # SSD
-    country: "KOR"
+    item_id: 2   # Anakart
+    country: "CHN"
     gv_rate: 0
     igv_rate: 0
     valid_from: 2026-01-01
     valid_to: null
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 3
-    item_id: 8   # Soğutucu
-    country: "TWN"
-    gv_rate: 2.3
-    igv_rate: 0
-    valid_from: 2026-01-01
-    valid_to: null
-    source: null
-    checked_at: null
-  - id: 4
     item_id: 3   # Bellek
     country: "TWN"
     gv_rate: 0
     igv_rate: 0
     valid_from: 2026-01-01
     valid_to: null
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
+    checked_at: null
+  - id: 4
+    item_id: 4   # SSD
+    country: "KOR"
+    gv_rate: 0
+    igv_rate: 0
+    valid_from: 2026-01-01
+    valid_to: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 5
-    item_id: 7   # Kasa
+    item_id: 5   # Ekran kartı
     country: "CHN"
     gv_rate: 0
     igv_rate: 0
     valid_from: 2026-01-01
     valid_to: null
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 6
     item_id: 6   # Güç kaynağı
@@ -56,25 +56,25 @@ tariffs:
     igv_rate: 11
     valid_from: 2026-01-01
     valid_to: null
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 7
-    item_id: 5   # Ekran kartı
+    item_id: 7   # Kasa
     country: "CHN"
     gv_rate: 0
     igv_rate: 0
     valid_from: 2026-01-01
     valid_to: null
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 8
-    item_id: 2   # Anakart
-    country: "CHN"
-    gv_rate: 0
+    item_id: 8   # Soğutucu
+    country: "TWN"
+    gv_rate: 2.3
     igv_rate: 0
     valid_from: 2026-01-01
     valid_to: null
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 9
     item_id: 9   # Monitör
@@ -83,5 +83,5 @@ tariffs:
     igv_rate: 0
     valid_from: 2026-01-01
     valid_to: null
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null

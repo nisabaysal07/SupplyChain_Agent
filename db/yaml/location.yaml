@@ -5,10 +5,10 @@
 
 locations:
   - id: 1
-    name: "Kuala Lumpur Uluslararası Havalimanı"
-    code: "KUL"
+    name: "Tan Son Nhat Uluslararası Havalimanı"
+    code: "SGN"
     location_type: airport
-    country: "MYS"
+    country: "VNM"
   - id: 2
     name: "Penang Uluslararası Havalimanı"
     code: "PEN"
@@ -40,12 +40,12 @@ locations:
     location_type: port
     country: "CHN"
   - id: 8
-    name: "Ningbo Limanı"
+    name: "Ningbo-Zhoushan Limanı"
     code: "CNNBG"
     location_type: port
     country: "CHN"
   - id: 9
-    name: "Port of Cai Mep"
+    name: "Cai Mep Limanı"
     code: "VNTOT"
     location_type: port
     country: "VNM"

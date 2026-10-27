@@ -12,7 +12,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 2
     name: "Anakart"
@@ -22,7 +22,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 3
     name: "Bellek"
@@ -32,7 +32,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 4
     name: "SSD"
@@ -42,7 +42,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 1
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 5
     name: "Ekran kartı"
@@ -52,7 +52,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 6
     name: "Güç kaynağı"
@@ -62,7 +62,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 7
     name: "Kasa"
@@ -72,7 +72,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 8
     name: "Soğutucu"
@@ -82,7 +82,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 9
     name: "Monitör"
@@ -92,5 +92,5 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
-    source: null
+    source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
