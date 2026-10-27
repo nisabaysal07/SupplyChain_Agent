@@ -13,6 +13,7 @@ import sys
 from dotenv import load_dotenv
 
 from analyzer import CleanNewsOnlySupplyAnalyzer
+from scan_log import ScanFailed, scan_log
 load_dotenv()
 
 
@@ -35,22 +36,34 @@ def main():
         company_country="Turkey",
     )
 
-    # Run all queries in the search plan
-    report = analyzer.execute_scan()
+    # Scheduled runs (cron / Task Scheduler) pass --schedule; everything else is manual
+    triggered_by = "schedule" if "--schedule" in sys.argv else "manual"
 
-    # Write the model file (trimmed fields) and the debug file (rejections + full report)
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(analyzer.export_to_json(report))
-    with open(debug_path, "w", encoding="utf-8") as f:
-        f.write(analyzer.export_rejections(report))
+    # Every scan is recorded in scan_logs: 'running' -> 'success' / 'failed'
+    with scan_log(triggered_by):
+        # Run all queries in the search plan
+        report = analyzer.execute_scan()
 
-    # Summarize execution statistics and results
-    found = sum(1 for r in report.reports if r.status == "Events Found")
-    errors = sum(1 for r in report.reports if r.status == "Search Error")
-    print(f"[✓] {len(report.reports)} sorgu | {found} sorguda haber | {errors} arama hatası "
-          f"| {len(analyzer.rejections)} sonuç elendi")
-    print(f"    Model için rapor: {output_path} | Elenenler (debug): {debug_path}")
+        # Write the model file (trimmed fields) and the debug file (rejections + full report)
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(analyzer.export_to_json(report))
+        with open(debug_path, "w", encoding="utf-8") as f:
+            f.write(analyzer.export_rejections(report))
+
+        # Summarize execution statistics and results
+        found = sum(1 for r in report.reports if r.status == "Events Found")
+        errors = sum(1 for r in report.reports if r.status == "Search Error")
+        print(f"[✓] {len(report.reports)} sorgu | {found} sorguda haber | {errors} arama hatası "
+              f"| {len(analyzer.rejections)} sonuç elendi")
+        print(f"    Model için rapor: {output_path} | Elenenler (debug): {debug_path}")
+
+        # Every query failing means the search itself is broken (API key, network)
+        if report.reports and errors == len(report.reports):
+            raise ScanFailed(f"{errors} sorgunun hepsi arama hatası verdi")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ScanFailed as e:
+        sys.exit(f"[!] Tarama başarısız: {e}")

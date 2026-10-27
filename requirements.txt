@@ -1,3 +1,6 @@
 # Python bağımlılıkları — kurulum:  pip install -r requirements.txt
 psycopg2-binary==2.9.13
 PyYAML==6.0.3
+# Haber taraması (main.py)
+python-dotenv==1.2.4
+tavily-python==0.8.5
