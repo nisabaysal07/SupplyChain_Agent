@@ -1,0 +1,20 @@
+{
+  "id": "ornek-6",
+  "baslik": "Incheon Havalimanı'nda kargo gecikmesi",
+  "ozet": "Kapanmış olay örneği: risk skoruna katılmaz.",
+  "tur": "liman",
+  "siddet": "dusuk",
+  "tarih": "2026-09-10",
+  "bitisTarihi": "2026-09-14",
+  "kaynak": {
+    "ad": "Örnek senaryo",
+    "url": null
+  },
+  "ornek": true,
+  "kapsam": {
+    "noktalar": [
+      "Incheon International Airport"
+    ]
+  },
+  "gecikmeVar": true
+}

@@ -1,0 +1,69 @@
+{
+  "id": "ornek-2",
+  "baslik": "Mersin Limanı'nda iş bırakma eylemi",
+  "ozet": "Liman işçilerinin eylemi nedeniyle konteyner tahliyesinde gecikme senaryosu.",
+  "tur": "grev",
+  "siddet": "orta",
+  "tarih": "2026-10-21",
+  "bitisTarihi": "2026-10-31",
+  "kaynak": {
+    "ad": "Örnek senaryo",
+    "url": null
+  },
+  "ornek": true,
+  "kapsam": {
+    "noktalar": [
+      "Port of Mersin"
+    ]
+  },
+  "gecikmeVar": true,
+  "cikarim": {
+    "baslik": "[Örnek] Mersin Limanı grevinin tedarik zincirine etkisi",
+    "olusturma": "2026-10-24T09:00:00+03:00",
+    "model": {
+      "ad": "Örnek model (test)",
+      "surum": "0.1"
+    },
+    "ozet": "Bu bir örnek çıkarım raporudur; arayüzü denemek için yazılmıştır, gerçek model çıktısı değildir.\n\nMersin Limanı'ndaki iş bırakma eylemi, deniz yoluyla gelen altı parçanın tahliyesini geciktirebilir. En kritik kalem ekran kartı: stok zaten yeniden sipariş seviyesinin altında ve sevkiyatlar Mersin'e geliyor.",
+    "genelDegerlendirme": {
+      "seviye": "orta",
+      "skor": 58,
+      "guven": 0.72
+    },
+    "bulgular": [
+      {
+        "baslik": "Ekran kartında stok tükenme riski",
+        "aciklama": "Kullanılabilir stok sipariş seviyesinin altında; limandaki gecikme yeni sevkiyatın gelişini erteleyebilir.",
+        "seviye": "yuksek",
+        "tedarikciIdleri": [
+          5
+        ]
+      },
+      {
+        "baslik": "Güç kaynağı ve soğutucu da aynı limandan geliyor",
+        "aciklama": "İki parçanın stoğu da sipariş seviyesine yakın (<%100); grev uzarsa bunlar da kritik hâle gelir.",
+        "seviye": "orta",
+        "tedarikciIdleri": [
+          6,
+          8
+        ]
+      }
+    ],
+    "oneriler": [
+      {
+        "metin": "Ekran kartı için bu hafta hava yoluyla ara sipariş verin.",
+        "oncelik": "yuksek"
+      },
+      {
+        "metin": "Grev sürerse sevkiyatları İskenderun limanına yönlendirmeyi değerlendirin.",
+        "oncelik": "orta"
+      }
+    ],
+    "kaynaklar": [
+      {
+        "ad": "Örnek kaynak bağlantısı",
+        "url": "https://example.com/ornek-haber"
+      }
+    ]
+  }
+}

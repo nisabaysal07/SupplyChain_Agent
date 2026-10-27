@@ -1,0 +1,43 @@
+{
+  "name": "chainguard-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run",
+    "db:yukle": "node --env-file-if-exists=.env db/yukle.ts",
+    "ornek:gonder": "node --env-file-if-exists=.env ornek/gonder.ts",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.147",
+    "@nuxt/ui": "^4.12.0",
+    "d3-geo": "^3.1.1",
+    "nuxt": "^4.6.2",
+    "nuxt-auth-utils": "^0.5.32",
+    "nuxt-security": "^2.6.0",
+    "pg": "^8.23.1",
+    "tailwindcss": "^4.3.3",
+    "topojson-client": "^3.1.0",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.3.13",
+    "world-atlas": "^2.0.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.11",
+    "@electric-sql/pglite-socket": "^0.2.14",
+    "@types/d3-geo": "^3.1.1",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^24.19.2",
+    "@types/pg": "^8.23.1",
+    "@types/topojson-client": "^3.1.5",
+    "vitest": "^4.1.12"
+  },
+  "overrides": {
+    "xss": "1.0.15"
+  }
+}

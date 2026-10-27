@@ -1,0 +1,128 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/*
+ * Açık krem tema: arka plan beyaz ile krem arası, yazılar koyu ve yüksek kontrastlı.
+ * Uygulama yalnızca bu açık temayla çalışır (nuxt.config.ts → ui.colorMode: false).
+ * ":root:root", Nuxt UI'ın çalışma anında eklediği renk tanımlarından önce gelsin diye.
+ */
+:root:root {
+  /* Zeminler */
+  --ui-bg: #fdfaf3;
+  --ui-bg-muted: #f7f1e4;
+  --ui-bg-elevated: #f1e9d8;
+  --ui-bg-accented: #e7dcc5;
+  --ui-bg-inverted: #1c1917;
+
+  /* Çizgiler */
+  --ui-border: #e3d8c2;
+  --ui-border-muted: #ebe2d0;
+  --ui-border-accented: #cfc1a5;
+
+  /* Yazılar: en açığı bile krem zeminde 4.5:1 kontrastın üstünde */
+  --ui-text-highlighted: #14110f;
+  --ui-text: #24201c;
+  --ui-text-toned: #38322d;
+  --ui-text-muted: #4f4842;
+  --ui-text-dimmed: #6b625a;
+
+  /* Vurgu renkleri bir ton koyu: açık zeminde rozet ve bağlantı yazıları okunaklı kalsın */
+  --ui-primary: var(--ui-color-primary-700);
+  --ui-success: var(--ui-color-success-700);
+  --ui-warning: var(--ui-color-warning-700);
+  --ui-error: var(--ui-color-error-700);
+  --ui-info: var(--ui-color-info-700);
+
+  /*
+   * Grafik renkleri (krem zemine karşı doğrulandı: dataviz validate_palette, surface #fdfaf3).
+   * Kategoriler sabit sırayla atanır; 2, 3, 4 ve 5 numaralar 3:1 kontrastın altında olduğu için
+   * her grafikte etiketli lejant ve tablo görünümü bulunur.
+   */
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-4: #eda100;
+  --viz-5: #e87ba4;
+  /*
+   * Risk seviyesi renkleri: rozet, kart şeridi ve grafiklerde aynı üç renk.
+   * Kırmızı koyu, turuncu açık: ton kadar parlaklıkla da ayrışırlar (renk körlüğünde de).
+   * Doğrulama: dataviz validate_palette --pairs all, surface #fdfaf3 → geçti (CVD 7.0, yazı ve ikonla birlikte).
+   */
+  --risk-yuksek: #b91c1c;
+  --risk-orta: #f59e0b;
+  --risk-dusuk: #16a34a;
+  /* Rozet yazısı: renkli zeminde en az 4.5:1 kontrast */
+  --risk-yuksek-yazi: #ffffff;
+  --risk-orta-yazi: #1c1917;
+  --risk-dusuk-yazi: #052e16;
+
+  /* Grafiklerdeki durum renkleri de aynı üçlü: yalnızca anlam taşıdıklarında, hep ikon + etiketle */
+  --viz-iyi: var(--risk-dusuk);
+  --viz-uyari: var(--risk-orta);
+  --viz-kritik: var(--risk-yuksek);
+  /* Harita ve eksenler */
+  --viz-kara: #ece4d3;
+  --viz-kara-vurgu: #dccfb4;
+  --viz-cizgi: #e6ddca;
+  --viz-eksen: #cfc1a5;
+  --viz-rota: #8a7f72;
+}
+
+/* Risk seviyesi rozeti: dolu renk, ince koyu kenar ve hafif lamba ışığı (SeviyeRozeti.vue) */
+.seviye-rozeti {
+  --r: var(--risk-orta);
+  --r-yazi: var(--risk-orta-yazi);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 9999px;
+  padding: 0.15rem 0.6rem 0.15rem 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1rem;
+  white-space: nowrap;
+  background: var(--r);
+  color: var(--r-yazi);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--r) 75%, black),
+    0 0 7px 1px color-mix(in oklab, var(--r) 55%, transparent);
+  animation: seviye-lamba 2.6s ease-in-out infinite;
+}
+.seviye-rozeti--yuksek { --r: var(--risk-yuksek); --r-yazi: var(--risk-yuksek-yazi); }
+.seviye-rozeti--orta { --r: var(--risk-orta); --r-yazi: var(--risk-orta-yazi); }
+.seviye-rozeti--dusuk { --r: var(--risk-dusuk); --r-yazi: var(--risk-dusuk-yazi); }
+.seviye-rozeti--buyuk { font-size: 0.875rem; line-height: 1.25rem; padding: 0.25rem 0.8rem 0.25rem 0.6rem; }
+
+/* Rozetin içindeki küçük lamba noktası */
+.seviye-rozeti__lamba {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: color-mix(in oklab, white 80%, var(--r));
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--r) 70%, black),
+    0 0 5px 2px color-mix(in oklab, white 70%, transparent);
+}
+
+@keyframes seviye-lamba {
+  50% {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--r) 75%, black),
+      0 0 13px 3px color-mix(in oklab, var(--r) 65%, transparent);
+  }
+}
+
+/* Hareket hassasiyeti olanlarda yanıp sönme yok; ışık sabit kalır */
+@media (prefers-reduced-motion: reduce) {
+  .seviye-rozeti { animation: none; }
+}
+
+/* Kart şeritleri: kalın, dolu renk */
+.seviye-serit { border-left-width: 6px; border-left-style: solid; }
+.seviye-serit--yuksek { border-left-color: var(--risk-yuksek); }
+.seviye-serit--orta { border-left-color: var(--risk-orta); }
+.seviye-serit--dusuk { border-left-color: var(--risk-dusuk); }

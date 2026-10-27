@@ -1,0 +1,20 @@
+{
+  "id": "ornek-5",
+  "baslik": "Tayvan çıkışlı sevkiyatlarda ek denetim",
+  "ozet": "Bölgesel gerginlik nedeniyle Tayvan çıkışlı yüklerde ek denetim ve gecikme senaryosu.",
+  "tur": "jeopolitik",
+  "siddet": "dusuk",
+  "tarih": "2026-10-22",
+  "bitisTarihi": null,
+  "kaynak": {
+    "ad": "Örnek senaryo",
+    "url": null
+  },
+  "ornek": true,
+  "kapsam": {
+    "ulkeler": [
+      "Tayvan"
+    ]
+  },
+  "gecikmeVar": true
+}

@@ -1,0 +1,10 @@
+﻿parca_id;parca_adi;hs6;gtip12;tarife_gv_tercihsiz;tarife_igv_tercihsiz;kultur_fonu_orani;otv_orani;kdv_orani;oran_kaynagi;eldeki_stok;rezerve_stok;yeniden_siparis_seviyesi
+1;İşlemci;854231;854231900000;0.0;0.0;0.0;0.0;0.2;TARA (Ticaret Bakanlığı);1014;192;438
+2;Anakart;847330;847330200000;0.0;0.0;0.0;0.0;0.2;TARA (Ticaret Bakanlığı);1699;192;1096
+3;Bellek;847330;847330200000;0.0;0.0;0.0;0.0;0.2;TARA (Ticaret Bakanlığı);466;192;438
+4;SSD;847170;847170989000;0.0;0.0;0.01;0.0;0.2;TARA (Ticaret Bakanlığı);877;192;438
+5;Ekran kartı;847330;847330200000;0.0;0.0;0.0;0.0;0.2;TARA (Ticaret Bakanlığı);370;96;521
+6;Güç kaynağı;850440;850440839019;0.033;0.11;0.0;0.0;0.2;TARA (Ticaret Bakanlığı);1151;192;1041
+7;Kasa;847330;847330800000;0.0;0.0;0.0;0.0;0.2;TARA (Ticaret Bakanlığı);1562;192;1068
+8;Soğutucu;841459;841459150000;0.023;0.0;0.0;0.0;0.2;TARA (Ticaret Bakanlığı);1014;192;1041
+9;Monitör;852852;852852100000;0.0;0.0;0.0;0.0;0.2;TARA (Ticaret Bakanlığı);712;96;479
