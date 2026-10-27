@@ -1,0 +1,9 @@
+- generic [ref=f7e2]:
+  - generic [ref=f7e3]:
+    - generic [ref=f7e4]:
+      - button "Kenar çubuğunu aç" [ref=f7e5]
+      - heading "Olaylar" [level=1] [ref=f7e7]
+    - button "Bildirimler" [ref=f7e10]
+  - generic [ref=f7e14]:
+    - heading "Aktif olay yok" [level=2] [ref=f7e17]
+    - generic [ref=f7e18]: Model yeni bir haber gönderdiğinde burada listelenecek.

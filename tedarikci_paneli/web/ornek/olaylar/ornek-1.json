@@ -1,0 +1,23 @@
+{
+  "id": "ornek-1",
+  "baslik": "Çin menşeli güç kaynaklarına ilave gümrük vergisi",
+  "ozet": "850440 pozisyonundaki Çin menşeli ürünlere %10 ek İGV uygulanması senaryosu.",
+  "tur": "vergi",
+  "siddet": "yuksek",
+  "tarih": "2026-10-20",
+  "bitisTarihi": null,
+  "kaynak": {
+    "ad": "Örnek senaryo",
+    "url": null
+  },
+  "ornek": true,
+  "kapsam": {
+    "ulkeler": [
+      "Çin"
+    ],
+    "hs6": [
+      "850440"
+    ]
+  },
+  "ekMaliyetOrani": 0.1
+}

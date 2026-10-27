@@ -1,0 +1,20 @@
+{
+  "id": "ornek-4",
+  "baslik": "Bellek modüllerinde fiyat artışı bildirimi",
+  "ozet": "Tedarikçinin bir sonraki dönem için %8 fiyat artışı bildirmesi senaryosu.",
+  "tur": "fiyat",
+  "siddet": "orta",
+  "tarih": "2026-10-15",
+  "bitisTarihi": null,
+  "kaynak": {
+    "ad": "Örnek senaryo",
+    "url": null
+  },
+  "ornek": true,
+  "kapsam": {
+    "firmalar": [
+      "Kingston"
+    ]
+  },
+  "ekMaliyetOrani": 0.08
+}
