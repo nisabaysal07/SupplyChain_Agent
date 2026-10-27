@@ -7,18 +7,27 @@
 .venv/
 venv/
 __pycache__/
-*.pyc
+*.py[cod]
 *.sql.tmp
 db/__pycache__/
 
 # Node / Nuxt (web/.gitignore da var)
 node_modules/
 
+# --- Arama (supply chain news scanner) ---------------------------------------
+# Tedarikçi veri seti (diğer parçalar veritabanından okur)
+TedarikciSetiYeni/
+# build_suppliers.py tarafından üretilir
+suppliers.json
+# Debug çıktısı (reddedilen sonuçlar, model için DEĞİL)
+rejected_results_debug.json
+
 # Editör / işletim sistemi
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Veritabanı yedekleri (db/rebuild_db.py üretir)
 db/backup/
