@@ -1,0 +1,32 @@
+# =============================================================================
+# Supply chain news scanner - .gitignore
+# Only the scanner owner runs the searches. Teammates and the model only need
+# the final JSON (clean_news_only_report_final.json) and the source code,
+# so everything local, secret, generated or intermediate stays out of the repo.
+# =============================================================================
+
+# --- Secrets (NEVER commit) ---------------------------------------------------
+.env
+.env.*
+
+# --- Python environment & caches ---------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# --- Supplier dataset (other parts read it from the database) -----------------
+TedarikciSetiYeni/
+
+# suppliers.json  : produced by build_suppliers.py from the datase
+suppliers.json
+
+# --- Debug output (rejected results + full report, NOT for the model) --------
+rejected_results_debug.json
+
+# --- Editor / OS files -----------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
