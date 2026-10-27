@@ -1,0 +1,657 @@
+{
+  "schema_version": "1.7",
+  "generated_at": "2026-10-27T14:39:49+00:00",
+  "source": "rules",
+  "supplier_count": 9,
+  "query_count": 28,
+  "warnings": [],
+  "supplier_languages": [
+    {
+      "supplier_id": "1",
+      "country": "Vietnam",
+      "languages": [
+        "vi"
+      ]
+    },
+    {
+      "supplier_id": "2",
+      "country": "China",
+      "languages": [
+        "zh"
+      ]
+    },
+    {
+      "supplier_id": "3",
+      "country": "Taiwan",
+      "languages": [
+        "zh-TW"
+      ]
+    },
+    {
+      "supplier_id": "4",
+      "country": "South Korea",
+      "languages": [
+        "ko"
+      ]
+    },
+    {
+      "supplier_id": "5",
+      "country": "China",
+      "languages": [
+        "zh"
+      ]
+    },
+    {
+      "supplier_id": "6",
+      "country": "China",
+      "languages": [
+        "zh"
+      ]
+    },
+    {
+      "supplier_id": "7",
+      "country": "China",
+      "languages": [
+        "zh"
+      ]
+    },
+    {
+      "supplier_id": "8",
+      "country": "Taiwan",
+      "languages": [
+        "zh-TW"
+      ]
+    },
+    {
+      "supplier_id": "9",
+      "country": "Vietnam",
+      "languages": [
+        "vi"
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "query_id": "Q001",
+      "query": "Port of Mersin Turkey strike closure",
+      "supplier_ids": [
+        "2",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "supplier_names": [
+        "Gigabyte",
+        "ASUS",
+        "FSP",
+        "Cooler Master",
+        "Noctua",
+        "Samsung"
+      ],
+      "products": [
+        "Anakart",
+        "Ekran kartı",
+        "Güç kaynağı",
+        "Kasa",
+        "Soğutucu",
+        "Monitör"
+      ],
+      "part": null,
+      "country": "Turkey",
+      "logistics_point": "Port of Mersin",
+      "priority": "high",
+      "reason": "6 supplier(s) arrive through this point."
+    },
+    {
+      "query_id": "Q002",
+      "query": "Istanbul Airport Turkey strike closure",
+      "supplier_ids": [
+        "1",
+        "3",
+        "4"
+      ],
+      "supplier_names": [
+        "Intel",
+        "Kingston",
+        "Samsung"
+      ],
+      "products": [
+        "İşlemci",
+        "Bellek",
+        "SSD"
+      ],
+      "part": null,
+      "country": "Turkey",
+      "logistics_point": "Istanbul Airport",
+      "priority": "high",
+      "reason": "3 supplier(s) arrive through this point."
+    },
+    {
+      "query_id": "Q003",
+      "query": "Port of Shekou strike closure",
+      "supplier_ids": [
+        "5",
+        "6"
+      ],
+      "supplier_names": [
+        "ASUS",
+        "FSP"
+      ],
+      "products": [
+        "Ekran kartı",
+        "Güç kaynağı"
+      ],
+      "part": null,
+      "country": "China",
+      "logistics_point": "Port of Shekou (Shenzhen)",
+      "priority": "high",
+      "reason": "2 supplier(s) ship via this point."
+    },
+    {
+      "query_id": "Q004",
+      "query": "Turkey import duty processors Vietnam",
+      "supplier_ids": [
+        "1"
+      ],
+      "supplier_names": [
+        "Intel"
+      ],
+      "products": [
+        "İşlemci"
+      ],
+      "part": "İşlemci",
+      "country": "Vietnam",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on processors from Vietnam."
+    },
+    {
+      "query_id": "Q005",
+      "query": "Turkey import duty motherboards China",
+      "supplier_ids": [
+        "2"
+      ],
+      "supplier_names": [
+        "Gigabyte"
+      ],
+      "products": [
+        "Anakart"
+      ],
+      "part": "Anakart",
+      "country": "China",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on motherboards from China."
+    },
+    {
+      "query_id": "Q006",
+      "query": "Turkey import duty memory modules Taiwan",
+      "supplier_ids": [
+        "3"
+      ],
+      "supplier_names": [
+        "Kingston"
+      ],
+      "products": [
+        "Bellek"
+      ],
+      "part": "Bellek",
+      "country": "Taiwan",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on memory modules from Taiwan."
+    },
+    {
+      "query_id": "Q007",
+      "query": "Turkey import duty SSDs South Korea",
+      "supplier_ids": [
+        "4"
+      ],
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "SSD"
+      ],
+      "part": "SSD",
+      "country": "South Korea",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on SSDs from South Korea."
+    },
+    {
+      "query_id": "Q008",
+      "query": "Turkey import duty graphics cards China",
+      "supplier_ids": [
+        "5"
+      ],
+      "supplier_names": [
+        "ASUS"
+      ],
+      "products": [
+        "Ekran kartı"
+      ],
+      "part": "Ekran kartı",
+      "country": "China",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on graphics cards from China."
+    },
+    {
+      "query_id": "Q009",
+      "query": "Turkey import duty computer power supplies China",
+      "supplier_ids": [
+        "6"
+      ],
+      "supplier_names": [
+        "FSP"
+      ],
+      "products": [
+        "Güç kaynağı"
+      ],
+      "part": "Güç kaynağı",
+      "country": "China",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on computer power supplies from China."
+    },
+    {
+      "query_id": "Q010",
+      "query": "Turkey import duty PC cases China",
+      "supplier_ids": [
+        "7"
+      ],
+      "supplier_names": [
+        "Cooler Master"
+      ],
+      "products": [
+        "Kasa"
+      ],
+      "part": "Kasa",
+      "country": "China",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on PC cases from China."
+    },
+    {
+      "query_id": "Q011",
+      "query": "Turkey import duty CPU coolers Taiwan",
+      "supplier_ids": [
+        "8"
+      ],
+      "supplier_names": [
+        "Noctua"
+      ],
+      "products": [
+        "Soğutucu"
+      ],
+      "part": "Soğutucu",
+      "country": "Taiwan",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on CPU coolers from Taiwan."
+    },
+    {
+      "query_id": "Q012",
+      "query": "Turkey import duty computer monitors Vietnam",
+      "supplier_ids": [
+        "9"
+      ],
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "Monitör"
+      ],
+      "part": "Monitör",
+      "country": "Vietnam",
+      "logistics_point": null,
+      "priority": "high",
+      "reason": "Turkish import duties on computer monitors from Vietnam."
+    },
+    {
+      "query_id": "Q013",
+      "query": "Turkey import restriction computer components",
+      "supplier_ids": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "supplier_names": [
+        "Intel",
+        "Gigabyte",
+        "Kingston",
+        "Samsung",
+        "ASUS",
+        "FSP",
+        "Cooler Master",
+        "Noctua",
+        "Samsung"
+      ],
+      "products": [
+        "İşlemci",
+        "Anakart",
+        "Bellek",
+        "SSD",
+        "Ekran kartı",
+        "Güç kaynağı",
+        "Kasa",
+        "Soğutucu",
+        "Monitör"
+      ],
+      "part": null,
+      "country": "Turkey",
+      "logistics_point": null,
+      "priority": "medium",
+      "reason": "Turkish quotas, bans or licence rules on imported components."
+    },
+    {
+      "query_id": "Q014",
+      "query": "China export restriction computer components",
+      "supplier_ids": [
+        "2",
+        "5",
+        "6",
+        "7"
+      ],
+      "supplier_names": [
+        "Gigabyte",
+        "ASUS",
+        "FSP",
+        "Cooler Master"
+      ],
+      "products": [
+        "Anakart",
+        "Ekran kartı",
+        "Güç kaynağı",
+        "Kasa"
+      ],
+      "part": null,
+      "country": "China",
+      "logistics_point": null,
+      "priority": "medium",
+      "reason": "Export rules in China for manufactured or shipped parts."
+    },
+    {
+      "query_id": "Q015",
+      "query": "Vietnam export restriction computer components",
+      "supplier_ids": [
+        "1",
+        "9"
+      ],
+      "supplier_names": [
+        "Intel",
+        "Samsung"
+      ],
+      "products": [
+        "İşlemci",
+        "Monitör"
+      ],
+      "part": null,
+      "country": "Vietnam",
+      "logistics_point": null,
+      "priority": "medium",
+      "reason": "Export rules in Vietnam for manufactured or shipped parts."
+    },
+    {
+      "query_id": "Q016",
+      "query": "Taiwan export restriction computer components",
+      "supplier_ids": [
+        "3",
+        "8"
+      ],
+      "supplier_names": [
+        "Kingston",
+        "Noctua"
+      ],
+      "products": [
+        "Bellek",
+        "Soğutucu"
+      ],
+      "part": null,
+      "country": "Taiwan",
+      "logistics_point": null,
+      "priority": "medium",
+      "reason": "Export rules in Taiwan for manufactured or shipped parts."
+    },
+    {
+      "query_id": "Q017",
+      "query": "South Korea export restriction SSDs",
+      "supplier_ids": [
+        "4"
+      ],
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "SSD"
+      ],
+      "part": null,
+      "country": "South Korea",
+      "logistics_point": null,
+      "priority": "medium",
+      "reason": "Export rules in South Korea for manufactured or shipped parts."
+    },
+    {
+      "query_id": "Q018",
+      "query": "Tan Son Nhat International Airport strike closure",
+      "supplier_ids": [
+        "1"
+      ],
+      "supplier_names": [
+        "Intel"
+      ],
+      "products": [
+        "İşlemci"
+      ],
+      "part": null,
+      "country": "Vietnam",
+      "logistics_point": "Tan Son Nhat International Airport",
+      "priority": "medium",
+      "reason": "1 supplier(s) ship via this point."
+    },
+    {
+      "query_id": "Q019",
+      "query": "Port of Ningbo-Zhoushan strike closure",
+      "supplier_ids": [
+        "2"
+      ],
+      "supplier_names": [
+        "Gigabyte"
+      ],
+      "products": [
+        "Anakart"
+      ],
+      "part": null,
+      "country": "China",
+      "logistics_point": "Port of Ningbo-Zhoushan",
+      "priority": "medium",
+      "reason": "1 supplier(s) ship via this point."
+    },
+    {
+      "query_id": "Q020",
+      "query": "Taiwan Taoyuan International Airport strike closure",
+      "supplier_ids": [
+        "3"
+      ],
+      "supplier_names": [
+        "Kingston"
+      ],
+      "products": [
+        "Bellek"
+      ],
+      "part": null,
+      "country": "Taiwan",
+      "logistics_point": "Taiwan Taoyuan International Airport",
+      "priority": "medium",
+      "reason": "1 supplier(s) ship via this point."
+    },
+    {
+      "query_id": "Q021",
+      "query": "Incheon International Airport strike closure",
+      "supplier_ids": [
+        "4"
+      ],
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "SSD"
+      ],
+      "part": null,
+      "country": "South Korea",
+      "logistics_point": "Incheon International Airport",
+      "priority": "medium",
+      "reason": "1 supplier(s) ship via this point."
+    },
+    {
+      "query_id": "Q022",
+      "query": "Port of Yantian strike closure",
+      "supplier_ids": [
+        "7"
+      ],
+      "supplier_names": [
+        "Cooler Master"
+      ],
+      "products": [
+        "Kasa"
+      ],
+      "part": null,
+      "country": "China",
+      "logistics_point": "Port of Yantian (Shenzhen)",
+      "priority": "medium",
+      "reason": "1 supplier(s) ship via this point."
+    },
+    {
+      "query_id": "Q023",
+      "query": "Port of Kaohsiung strike closure",
+      "supplier_ids": [
+        "8"
+      ],
+      "supplier_names": [
+        "Noctua"
+      ],
+      "products": [
+        "Soğutucu"
+      ],
+      "part": null,
+      "country": "Taiwan",
+      "logistics_point": "Port of Kaohsiung",
+      "priority": "medium",
+      "reason": "1 supplier(s) ship via this point."
+    },
+    {
+      "query_id": "Q024",
+      "query": "Cai Mep Port strike closure",
+      "supplier_ids": [
+        "9"
+      ],
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "Monitör"
+      ],
+      "part": null,
+      "country": "Vietnam",
+      "logistics_point": "Cai Mep Port",
+      "priority": "medium",
+      "reason": "1 supplier(s) ship via this point."
+    },
+    {
+      "query_id": "Q025",
+      "query": "Turkey China free trade agreement",
+      "supplier_ids": [
+        "2",
+        "5",
+        "6",
+        "7"
+      ],
+      "supplier_names": [
+        "Gigabyte",
+        "ASUS",
+        "FSP",
+        "Cooler Master"
+      ],
+      "products": [
+        "Anakart",
+        "Ekran kartı",
+        "Güç kaynağı",
+        "Kasa"
+      ],
+      "part": null,
+      "country": "China",
+      "logistics_point": null,
+      "priority": "low",
+      "reason": "Trade agreement changes between Turkey and China."
+    },
+    {
+      "query_id": "Q026",
+      "query": "Turkey Vietnam free trade agreement",
+      "supplier_ids": [
+        "1",
+        "9"
+      ],
+      "supplier_names": [
+        "Intel",
+        "Samsung"
+      ],
+      "products": [
+        "İşlemci",
+        "Monitör"
+      ],
+      "part": null,
+      "country": "Vietnam",
+      "logistics_point": null,
+      "priority": "low",
+      "reason": "Trade agreement changes between Turkey and Vietnam."
+    },
+    {
+      "query_id": "Q027",
+      "query": "Turkey Taiwan free trade agreement",
+      "supplier_ids": [
+        "3",
+        "8"
+      ],
+      "supplier_names": [
+        "Kingston",
+        "Noctua"
+      ],
+      "products": [
+        "Bellek",
+        "Soğutucu"
+      ],
+      "part": null,
+      "country": "Taiwan",
+      "logistics_point": null,
+      "priority": "low",
+      "reason": "Trade agreement changes between Turkey and Taiwan."
+    },
+    {
+      "query_id": "Q028",
+      "query": "Turkey South Korea free trade agreement",
+      "supplier_ids": [
+        "4"
+      ],
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "SSD"
+      ],
+      "part": null,
+      "country": "South Korea",
+      "logistics_point": null,
+      "priority": "low",
+      "reason": "Trade agreement changes between Turkey and South Korea."
+    }
+  ]
+}

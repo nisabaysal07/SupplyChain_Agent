@@ -1,6 +1,6 @@
 """
 Supplier Data Builder Script:
-Merges raw CSV tables from data/raw/ into a single unified JSON file (data/suppliers.json).
+Merges raw CSV tables from TedarikciSetiYeni/TedarikciSetiYeni/ into a single unified JSON file (suppliers.json).
 """
 
 from __future__ import annotations
@@ -10,8 +10,27 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-RAW = HERE / "raw"
 OUT = HERE / "suppliers.json"
+
+# Folders searched for the dataset CSV files, in order.
+# The dataset currently lives in TedarikciSetiYeni/TedarikciSetiYeni/ (nested folder).
+RAW_CANDIDATES = [
+    HERE / "TedarikciSetiYeni" / "TedarikciSetiYeni",
+    HERE / "TedarikciSetiYeni",
+    HERE / "raw",
+]
+
+
+def find_raw_dir() -> Path:
+    """Return the first candidate folder that contains the dataset (parcalar.csv)."""
+    for folder in RAW_CANDIDATES:
+        if (folder / "parcalar.csv").exists():
+            return folder
+    searched = "\n  ".join(str(f) for f in RAW_CANDIDATES)
+    raise SystemExit(f"[!] Dataset not found (parcalar.csv). Searched:\n  {searched}")
+
+
+RAW = find_raw_dir()
 
 COMPANY = {
     "name": "KurguTek Bilgisayar A.S. (fictional)",
@@ -116,11 +135,12 @@ def build() -> list[dict]:
 def main():
     suppliers = build()
     OUT.write_text(json.dumps({
-        "_note": "Generated from data/raw/*.csv by data/build_suppliers.py. Do not edit manually.",
+        "_note": f"Generated from {RAW.relative_to(HERE).as_posix()}/*.csv by build_suppliers.py. Do not edit manually.",
         "company": COMPANY,
         "suppliers": suppliers,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
 
+    print(f"Dataset folder: {RAW}")
     print(f"{len(suppliers)} suppliers -> {OUT}")
     for s in suppliers:
         print(f"  {s['id']:>2} {s['name']:<14} {s['part']:<12} {s['origin_country']:<12} "

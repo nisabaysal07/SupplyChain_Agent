@@ -1,0 +1,419 @@
+{
+  "reports": [
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Port of Mersin",
+      "supplier_names": [
+        "Gigabyte",
+        "ASUS",
+        "FSP",
+        "Cooler Master",
+        "Noctua",
+        "Samsung"
+      ],
+      "products": [
+        "Anakart",
+        "Ekran kartı",
+        "Güç kaynağı",
+        "Kasa",
+        "Soğutucu",
+        "Monitör"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Istanbul Airport",
+      "supplier_names": [
+        "Intel",
+        "Kingston",
+        "Samsung"
+      ],
+      "products": [
+        "İşlemci",
+        "Bellek",
+        "SSD"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Port of Shekou (Shenzhen)",
+      "supplier_names": [
+        "ASUS",
+        "FSP"
+      ],
+      "products": [
+        "Ekran kartı",
+        "Güç kaynağı"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "Vietnam",
+      "logistics_point": null,
+      "supplier_names": [
+        "Intel"
+      ],
+      "products": [
+        "İşlemci"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "China",
+      "logistics_point": null,
+      "supplier_names": [
+        "Gigabyte"
+      ],
+      "products": [
+        "Anakart"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "Taiwan",
+      "logistics_point": null,
+      "supplier_names": [
+        "Kingston"
+      ],
+      "products": [
+        "Bellek"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "South Korea",
+      "logistics_point": null,
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "SSD"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "China",
+      "logistics_point": null,
+      "supplier_names": [
+        "ASUS"
+      ],
+      "products": [
+        "Ekran kartı"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "China",
+      "logistics_point": null,
+      "supplier_names": [
+        "FSP"
+      ],
+      "products": [
+        "Güç kaynağı"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "China",
+      "logistics_point": null,
+      "supplier_names": [
+        "Cooler Master"
+      ],
+      "products": [
+        "Kasa"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "Taiwan",
+      "logistics_point": null,
+      "supplier_names": [
+        "Noctua"
+      ],
+      "products": [
+        "Soğutucu"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "tariff",
+      "supplier_country": "Vietnam",
+      "logistics_point": null,
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "Monitör"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "import_restriction",
+      "supplier_country": "Turkey",
+      "logistics_point": null,
+      "supplier_names": [
+        "Intel",
+        "Gigabyte",
+        "Kingston",
+        "Samsung",
+        "ASUS",
+        "FSP",
+        "Cooler Master",
+        "Noctua"
+      ],
+      "products": [
+        "İşlemci",
+        "Anakart",
+        "Bellek",
+        "SSD",
+        "Ekran kartı",
+        "Güç kaynağı",
+        "Kasa",
+        "Soğutucu",
+        "Monitör"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "export_control",
+      "supplier_country": "China",
+      "logistics_point": null,
+      "supplier_names": [
+        "Gigabyte",
+        "ASUS",
+        "FSP",
+        "Cooler Master"
+      ],
+      "products": [
+        "Anakart",
+        "Ekran kartı",
+        "Güç kaynağı",
+        "Kasa"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "export_control",
+      "supplier_country": "Vietnam",
+      "logistics_point": null,
+      "supplier_names": [
+        "Intel",
+        "Samsung"
+      ],
+      "products": [
+        "İşlemci",
+        "Monitör"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "export_control",
+      "supplier_country": "Taiwan",
+      "logistics_point": null,
+      "supplier_names": [
+        "Kingston",
+        "Noctua"
+      ],
+      "products": [
+        "Bellek",
+        "Soğutucu"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "export_control",
+      "supplier_country": "South Korea",
+      "logistics_point": null,
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "SSD"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Tan Son Nhat International Airport",
+      "supplier_names": [
+        "Intel"
+      ],
+      "products": [
+        "İşlemci"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Port of Ningbo-Zhoushan",
+      "supplier_names": [
+        "Gigabyte"
+      ],
+      "products": [
+        "Anakart"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Taiwan Taoyuan International Airport",
+      "supplier_names": [
+        "Kingston"
+      ],
+      "products": [
+        "Bellek"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Incheon International Airport",
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "SSD"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Port of Yantian (Shenzhen)",
+      "supplier_names": [
+        "Cooler Master"
+      ],
+      "products": [
+        "Kasa"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Port of Kaohsiung",
+      "supplier_names": [
+        "Noctua"
+      ],
+      "products": [
+        "Soğutucu"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "logistics",
+      "supplier_country": null,
+      "logistics_point": "Cai Mep Port",
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "Monitör"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "agreement",
+      "supplier_country": "China",
+      "logistics_point": null,
+      "supplier_names": [
+        "Gigabyte",
+        "ASUS",
+        "FSP",
+        "Cooler Master"
+      ],
+      "products": [
+        "Anakart",
+        "Ekran kartı",
+        "Güç kaynağı",
+        "Kasa"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "agreement",
+      "supplier_country": "Vietnam",
+      "logistics_point": null,
+      "supplier_names": [
+        "Intel",
+        "Samsung"
+      ],
+      "products": [
+        "İşlemci",
+        "Monitör"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "agreement",
+      "supplier_country": "Taiwan",
+      "logistics_point": null,
+      "supplier_names": [
+        "Kingston",
+        "Noctua"
+      ],
+      "products": [
+        "Bellek",
+        "Soğutucu"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    },
+    {
+      "query_type": "agreement",
+      "supplier_country": "South Korea",
+      "logistics_point": null,
+      "supplier_names": [
+        "Samsung"
+      ],
+      "products": [
+        "SSD"
+      ],
+      "status": "No Relevant News Found",
+      "sources_found": []
+    }
+  ]
+}
