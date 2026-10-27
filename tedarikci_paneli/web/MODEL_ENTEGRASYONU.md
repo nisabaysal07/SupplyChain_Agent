@@ -20,7 +20,7 @@ Authorization: Bearer <NUXT_MODEL_API_TOKEN>
 | `POST /api/model/olaylar` | Bir olayı (haber + isteğe bağlı çıkarım) gönderir |
 | `GET /api/model/referans` | Kapsamda kullanılabilecek adları verir: ülkeler, limanlar/havalimanları, HS6 kodları, firmalar, tedarikçi kimlikleri |
 
-- Erişim anahtarı sunucudaki `web/.env` dosyasında `NUXT_MODEL_API_TOKEN` olarak durur (en az 32 karakter). Model geliştiricisiyle güvenli bir yoldan paylaşın; koda, git'e veya sohbete yazmayın. Anahtar boşsa uçlar kapalıdır (503).
+- Erişim anahtarı sunucudaki proje kökü `.env` dosyasında `NUXT_MODEL_API_TOKEN` olarak durur (en az 32 karakter). Model geliştiricisiyle güvenli bir yoldan paylaşın; koda, git'e veya sohbete yazmayın. Anahtar boşsa uçlar kapalıdır (503).
 - Aynı `id` ile tekrar gönderilen olay öncekinin **yerine geçer**. Model önce haberi, çıkarımı hazır olunca da aynı olayı çıkarımıyla yeniden gönderebilir.
 - Gövde en fazla 1 MB olabilir.
 

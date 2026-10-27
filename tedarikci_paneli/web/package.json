@@ -3,19 +3,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --dotenv ../../.env",
     "build": "nuxt build",
-    "preview": "nuxt preview",
+    "preview": "nuxt preview --dotenv ../../.env",
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
-    "db:yukle": "node --env-file-if-exists=.env db/yukle.ts",
-    "ornek:gonder": "node --env-file-if-exists=.env ornek/gonder.ts",
+    "ornek:gonder": "node --env-file-if-exists=../../.env ornek/gonder.ts",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.147",
     "@nuxt/ui": "^4.12.0",
     "d3-geo": "^3.1.1",
+    "exceljs": "^4.4.0",
     "nuxt": "^4.6.2",
     "nuxt-auth-utils": "^0.5.32",
     "nuxt-security": "^2.6.0",

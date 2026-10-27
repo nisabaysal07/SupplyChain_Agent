@@ -153,28 +153,26 @@ JOIN supplier_items si ON si.item_id = i.id;
 
 -- =====================================================================
 -- ADIM 4: shipments  (kaynak: rotalar + tedarikciler.mense_ulke_id)
--- "Hava yolu" geçiş noktası → chokepoint NULL
 -- =====================================================================
 INSERT INTO shipments (contract_id, transport_mode, origin_country_id,
                        exit_location_id, destination_location_id,
-                       chokepoint_location_id, expected_transit_days)
-SELECT ct.id, v.mode, o.id, ex.id, ds.id, ck.id, v.days
+                       expected_transit_days)
+SELECT ct.id, v.mode, o.id, ex.id, ds.id, v.days
 FROM (VALUES
-  ('Intel Core Ultra 5 225 (BX80768225)',                           'air', 'VNM', 'SGN',   'IST',   NULL,             1),
-  ('Gigabyte B860 Gaming X WiFi6E (ATX)',                           'sea', 'CHN', 'CNNBG', 'TRMER', 'Süveyş Kanalı', 25),
-  ('Kingston FURY Beast 32 GB (2x16) DDR5-6000 (KF560C30BBEK2-32)', 'air', 'TWN', 'TPE',   'IST',   NULL,             1),
-  ('Samsung 990 EVO Plus 1 TB (MZ-V9S1T0BW)',                       'air', 'KOR', 'ICN',   'IST',   NULL,             1),
-  ('ASUS Dual GeForce RTX 5060 OC 8 GB (DUAL-RTX5060-O8G)',         'sea', 'CHN', 'CNSHK', 'TRMER', 'Süveyş Kanalı', 23),
-  ('FSP VITA GM 650 W (ATX 3.1, 80+ Gold)',                         'sea', 'CHN', 'CNSHK', 'TRMER', 'Süveyş Kanalı', 23),
-  ('Cooler Master MasterBox TD500 Mesh V2',                         'sea', 'CHN', 'CNYTN', 'TRMER', 'Süveyş Kanalı', 24),
-  ('Noctua NH-U12S redux',                                          'sea', 'TWN', 'TWKHH', 'TRMER', 'Süveyş Kanalı', 23),
-  ('Samsung Odyssey G3 24 inç (LS24DG302ENXZA)',                    'sea', 'VNM', 'VNTOT', 'TRMER', 'Süveyş Kanalı', 20)
-) AS v(model, mode, origin, exit_code, dest_code, chokepoint, days)
+  ('Intel Core Ultra 5 225 (BX80768225)',                           'air', 'VNM', 'SGN',   'IST', 1),
+  ('Gigabyte B860 Gaming X WiFi6E (ATX)',                           'sea', 'CHN', 'CNNBG', 'TRMER', 25),
+  ('Kingston FURY Beast 32 GB (2x16) DDR5-6000 (KF560C30BBEK2-32)', 'air', 'TWN', 'TPE',   'IST', 1),
+  ('Samsung 990 EVO Plus 1 TB (MZ-V9S1T0BW)',                       'air', 'KOR', 'ICN',   'IST', 1),
+  ('ASUS Dual GeForce RTX 5060 OC 8 GB (DUAL-RTX5060-O8G)',         'sea', 'CHN', 'CNSHK', 'TRMER', 23),
+  ('FSP VITA GM 650 W (ATX 3.1, 80+ Gold)',                         'sea', 'CHN', 'CNSHK', 'TRMER', 23),
+  ('Cooler Master MasterBox TD500 Mesh V2',                         'sea', 'CHN', 'CNYTN', 'TRMER', 24),
+  ('Noctua NH-U12S redux',                                          'sea', 'TWN', 'TWKHH', 'TRMER', 23),
+  ('Samsung Odyssey G3 24 inç (LS24DG302ENXZA)',                    'sea', 'VNM', 'VNTOT', 'TRMER', 20)
+) AS v(model, mode, origin, exit_code, dest_code, days)
 JOIN supplier_items si ON si.item_model = v.model
 JOIN contracts ct      ON ct.supplier_item_id = si.id
 JOIN countries o       ON o.iso_code = v.origin
 JOIN locations ex      ON ex.code = v.exit_code
-JOIN locations ds      ON ds.code = v.dest_code
-LEFT JOIN locations ck ON ck.name = v.chokepoint;
+JOIN locations ds      ON ds.code = v.dest_code;
 
 COMMIT;

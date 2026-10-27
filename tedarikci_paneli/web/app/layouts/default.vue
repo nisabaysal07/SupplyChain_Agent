@@ -3,11 +3,13 @@ import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
 const { user, clear } = useUserSession()
 
-const menu: NavigationMenuItem[] = [
+const menu = computed<NavigationMenuItem[]>(() => [
   { label: 'Kontrol Paneli', icon: 'i-lucide-layout-dashboard', to: '/' },
   { label: 'Tedarikçiler', icon: 'i-lucide-users', to: '/tedarikciler' },
-  { label: 'Olaylar', icon: 'i-lucide-circle-alert', to: '/olaylar' }
-]
+  { label: 'Olaylar', icon: 'i-lucide-circle-alert', to: '/olaylar' },
+  // Veritabanına yazdığı için yalnızca yöneticiye görünür
+  ...(user.value?.rol === 'yonetici' ? [{ label: 'Veri Yükleme', icon: 'i-lucide-upload', to: '/yukleme' }] : [])
+])
 
 const altMenu: NavigationMenuItem[] = [
   { label: 'Ayarlar', icon: 'i-lucide-settings', to: '/ayarlar' }

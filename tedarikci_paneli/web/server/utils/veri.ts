@@ -1,92 +1,152 @@
-import type { Satir } from './csv'
-import type { Tablolar } from './veriKaynagi'
-
-// Tedarikçi verisi PostgreSQL'den (NUXT_DATABASE_URL tanımlıysa) ya da build_dataset.py'nin ürettiği
-// CSV'lerden okunur. İki kaynak aynı tabloları verir; birleştirme kodu ortaktır.
+// Tedarikçi verisi supply_db'den (.env'deki POSTGRES_* ile Docker'daki Postgres) okunur.
+// Her supplier_items satırı bir tedarikçi kaydıdır: fiyat ve tarihler aktif sözleşmeden, rota en son sevkiyattan,
+// stok inventory'den, vergi ise parçanın birleştirme (menşe) ülkesine göre geçerli tarifeden gelir.
 
 // sirket.md: yılda 10.000 bilgisayar; ekran kartı ve monitör modellerin yarısında (5.000)
 const YARIM_URETIMDEKI_PARCALAR = new Set(['Ekran kartı', 'Monitör'])
 const YILLIK_URETIM = 10_000
 
-function indeksle(rows: Satir[], anahtar: string): Map<string, Satir> {
-  return new Map(rows.map(r => [r[anahtar]!, r]))
+const TASIMA_MODLARI: Record<string, TasimaModu> = { sea: 'deniz', air: 'hava' }
+
+const TEDARIKCI_SORGUSU = `
+  SELECT si.id,
+         i.name AS parca, i.hs6, i.gtip,
+         s.name AS firma, s.name_original AS firma_resmi_ad,
+         mc.name_tr AS mense_ulke, mc.has_trade_agreement AS anlasma_var,
+         t.gv_rate, t.igv_rate,
+         c.unit_price, c.currency, c.contract_date, c.start_date, c.end_date,
+         sh.transport_mode, cikis.name AS cikis, varis.name AS varis, sh.expected_transit_days,
+         inv.on_hand, inv.reserved, inv.reorder_point
+  FROM supplier_items si
+  JOIN suppliers s ON s.id = si.supplier_id
+  JOIN items i ON i.id = si.item_id
+  LEFT JOIN countries mc ON mc.id = si.assembly_country_id
+  LEFT JOIN LATERAL (
+    SELECT * FROM contracts c
+    WHERE c.supplier_item_id = si.id AND c.is_active
+    ORDER BY c.start_date DESC NULLS LAST, c.id DESC LIMIT 1
+  ) c ON true
+  LEFT JOIN LATERAL (
+    SELECT * FROM shipments sh WHERE sh.contract_id = c.id ORDER BY sh.id DESC LIMIT 1
+  ) sh ON true
+  LEFT JOIN locations cikis ON cikis.id = sh.exit_location_id
+  LEFT JOIN locations varis ON varis.id = sh.destination_location_id
+  LEFT JOIN LATERAL (
+    SELECT * FROM tariffs t
+    WHERE t.item_id = i.id AND t.country_id = si.assembly_country_id
+      AND t.valid_from <= CURRENT_DATE AND (t.valid_to IS NULL OR t.valid_to >= CURRENT_DATE)
+    ORDER BY t.valid_from DESC LIMIT 1
+  ) t ON true
+  LEFT JOIN inventory inv ON inv.supplier_item_id = si.id
+  WHERE s.is_active
+  ORDER BY si.id`
+
+type TedarikciSatiri = {
+  id: number
+  parca: string
+  hs6: string
+  gtip: string
+  firma: string
+  firma_resmi_ad: string | null
+  mense_ulke: string | null
+  anlasma_var: boolean | null
+  gv_rate: string | null
+  igv_rate: string | null
+  unit_price: string | null
+  currency: string | null
+  contract_date: string | null
+  start_date: string | null
+  end_date: string | null
+  transport_mode: string | null
+  cikis: string | null
+  varis: string | null
+  expected_transit_days: number | null
+  on_hand: string | null
+  reserved: string | null
+  reorder_point: string | null
 }
 
-export function tedarikcileriBirlestir(t: Tablolar): Tedarikci[] {
-  const rota = indeksle(t.rotalar, 'tedarikci_id')
-  const parca = indeksle(t.parcalar, 'parca_id')
-  const ulke = indeksle(t.ulkeler, 'ulke_id')
-  const firma = indeksle(t.firmalar, 'firma_id')
+// Arayüz her alanı dolu bekler; sözleşmesi, sevkiyatı, stoğu veya tarifesi eksik kayıt atlanır
+function eksikAlanlar(r: TedarikciSatiri): string[] {
+  const eksik: string[] = []
+  if (!r.mense_ulke) eksik.push('birleştirme ülkesi')
+  if (r.unit_price === null || !r.start_date || !r.end_date) eksik.push('aktif sözleşme')
+  if (r.currency && r.currency.trim() !== 'USD') eksik.push(`USD sözleşme (${r.currency.trim()})`)
+  if (!r.transport_mode || !TASIMA_MODLARI[r.transport_mode] || !r.cikis || !r.varis) eksik.push('sevkiyat')
+  if (r.on_hand === null) eksik.push('stok')
+  if (r.gv_rate === null) eksik.push('tarife')
+  return eksik
+}
 
-  return t.tedarikciler.map((ted) => {
-    const r = rota.get(ted.tedarikci_id!)
-    const p = parca.get(ted.parca_id!)
-    const u = ulke.get(ted.mense_ulke_id!)
-    const f = firma.get(ted.firma_id!)
-    if (!r || !p || !u || !f) {
-      throw new Error(`Tedarikçi ${ted.tedarikci_id}: bağlantı eksik`)
-    }
+function tedarikciyeCevir(r: TedarikciSatiri): Tedarikci {
+  const eldeki = Number(r.on_hand)
+  const rezerve = Number(r.reserved ?? 0)
+  const siparisSeviyesi = Number(r.reorder_point ?? 0)
+  const kullanilabilir = eldeki - rezerve
+  const fiyatUsd = Number(r.unit_price)
+  const yillikAdet = YARIM_URETIMDEKI_PARCALAR.has(r.parca) ? YILLIK_URETIM / 2 : YILLIK_URETIM
 
-    const eldeki = Number(p.eldeki_stok)
-    const rezerve = Number(p.rezerve_stok)
-    const siparisSeviyesi = Number(p.yeniden_siparis_seviyesi)
-    const kullanilabilir = eldeki - rezerve
-    const fiyatUsd = Number(ted.perakende_usd)
-    const yillikAdet = YARIM_URETIMDEKI_PARCALAR.has(p.parca_adi!) ? YILLIK_URETIM / 2 : YILLIK_URETIM
-
-    return {
-      id: Number(ted.tedarikci_id),
-      parca: p.parca_adi!,
-      hs6: p.hs6!,
-      gtip12: p.gtip12!,
-      firma: f.firma_adi!,
-      firmaResmiAd: f.resmi_ad!,
-      menseUlke: u.ulke_adi!,
-      anlasmaVar: u.anlasma_durumu === '1',
-      vergi: {
-        gumrukVergisi: Number(p.tarife_gv_tercihsiz) * Number(u.gv_carpani),
-        ilaveGumrukVergisi: Number(p.tarife_igv_tercihsiz) * Number(u.igv_carpani)
-      },
-      birlestirmeUlke: ted.birlestirme_ulke!,
-      fiyatUsd,
-      fiyatTarihi: ted.fiyat_tarihi!,
-      sozlesmeBaslangic: ted.sozlesme_baslangic!,
-      sozlesmeBitis: ted.sozlesme_bitis!,
-      rota: {
-        mod: r.tasima_modu as TasimaModu,
-        cikis: r.cikis_noktasi!,
-        aktarma: r.aktarma_noktasi === 'Aktarma yok' ? null : r.aktarma_noktasi!,
-        varis: r.varis_noktasi!,
-        transitGun: Number(r.transit_gun)
-      },
-      stok: {
-        eldeki,
-        rezerve,
-        kullanilabilir,
-        siparisSeviyesi,
-        durum: kullanilabilir < siparisSeviyesi ? 'siparis_gerekli' : 'yeterli'
-      },
-      yillikAdet,
-      yillikAlimUsd: Math.round(fiyatUsd * yillikAdet)
-    }
-  })
+  return {
+    id: r.id,
+    parca: r.parca,
+    hs6: r.hs6,
+    gtip12: r.gtip,
+    firma: r.firma,
+    firmaResmiAd: r.firma_resmi_ad ?? r.firma,
+    menseUlke: r.mense_ulke!,
+    anlasmaVar: Boolean(r.anlasma_var),
+    // tariffs tablosundaki oranlar menşe ülkeye göre zaten uygulanmış hâlidir
+    vergi: {
+      gumrukVergisi: Number(r.gv_rate),
+      ilaveGumrukVergisi: Number(r.igv_rate ?? 0)
+    },
+    birlestirmeUlke: r.mense_ulke!,
+    fiyatUsd,
+    fiyatTarihi: r.contract_date ?? r.start_date!,
+    sozlesmeBaslangic: r.start_date!,
+    sozlesmeBitis: r.end_date!,
+    rota: {
+      mod: TASIMA_MODLARI[r.transport_mode!]!,
+      cikis: r.cikis!,
+      aktarma: null,
+      varis: r.varis!,
+      transitGun: Number(r.expected_transit_days ?? 0)
+    },
+    stok: {
+      eldeki,
+      rezerve,
+      kullanilabilir,
+      siparisSeviyesi,
+      durum: kullanilabilir < siparisSeviyesi ? 'siparis_gerekli' : 'yeterli'
+    },
+    yillikAdet,
+    yillikAlimUsd: Math.round(fiyatUsd * yillikAdet)
+  }
 }
 
 export async function tedarikcileriOku(): Promise<Tedarikci[]> {
   const havuz = veritabaniHavuzu()
-  let tablolar: Tablolar
+  if (!havuz) {
+    throw createError({ statusCode: 503, statusMessage: 'Veritabanı tanımlı değil (proje kökündeki .env: POSTGRES_*)' })
+  }
+
+  let satirlar: TedarikciSatiri[]
   try {
-    tablolar = havuz ? await postgresTablolariniOku(havuz) : await csvTablolariniOku(useRuntimeConfig().veriKlasoru)
+    satirlar = (await havuz.query<TedarikciSatiri>(TEDARIKCI_SORGUSU)).rows
   }
   catch (e) {
-    // Bağlantı ayrıntısı (sunucu adı, kullanıcı) tarayıcıya gönderilmez, yalnızca sunucu günlüğüne yazılır
-    console.error('[ChainGuard] Tedarikçi verisi okunamadı:', (e as Error).message)
-    throw createError({ statusCode: 503, statusMessage: havuz ? 'Veritabanına ulaşılamadı' : 'Veri dosyaları okunamadı' })
+    console.error('[ChainGuard] Tedarikçi sorgusu başarısız:', (e as Error).message)
+    throw createError({ statusCode: 503, statusMessage: 'Veritabanından tedarikçi verisi okunamadı' })
   }
-  try {
-    return tedarikcileriBirlestir(tablolar)
+
+  const tedarikciler: Tedarikci[] = []
+  for (const r of satirlar) {
+    const eksik = eksikAlanlar(r)
+    if (eksik.length) {
+      console.warn(`[ChainGuard] Tedarikçi ${r.id} (${r.firma} – ${r.parca}) atlandı, eksik: ${eksik.join(', ')}`)
+      continue
+    }
+    tedarikciler.push(tedarikciyeCevir(r))
   }
-  catch (e) {
-    throw createError({ statusCode: 500, statusMessage: (e as Error).message })
-  }
+  return tedarikciler
 }

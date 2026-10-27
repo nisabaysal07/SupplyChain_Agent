@@ -476,7 +476,6 @@ CREATE TABLE public.shipments (
     origin_country_id integer NOT NULL,
     exit_location_id integer,
     destination_location_id integer,
-    chokepoint_location_id integer,
     status character varying(15) DEFAULT 'planned'::character varying NOT NULL,
     expected_transit_days integer,
     CONSTRAINT shipments_status_check CHECK (((status)::text = ANY ((ARRAY['planned'::character varying, 'in_transit'::character varying, 'delayed'::character varying, 'arrived'::character varying, 'cancelled'::character varying])::text[]))),
@@ -958,16 +957,16 @@ COPY public.scan_logs (id, triggered_by, status, started_at, finished_at, error_
 -- Data for Name: shipments; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.shipments (id, contract_id, transport_mode, origin_country_id, exit_location_id, destination_location_id, chokepoint_location_id, status, expected_transit_days) FROM stdin;
-1	1	air	2	3	11	\N	planned	1
-2	2	sea	3	4	10	12	planned	23
-3	3	air	3	5	11	\N	planned	1
-4	4	sea	4	6	10	12	planned	24
-5	5	sea	4	7	10	12	planned	23
-6	6	sea	4	7	10	12	planned	23
-7	7	sea	4	8	10	12	planned	25
-8	8	sea	5	9	10	12	planned	20
-9	9	air	5	1	11	\N	planned	1
+COPY public.shipments (id, contract_id, transport_mode, origin_country_id, exit_location_id, destination_location_id, status, expected_transit_days) FROM stdin;
+1	1	air	2	3	11	planned	1
+2	2	sea	3	4	10	planned	23
+3	3	air	3	5	11	planned	1
+4	4	sea	4	6	10	planned	24
+5	5	sea	4	7	10	planned	23
+6	6	sea	4	7	10	planned	23
+7	7	sea	4	8	10	planned	25
+8	8	sea	5	9	10	planned	20
+9	9	air	5	1	11	planned	1
 \.
 
 
@@ -1655,14 +1654,6 @@ ALTER TABLE ONLY public.items
 
 ALTER TABLE ONLY public.locations
     ADD CONSTRAINT locations_country_id_fkey FOREIGN KEY (country_id) REFERENCES public.countries(id);
-
-
---
--- Name: shipments shipments_chokepoint_location_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.shipments
-    ADD CONSTRAINT shipments_chokepoint_location_id_fkey FOREIGN KEY (chokepoint_location_id) REFERENCES public.locations(id);
 
 
 --

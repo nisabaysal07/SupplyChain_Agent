@@ -1,13 +1,13 @@
 // ornek/olaylar/*.json dosyalarını, modelin yapacağı gibi /api/model/olaylar ucuna gönderir.
 // Çalıştırma (web/ klasöründe, sunucu açıkken):  npm run ornek:gonder
 //
-// Erişim anahtarı: NUXT_MODEL_API_TOKEN (web/.env). Hedef: MODEL_HEDEF_URL (varsayılan http://localhost:3000)
+// Erişim anahtarı: NUXT_MODEL_API_TOKEN (proje kökündeki .env). Hedef: MODEL_HEDEF_URL (varsayılan http://localhost:3000)
 import { readdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 const anahtar = process.env.NUXT_MODEL_API_TOKEN
 if (!anahtar) {
-  console.error('NUXT_MODEL_API_TOKEN tanımlı değil (web/.env).')
+  console.error('NUXT_MODEL_API_TOKEN tanımlı değil (proje kökündeki .env).')
   process.exit(1)
 }
 const hedef = `${process.env.MODEL_HEDEF_URL || 'http://localhost:3000'}/api/model/olaylar`

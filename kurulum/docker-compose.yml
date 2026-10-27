@@ -1,3 +1,4 @@
+name: docker_supply
 services:
   postgres:
     image: postgres:17

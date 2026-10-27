@@ -22,3 +22,8 @@ Thumbs.db
 
 # Veritabanı yedekleri (db/rebuild_db.py üretir)
 db/backup/
+
+# Claude Code ve Playwright yerel dosyaları (ayarlar, skill'ler, tarayıcı test kayıtları)
+.claude/
+.playwright-mcp/
+.taste-skill

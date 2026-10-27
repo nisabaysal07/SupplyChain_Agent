@@ -1,4 +1,3 @@
-import { resolve } from 'node:path'
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-10-01',
@@ -16,17 +15,14 @@ export default defineNuxtConfig({
   },
 
   // Gizli değerler yalnızca sunucuda kalır; `public` altına hiçbir anahtar konmaz.
-  // Üretimde ortam değişkeniyle verilir: NUXT_TAVILY_API_KEY, NUXT_NEMOTRON_API_KEY, NUXT_VERI_KLASORU,
-  // NUXT_SESSION_PASSWORD, NUXT_ILK_YONETICI_EPOSTA, NUXT_ILK_YONETICI_SIFRE, NUXT_MODEL_API_TOKEN, NUXT_DATABASE_URL
+  // Üretimde ortam değişkeniyle verilir: NUXT_TAVILY_API_KEY, NUXT_NEMOTRON_API_KEY,
+  // NUXT_SESSION_PASSWORD, NUXT_ILK_YONETICI_EPOSTA, NUXT_ILK_YONETICI_SIFRE, NUXT_MODEL_API_TOKEN.
+  // PostgreSQL bağlantısı runtimeConfig'de değil: proje kökündeki .env'nin POSTGRES_* değerleri kullanılır (server/utils/veritabani.ts)
   runtimeConfig: {
     tavilyApiKey: '',
     nemotronApiKey: '',
     // Modelin rapor gönderirken kullandığı erişim anahtarı (en az 32 karakter); boşsa model ucu kapalıdır
     modelApiToken: '',
-    veriKlasoru: resolve(process.cwd(), '..'),
-    // PostgreSQL bağlantısı (ör. postgres://kullanici:sifre@sunucu:5432/veritabani?sslmode=require).
-    // Boşsa tedarikçi verisi veriKlasoru'ndaki CSV'lerden okunur. Bkz. db/README.md
-    databaseUrl: '',
     // Hiç kullanıcı yokken ilk yönetici bu bilgilerle oluşturulur (server/plugins/ilkYonetici.ts)
     ilkYonetici: { eposta: '', sifre: '' },
     // Oturum çerezi şifreli ve httpOnly'dir; 8 saat sonra yeniden giriş gerekir.
@@ -69,6 +65,10 @@ export default defineNuxtConfig({
     '/raporlar': { redirect: '/olaylar' },
     '/api/auth/giris': {
       security: { rateLimiter: { tokensPerInterval: 5, interval: 60000 } }
+    },
+    // Excel dosyası ikili veridir; XSS süzgeci multipart gövdeyi metin sanıp reddetmesin
+    '/api/yukleme': {
+      security: { xssValidator: false }
     },
     // Model raporları "<%5" gibi karakterler içerebilir; genel XSS süzgeci yerine zod şeması doğrular
     // ve arayüz her şeyi düz metin olarak gösterir. Rapor gövdesi en fazla 1 MB.

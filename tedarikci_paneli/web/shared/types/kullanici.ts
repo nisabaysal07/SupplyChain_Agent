@@ -26,5 +26,5 @@ export interface SistemDurumu extends SistemAyarlari {
   // Anahtarların kendisi asla gönderilmez; yalnızca tanımlı olup olmadıkları
   anahtarlar: { tavily: boolean, nemotron: boolean }
   // Tedarikçi verisinin kaynağı; bağlantı bilgisi gönderilmez
-  veriKaynagi: { tur: 'postgresql' | 'csv', durum: 'bagli' | 'hata' | 'kapali' }
+  veriKaynagi: { tur: 'postgresql' | 'yok', durum: 'bagli' | 'hata' | 'kapali' }
 }

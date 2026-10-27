@@ -95,7 +95,6 @@ CREATE TABLE shipments (
     origin_country_id        INT NOT NULL REFERENCES countries(id),  -- menşei
     exit_location_id         INT REFERENCES locations(id),
     destination_location_id  INT REFERENCES locations(id),
-    chokepoint_location_id   INT REFERENCES locations(id),           -- Süveyş Kanalı vb.
     status                   VARCHAR(15) NOT NULL DEFAULT 'planned'
                              CHECK (status IN ('planned','in_transit','delayed','arrived','cancelled')),
     expected_transit_days    INT

@@ -67,11 +67,11 @@ const siklikSecenekleri = [
 const veriKaynagi = computed(() => {
   const k = sistem.value?.veriKaynagi
   if (k?.tur !== 'postgresql') {
-    return { ad: 'CSV dosyaları', degisken: 'NUXT_DATABASE_URL tanımlı değil', durum: 'Kullanımda', renk: 'neutral' as const, icon: 'i-lucide-file-text' }
+    return { ad: 'PostgreSQL', degisken: 'POSTGRES_USER / POSTGRES_DB tanımlı değil', durum: 'Bağlı değil', renk: 'neutral' as const, icon: 'i-lucide-database' }
   }
   return k.durum === 'bagli'
-    ? { ad: 'PostgreSQL', degisken: 'NUXT_DATABASE_URL', durum: 'Bağlı', renk: 'success' as const, icon: 'i-lucide-database' }
-    : { ad: 'PostgreSQL', degisken: 'NUXT_DATABASE_URL', durum: 'Bağlanamadı', renk: 'error' as const, icon: 'i-lucide-circle-alert' }
+    ? { ad: 'PostgreSQL', degisken: 'POSTGRES_* (.env)', durum: 'Bağlı', renk: 'success' as const, icon: 'i-lucide-database' }
+    : { ad: 'PostgreSQL', degisken: 'POSTGRES_* (.env)', durum: 'Bağlanamadı', renk: 'error' as const, icon: 'i-lucide-circle-alert' }
 })
 
 const anahtarlar = computed(() => [
