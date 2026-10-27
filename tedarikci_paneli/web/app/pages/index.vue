@@ -18,25 +18,30 @@ const ozet = computed(() => {
       baslik: 'Yüksek riskli tedarikçi',
       deger: sayiBicimi(liste.filter(x => x.risk.seviye === 'yuksek').length),
       alt: `${sayiBicimi(liste.length)} tedarikçiden`,
-      icon: 'i-lucide-shield-alert'
+      icon: 'i-lucide-shield-alert',
+      to: { path: '/tedarikciler', query: { risk: 'yuksek' } }
     },
     {
       baslik: 'Aktif olay',
       deger: sayiBicimi(olaylar.value.length),
       alt: `${olaylar.value.filter(o => o.siddet === 'yuksek').length} yüksek şiddetli · ${olaylar.value.filter(o => o.gecikmeVar).length} gecikmeli`,
-      icon: 'i-lucide-circle-alert'
+      icon: 'i-lucide-circle-alert',
+      to: { path: '/olaylar' }
     },
     {
       baslik: 'Olayların yıllık ek maliyeti',
       deger: paraBicimi(olaylar.value.reduce((t, o) => t + o.toplamMaliyetEtkisiUsd, 0)),
       alt: `yıllık alımın %${((olaylar.value.reduce((t, o) => t + o.toplamMaliyetEtkisiUsd, 0) / Math.max(1, liste.reduce((t, x) => t + x.yillikAlimUsd, 0))) * 100).toFixed(1)}'i`,
-      icon: 'i-lucide-wallet'
+      icon: 'i-lucide-wallet',
+      // Olaylar sayfası "olaylara göre yıllık ek maliyet" grafiğiyle açılır
+      to: { path: '/olaylar' }
     },
     {
       baslik: 'Sipariş gereken parça',
       deger: sayiBicimi(liste.filter(x => x.stok.durum === 'siparis_gerekli').length),
       alt: 'stok, sipariş seviyesinin altında',
-      icon: 'i-lucide-package-open'
+      icon: 'i-lucide-package-open',
+      to: { path: '/tedarikciler', query: { stok: 'siparis_gerekli', sirala: 'stok' } }
     }
   ]
 })
@@ -95,16 +100,24 @@ const ulkeTablosu = computed(() => ({
 <template>
   <SayfaPaneli baslik="Kontrol Paneli">
     <div class="space-y-6">
-      <!-- Özet kutucukları -->
+      <!-- Özet kutucukları: her biri ilgili listeye (filtreli) götürür -->
       <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <UCard v-for="k in ozet" :key="k.baslik" :ui="{ body: 'p-4 sm:p-5' }">
-          <div class="flex items-center gap-2">
-            <UIcon :name="k.icon" class="size-5 text-primary" />
-            <p class="text-sm font-medium text-muted">{{ k.baslik }}</p>
-          </div>
-          <p class="mt-2 text-3xl font-semibold text-highlighted">{{ k.deger }}</p>
-          <p class="text-sm text-muted">{{ k.alt }}</p>
-        </UCard>
+        <NuxtLink
+          v-for="k in ozet"
+          :key="k.baslik"
+          :to="k.to"
+          class="group block rounded-lg basilabilir outline-primary/25 focus-visible:outline-3"
+        >
+          <UCard :ui="{ body: 'p-4 sm:p-5' }" class="h-full transition-colors group-hover:bg-elevated/60">
+            <div class="flex items-center gap-2">
+              <UIcon :name="k.icon" class="size-5 text-primary" />
+              <p class="text-sm font-medium text-muted">{{ k.baslik }}</p>
+              <UIcon name="i-lucide-arrow-up-right" class="ms-auto size-4 text-dimmed transition-colors group-hover:text-primary" />
+            </div>
+            <p class="mt-2 text-3xl font-semibold text-highlighted">{{ k.deger }}</p>
+            <p class="text-sm text-muted">{{ k.alt }}</p>
+          </UCard>
+        </NuxtLink>
       </div>
 
       <!-- En kritik olaylar: özet kutucuklarının hemen altında, yatay -->
@@ -121,7 +134,7 @@ const ulkeTablosu = computed(() => ({
           <li v-for="o in kritikOlaylar" :key="o.id">
             <NuxtLink
               :to="{ path: '/olaylar', query: { olay: o.id } }"
-              class="block h-full rounded-md border border-default seviye-serit bg-default p-3 transition-colors hover:bg-elevated/60"
+              class="block h-full rounded-md border border-default seviye-serit bg-default p-3 basilabilir hover:bg-elevated/60"
               :class="`seviye-serit--${o.siddet}`"
             >
               <div class="flex items-start justify-between gap-2">

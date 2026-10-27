@@ -57,7 +57,7 @@ function birak() {
         :stroke="y.renk"
         :stroke-width="aktif === y.ad ? KALINLIK + 4 : KALINLIK"
         tabindex="0"
-        class="cursor-pointer outline-none transition-[stroke-width]"
+        class="cursor-pointer outline-none transition-[stroke-width] duration-150 ease-out"
         @mouseenter="ipucuGoster($event, y)"
         @mousemove="konumla"
         @mouseleave="birak"

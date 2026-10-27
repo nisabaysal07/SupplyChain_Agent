@@ -19,7 +19,9 @@ const detay = useTemplateRef('detay')
 async function sec(id: string) {
   await navigateTo({ query: { olay: id } }, { replace: true })
   if (!window.matchMedia('(min-width: 1024px)').matches) {
-    detay.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    // Hareket hassasiyeti olanlarda kaydırma animasyonsuz
+    const azHareket = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    detay.value?.scrollIntoView({ behavior: azHareket ? 'auto' : 'smooth', block: 'start' })
   }
 }
 

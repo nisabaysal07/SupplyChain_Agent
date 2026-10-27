@@ -6,6 +6,16 @@
 }
 
 /*
+ * Hareket eğrileri: Tailwind'in hazır eğrileri zayıf kalır. "ease-out" ve "ease-in-out"
+ * sınıfları bu güçlü eğrileri kullanır (giriş/çıkış ve ekranda yer değiştirme için).
+ * "static": aşağıdaki düz CSS de var(--ease-out) kullandığı için değişkenler her zaman üretilir.
+ */
+@theme static {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/*
  * Açık krem tema: arka plan beyaz ile krem arası, yazılar koyu ve yüksek kontrastlı.
  * Uygulama yalnızca bu açık temayla çalışır (nuxt.config.ts → ui.colorMode: false).
  * ":root:root", Nuxt UI'ın çalışma anında eklediği renk tanımlarından önce gelsin diye.
@@ -76,6 +86,7 @@
 .seviye-rozeti {
   --r: var(--risk-orta);
   --r-yazi: var(--risk-orta-yazi);
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -90,7 +101,6 @@
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--r) 75%, black),
     0 0 7px 1px color-mix(in oklab, var(--r) 55%, transparent);
-  animation: seviye-lamba 2.6s ease-in-out infinite;
 }
 .seviye-rozeti--yuksek { --r: var(--risk-yuksek); --r-yazi: var(--risk-yuksek-yazi); }
 .seviye-rozeti--orta { --r: var(--risk-orta); --r-yazi: var(--risk-orta-yazi); }
@@ -108,17 +118,67 @@
     0 0 5px 2px color-mix(in oklab, white 70%, transparent);
 }
 
+/*
+ * Yalnızca yüksek risk "nefes alır": dikkat çekmesi gereken tek durum bu. Orta ve düşük rozetler
+ * sabittir; ekrandaki her rozet yanıp sönünce hiçbiri öne çıkmaz.
+ * Parlama ayrı bir katmanda çizilir ve yalnızca opaklığı değişir (box-shadow canlandırmak her karede boyama yaptırır).
+ */
+.seviye-rozeti--yuksek::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 13px 3px color-mix(in oklab, var(--r) 65%, transparent);
+  opacity: 0;
+  animation: seviye-lamba 2.6s ease-in-out infinite;
+}
+
 @keyframes seviye-lamba {
-  50% {
-    box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--r) 75%, black),
-      0 0 13px 3px color-mix(in oklab, var(--r) 65%, transparent);
-  }
+  50% { opacity: 1; }
 }
 
 /* Hareket hassasiyeti olanlarda yanıp sönme yok; ışık sabit kalır */
 @media (prefers-reduced-motion: reduce) {
-  .seviye-rozeti { animation: none; }
+  .seviye-rozeti--yuksek::after { animation: none; }
+}
+
+/*
+ * Basılabilir kartlar (olay kartları): basınca hafifçe içe göçer, arayüz tıklamayı duyduğunu gösterir.
+ * Arka plan rengi "ease", basma geri bildirimi güçlü ease-out ile.
+ */
+.basilabilir {
+  transition:
+    background-color 150ms ease,
+    transform 160ms var(--ease-out);
+}
+.basilabilir:active { transform: scale(0.98); }
+
+@media (prefers-reduced-motion: reduce) {
+  .basilabilir:active { transform: none; }
+}
+
+/*
+ * Görünür olunca beliren öğeler (giriş kartı, hata kutusu): aniden "ışınlanmak" yerine
+ * hafifçe aşağıdan süzülür. Oturum başına bir kez görülür; JS gerekmez (@starting-style).
+ */
+.belir {
+  transition:
+    opacity 300ms var(--ease-out),
+    transform 300ms var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .belir {
+    transition: opacity 200ms ease;
+
+    @starting-style { transform: none; }
+  }
 }
 
 /* Kart şeritleri: kalın, dolu renk */

@@ -6,7 +6,7 @@ defineEmits<{ sec: [] }>()
 <template>
   <button
     type="button"
-    class="w-full text-left rounded-lg border border-default seviye-serit p-3 transition-colors hover:bg-elevated/60"
+    class="w-full text-left rounded-lg border border-default seviye-serit p-3 basilabilir hover:bg-elevated/60"
     :class="[`seviye-serit--${olay.siddet}`, secili ? 'bg-elevated ring-1 ring-primary' : 'bg-default']"
     :aria-current="secili ? 'true' : undefined"
     @click="$emit('sec')"

@@ -1,0 +1,292 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic [aria-hidden]:
+          - generic:
+            - button
+            - heading [level=1]: Tedarikçiler
+          - generic:
+            - generic:
+              - textbox:
+                - /placeholder: Tedarikçi veya parça ara
+            - generic:
+              - button
+        - generic:
+          - generic:
+            - generic [aria-hidden]:
+              - generic:
+                - generic:
+                  - generic:
+                    - heading [level=2]: Stok kaç gün yetiyor?
+                    - paragraph: Kullanılabilir stok ile yeniden sipariş için gereken süre; en kritik parça üstte
+                  - generic:
+                    - button:
+                      - generic: Tablo
+                - generic:
+                  - list:
+                    - listitem:
+                      - generic: Ekran kartı
+                      - generic: 20 / 38 gün
+                    - listitem:
+                      - generic: Bellek
+                      - generic: 10 / 16 gün
+                    - listitem:
+                      - generic: Soğutucu
+                      - generic: 30 / 38 gün
+                    - listitem:
+                      - generic: Güç kaynağı
+                      - generic: 35 / 38 gün
+                    - listitem:
+                      - generic: Kasa
+                      - generic: 50 / 39 gün
+                    - listitem:
+                      - generic: Monitör
+                      - generic: 45 / 35 gün
+                    - listitem:
+                      - generic: Anakart
+                      - generic: 55 / 40 gün
+                    - listitem:
+                      - generic: SSD
+                      - generic: 25 / 16 gün
+                    - listitem:
+                      - generic: İşlemci
+                      - generic: 30 / 16 gün
+                  - generic:
+                    - generic: Yeterli
+                    - generic: Sipariş gerekli
+                    - generic: Sipariş için gereken gün (yol + gümrük + 14 gün)
+            - region "Tedarikçi listesi":
+              - generic [aria-hidden]:
+                - combobox:
+                  - generic: Tüm riskler
+                - combobox:
+                  - generic: Tüm stok durumları
+                - combobox:
+                  - generic: "Olay bağlantısı: hepsi"
+                - generic:
+                  - generic: "Sırala:"
+                  - combobox:
+                    - generic: Risk skoru
+                  - button:
+                    - generic: Azalan
+              - paragraph: 9 / 9 tedarikçi
+              - generic [aria-hidden]:
+                - table:
+                  - rowgroup:
+                    - row:
+                      - columnheader
+                      - columnheader: Tedarikçi
+                      - columnheader: Parça
+                      - columnheader: Risk
+                      - columnheader: Menşe
+                      - columnheader: Rota
+                      - columnheader:
+                        - generic: Yıllık alım
+                      - columnheader: Stok
+                      - columnheader: Sözleşme bitişi
+                    - row
+                  - rowgroup:
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: ASUS
+                          - paragraph: ASUSTeK Computer Inc.
+                      - cell: Ekran kartı
+                      - cell:
+                        - generic: 60 · Yüksek
+                      - cell:
+                        - generic: Çin
+                      - cell:
+                        - generic: 23 gün
+                      - cell:
+                        - generic: $2.349.950
+                      - cell:
+                        - generic: Sipariş gerekli
+                      - cell: 31 Ara 2026
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: Noctua
+                          - paragraph: Rascom Computerdistribution Ges.m.b.H.
+                      - cell: Soğutucu
+                      - cell:
+                        - generic: 57 · Orta
+                      - cell:
+                        - generic: Tayvan
+                      - cell:
+                        - generic: 23 gün
+                      - cell:
+                        - generic: $599.500
+                      - cell:
+                        - generic: Sipariş gerekli
+                      - cell: 31 Ara 2026
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: FSP
+                          - paragraph: FSP Technology Inc.
+                      - cell: Güç kaynağı
+                      - cell:
+                        - generic: 53 · Orta
+                      - cell:
+                        - generic: Çin
+                      - cell:
+                        - generic: 23 gün
+                      - cell:
+                        - generic: $990.000
+                      - cell:
+                        - generic: Sipariş gerekli
+                      - cell: 31 Ara 2026
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: Kingston
+                          - paragraph: Kingston Technology Company, Inc.
+                      - cell: Bellek
+                      - cell:
+                        - generic: 42 · Orta
+                      - cell:
+                        - generic: Tayvan
+                      - cell:
+                        - generic: 1 gün
+                      - cell:
+                        - generic: $6.350.000
+                      - cell:
+                        - generic: Sipariş gerekli
+                      - cell: 31 Ara 2026
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: Cooler Master
+                          - paragraph: Cooler Master Technology Inc.
+                      - cell: Kasa
+                      - cell:
+                        - generic: 38 · Orta
+                      - cell:
+                        - generic: Çin
+                      - cell:
+                        - generic: 24 gün
+                      - cell:
+                        - generic: $1.199.900
+                      - cell:
+                        - generic: Yeterli
+                      - cell: 31 Ara 2026
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: Gigabyte
+                          - paragraph: GIGA-BYTE Technology Co., Ltd.
+                      - cell: Anakart
+                      - cell:
+                        - generic: 36 · Orta
+                      - cell:
+                        - generic: Çin
+                      - cell:
+                        - generic: 25 gün
+                      - cell:
+                        - generic: $1.599.900
+                      - cell:
+                        - generic: Yeterli
+                      - cell: 31 Ara 2026
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: Samsung
+                          - paragraph: Samsung Electronics Co., Ltd.
+                      - cell: Monitör
+                      - cell:
+                        - generic: 35 · Orta
+                      - cell:
+                        - generic: Vietnam
+                      - cell:
+                        - generic: 20 gün
+                      - cell:
+                        - generic: $897.950
+                      - cell:
+                        - generic: Yeterli
+                      - cell: 31 Ara 2026
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: Intel
+                          - paragraph: Intel Corporation
+                      - cell: İşlemci
+                      - cell:
+                        - generic: 16 · Düşük
+                      - cell:
+                        - generic: Vietnam
+                      - cell:
+                        - generic: 1 gün
+                      - cell:
+                        - generic: $1.599.900
+                      - cell:
+                        - generic: Yeterli
+                      - cell: 31 Ara 2026
+                    - row:
+                      - cell:
+                        - button
+                      - cell:
+                        - generic:
+                          - paragraph: Samsung
+                          - paragraph: Samsung Electronics Co., Ltd.
+                      - cell: SSD
+                      - cell:
+                        - generic: 6 · Düşük
+                      - cell:
+                        - generic:
+                          - text: Güney Kore
+                          - generic: STA
+                      - cell:
+                        - generic: 1 gün
+                      - cell:
+                        - generic: $2.081.500
+                      - cell:
+                        - generic: Yeterli
+                      - cell: 31 Ara 2026
+  - dialog [ref=f9e346]:
+    - generic [ref=f9e347]:
+      - heading "Kenar çubuğunu aç" [level=2] [ref=f9e348]
+      - paragraph
+    - generic [ref=f9e349]:
+      - button "Kenar çubuğunu kapat" [active] [ref=f9e350]
+      - link "ChainGuard AI" [ref=f9e352] [cursor=pointer]:
+        - /url: /
+    - generic [ref=f9e355]:
+      - navigation [ref=f9e356]:
+        - list [ref=f9e357]:
+          - listitem [ref=f9e358]:
+            - link "Kontrol Paneli" [ref=f9e359] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=f9e362]:
+            - link "Tedarikçiler" [ref=f9e363] [cursor=pointer]:
+              - /url: /tedarikciler
+          - listitem [ref=f9e366]:
+            - link "Olaylar" [ref=f9e367] [cursor=pointer]:
+              - /url: /olaylar
+      - navigation [ref=f9e370]:
+        - list [ref=f9e371]:
+          - listitem [ref=f9e372]:
+            - link "Ayarlar" [ref=f9e373] [cursor=pointer]:
+              - /url: /ayarlar
+    - 'button "Kullanıcı menüsü: Yönetici" [ref=f9e377]':
+      - generic [ref=f9e378]: "Y"
+      - generic [ref=f9e380]:
+        - generic [ref=f9e381]: Yönetici
+        - generic [ref=f9e382]: Yönetici

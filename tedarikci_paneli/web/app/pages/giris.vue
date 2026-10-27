@@ -34,7 +34,7 @@ async function gonder(e: FormSubmitEvent<z.output<typeof GirisSemasi>>) {
 
 <template>
   <main class="min-h-dvh flex items-center justify-center bg-muted px-4">
-    <UCard class="w-full max-w-sm">
+    <UCard class="w-full max-w-sm belir">
       <template #header>
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-shield-check" class="size-7 text-primary" />
@@ -53,7 +53,7 @@ async function gonder(e: FormSubmitEvent<z.output<typeof GirisSemasi>>) {
           <UInput v-model="form.sifre" type="password" autocomplete="current-password" class="w-full" />
         </UFormField>
 
-        <UAlert v-if="hata" color="error" variant="subtle" icon="i-lucide-circle-alert" :title="hata" />
+        <UAlert v-if="hata" class="belir" color="error" variant="subtle" icon="i-lucide-circle-alert" :title="hata" />
 
         <UButton type="submit" label="Giriş yap" block :loading="gonderiliyor" />
       </UForm>

@@ -1,0 +1,122 @@
+- generic [ref=f5e2]:
+  - generic [ref=f5e3]:
+    - generic [ref=f5e4]:
+      - button "Kenar çubuğunu aç" [ref=f5e5]
+      - heading "Kontrol Paneli" [level=1] [ref=f5e7]
+    - button "Bildirimler" [ref=f5e10]
+  - generic [ref=f5e13]:
+    - generic [ref=f5e14]:
+      - link [ref=f5e15] [cursor=pointer]:
+        - /url: /tedarikciler?risk=yuksek
+        - generic [ref=f5e17]:
+          - paragraph [ref=f5e20]: Yüksek riskli tedarikçi
+          - paragraph [ref=f5e22]: "1"
+          - paragraph [ref=f5e23]: 9 tedarikçiden
+      - link [ref=f5e24] [cursor=pointer]:
+        - /url: /olaylar
+        - generic [ref=f5e26]:
+          - paragraph [ref=f5e29]: Aktif olay
+          - paragraph [ref=f5e31]: "0"
+          - paragraph [ref=f5e32]: 0 yüksek şiddetli · 0 gecikmeli
+      - link [ref=f5e33] [cursor=pointer]:
+        - /url: /olaylar
+        - generic [ref=f5e35]:
+          - paragraph [ref=f5e38]: Olayların yıllık ek maliyeti
+          - paragraph [ref=f5e40]: $0
+          - paragraph [ref=f5e41]: yıllık alımın %0.0'i
+      - link [ref=f5e42] [cursor=pointer]:
+        - /url: /tedarikciler?stok=siparis_gerekli&sirala=stok
+        - generic [ref=f5e44]:
+          - paragraph [ref=f5e47]: Sipariş gereken parça
+          - paragraph [ref=f5e49]: "4"
+          - paragraph [ref=f5e50]: stok, sipariş seviyesinin altında
+    - generic [ref=f5e52]:
+      - generic [ref=f5e53]:
+        - heading "En kritik olaylar" [level=2] [ref=f5e54]
+        - link "Tümü" [ref=f5e55] [cursor=pointer]:
+          - /url: /olaylar
+      - paragraph [ref=f5e58]: Aktif olay yok. Model yeni bir haber gönderdiğinde burada görünecek.
+    - generic [ref=f5e60]:
+      - generic [ref=f5e61]:
+        - generic [ref=f5e63]:
+          - heading "Genel portföy risk skoru" [level=2] [ref=f5e64]
+          - paragraph [ref=f5e65]: Yıllık alımla ağırlıklı
+          - generic [ref=f5e66]:
+            - img "Portföy risk skoru 38 / 100, Orta" [ref=f5e67]:
+              - generic [ref=f5e72]: "0"
+              - generic [ref=f5e73]: "100"
+            - paragraph [ref=f5e74]: "38"
+            - paragraph [ref=f5e75]: Orta risk
+            - paragraph [ref=f5e77]: "Eşikler: 35 orta · 60 yüksek"
+        - generic [ref=f5e79]:
+          - generic [ref=f5e80]:
+            - generic [ref=f5e81]:
+              - heading "Risk dağılımı" [level=2] [ref=f5e82]
+              - paragraph [ref=f5e83]: Tedarikçilerin risk seviyesi
+            - button "Tablo" [ref=f5e85]
+          - generic [ref=f5e88]:
+            - img "Yüksek 1, Orta 6, Düşük 2" [ref=f5e89]:
+              - generic [ref=f5e91] [cursor=pointer]
+              - generic [ref=f5e92] [cursor=pointer]
+              - generic [ref=f5e93] [cursor=pointer]
+              - generic [ref=f5e94]: "9"
+              - generic [ref=f5e95]: tedarikçi
+            - list [ref=f5e96]:
+              - listitem [ref=f5e97]:
+                - generic [ref=f5e100]: Yüksek
+                - generic [ref=f5e101]: "1"
+              - listitem [ref=f5e102]:
+                - generic [ref=f5e105]: Orta
+                - generic [ref=f5e106]: "6"
+              - listitem [ref=f5e107]:
+                - generic [ref=f5e110]: Düşük
+                - generic [ref=f5e111]: "2"
+      - generic [ref=f5e112]:
+        - generic [ref=f5e114]:
+          - generic [ref=f5e115]:
+            - generic [ref=f5e116]:
+              - heading "Risk haritası" [level=2] [ref=f5e117]
+              - paragraph [ref=f5e118]: Tedarikçilerin çıkış noktaları ve Türkiye'ye rotaları
+            - button "Tablo" [ref=f5e120]
+          - generic [ref=f5e123]:
+            - img "Tedarikçi çıkış noktaları ve risk seviyeleri haritası" [ref=f5e124]:
+              - generic [ref=f5e315]: İstanbul
+              - generic [ref=f5e318]: Mersin
+              - 'button "Taoyuan: 1 tedarikçi, en yüksek risk Orta, yıllık alım $6.350.000" [ref=f5e319] [cursor=pointer]':
+                - generic [ref=f5e322]: Taoyuan
+              - 'button "Shenzhen: 3 tedarikçi, en yüksek risk Yüksek, yıllık alım $4.539.850" [ref=f5e323] [cursor=pointer]':
+                - generic [ref=f5e326]: Shenzhen
+              - 'button "Ho Chi Minh: 2 tedarikçi, en yüksek risk Orta, yıllık alım $2.497.850" [ref=f5e327] [cursor=pointer]':
+                - generic [ref=f5e330]: Ho Chi Minh
+              - 'button "Incheon: 1 tedarikçi, en yüksek risk Düşük, yıllık alım $2.081.500" [ref=f5e331] [cursor=pointer]':
+                - generic [ref=f5e334]: Incheon
+              - 'button "Ningbo: 1 tedarikçi, en yüksek risk Orta, yıllık alım $1.599.900" [ref=f5e335] [cursor=pointer]':
+                - generic [ref=f5e338]: Ningbo
+              - 'button "Kaohsiung: 1 tedarikçi, en yüksek risk Orta, yıllık alım $599.500" [ref=f5e339] [cursor=pointer]':
+                - generic [ref=f5e342]: Kaohsiung
+            - generic [ref=f5e343]:
+              - generic [ref=f5e344]: Yüksek (1)
+              - generic [ref=f5e347]: Orta (6)
+              - generic [ref=f5e350]: Düşük (2)
+              - generic [ref=f5e353]: Deniz
+              - generic [ref=f5e355]: Hava
+              - generic [ref=f5e357]: "Daire büyüklüğü: yıllık alım · rotalar temsilidir"
+        - generic [ref=f5e359]:
+          - generic [ref=f5e360]:
+            - generic [ref=f5e361]:
+              - heading "Menşe ülkeye göre yıllık alım" [level=2] [ref=f5e362]
+              - paragraph [ref=f5e363]: Hangi ülkeye ne kadar bağımlıyız
+            - button "Tablo" [ref=f5e365]
+          - list [ref=f5e369]:
+            - 'listitem "Tayvan: $6.949.500" [ref=f5e370]':
+              - generic "Tayvan" [ref=f5e371]
+              - generic [ref=f5e372]: $6.949.500
+            - 'listitem "Çin: $6.139.750" [ref=f5e375]':
+              - generic "Çin" [ref=f5e376]
+              - generic [ref=f5e377]: $6.139.750
+            - 'listitem "Vietnam: $2.497.850" [ref=f5e380]':
+              - generic "Vietnam" [ref=f5e381]
+              - generic [ref=f5e382]: $2.497.850
+            - 'listitem "Güney Kore: $2.081.500" [ref=f5e385]':
+              - generic "Güney Kore" [ref=f5e386]
+              - generic [ref=f5e387]: $2.081.500
