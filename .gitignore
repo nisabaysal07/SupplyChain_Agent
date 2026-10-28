@@ -48,3 +48,6 @@ db/backup/
 
 # Veritabanı dökümleri (pg_dump), commit etme
 *.dump
+
+# Ajan testi beklenen sonuçlar (yerel)
+mock_beklenen.csv

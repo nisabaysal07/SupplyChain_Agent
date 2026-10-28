@@ -1,0 +1,4 @@
+openai>=1.40
+pydantic>=2.6
+pyyaml>=6.0
+psycopg[binary]>=3.1   # database access: data/build_suppliers.py and --db
