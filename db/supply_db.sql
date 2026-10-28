@@ -188,6 +188,7 @@ CREATE TABLE article_analyses (
            CHECK (rate_type IN ('gv', 'igv', 'kultur_fonu', 'kdv', 'otv')),
     old_rate_pct         NUMERIC(6,2),
     new_rate_pct         NUMERIC(6,2),
+    price_change_pct     NUMERIC(6,2),                -- fiyat değişimi % (event_type = 'price_change')
     expected_delay_days  INT CHECK (expected_delay_days >= 0),
     created_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE (article_id, scan_log_id)                 -- aynı haber aynı taramada bir kez analiz edilir

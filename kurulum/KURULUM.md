@@ -85,6 +85,16 @@ docker compose up -d
 
 Python kuruluysa aynı işi önce yedek alarak `db/rebuild_db.py` de yapar (bkz. Notlar).
 
+### Sıfırlamadan güncelleme (yalnızca yeni sütunlar)
+
+Daha önce kurulmuş bir veritabanında veriyi silmeden yalnızca şemaya eklenen sütunları almak için aşağıdaki komutları çalıştır. Birden fazla kez çalıştırmak güvenlidir.
+
+`article_analyses.price_change_pct` (fiyat değişimi %):
+
+```powershell
+docker exec proje_postgres psql -U proje_admin -d supply_db -c "ALTER TABLE article_analyses ADD COLUMN IF NOT EXISTS price_change_pct numeric(6,2)"
+```
+
 ## 4. Takım arkadaşının bağlanmasına izin ver
 
 **a) Ona bir kullanıcı aç** (`nisa` ve parolayı değiştir):
