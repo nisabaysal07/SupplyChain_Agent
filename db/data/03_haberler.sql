@@ -49,11 +49,6 @@ FROM (VALUES
    'Resmî Gazete''de yayımlanan karar ile 8504.40 GTİP pozisyonundaki Çin menşeli güç kaynaklarına uygulanan ilave gümrük vergisi %11''den %20''ye çıkarıldı. Karar 1 Kasım 2026 itibarıyla yürürlüğe girecek.',
    'tr', TIMESTAMPTZ '2026-10-17 23:30:00+03', TIMESTAMPTZ '2026-11-01 00:00:00+03'),
   (TIMESTAMPTZ '2026-10-18 06:00:00+03',
-   'https://example.com/news/2026/10/red-sea-attacks-suez-diversions',
-   'Container lines divert vessels away from Suez Canal after renewed Red Sea attacks',
-   'Several major carriers announced that Asia–Europe services will be rerouted via the Cape of Good Hope, adding 10 to 14 days to transit times. Freight rates on the Shanghai–Mediterranean lane rose sharply.',
-   'en', TIMESTAMPTZ '2026-10-17 15:10:00+03', TIMESTAMPTZ '2026-10-20 00:00:00+03'),
-  (TIMESTAMPTZ '2026-10-18 06:00:00+03',
    'https://example.com/news/2026/10/local-football-results',
    'Weekend football results roundup',
    'A summary of weekend league matches and standings.',
@@ -117,9 +112,6 @@ FROM (VALUES
   ('https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi',
    TRUE,  78, 'tariff_increase',      'Çin menşeli güç kaynaklarında İGV %11 → %20. FSP güç kaynağı maliyeti artacak.',
    'igv', 11.00, 20.00, NULL),
-  ('https://example.com/news/2026/10/red-sea-attacks-suez-diversions',
-   TRUE,  85, 'transport_disruption', 'Süveyş Kanalı üzerinden geçen deniz sevkiyatları Ümit Burnu''na yönlendiriliyor; +10-14 gün gecikme.',
-   NULL, NULL, NULL, 12),
   ('https://example.com/news/2026/10/local-football-results',
    FALSE, NULL, 'not_relevant',       'Tedarik zinciriyle ilgisiz spor haberi.',
    NULL, NULL, NULL, NULL),
@@ -163,8 +155,6 @@ FROM (VALUES
   ('https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi', 'country',  'CHN'),
   ('https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi', 'item',     'Güç kaynağı'),
   ('https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi', 'supplier', 'FSP'),
-  ('https://example.com/news/2026/10/red-sea-attacks-suez-diversions',                     'location', 'Süveyş Kanalı'),
-  ('https://example.com/news/2026/10/red-sea-attacks-suez-diversions',                     'country',  'EGY'),
   ('https://example.com/news/2026/10/dram-contract-prices-surge-q4',                       'item',     'Bellek'),
   ('https://example.com/news/2026/10/dram-contract-prices-surge-q4',                       'supplier', 'Kingston'),
   ('https://example.com/news/2026/10/kaohsiung-typhoon-port-closure',                      'location', 'Kaohsiung Limanı'),
@@ -194,17 +184,13 @@ LEFT JOIN items i        ON v.target = 'item'     AND i.name = v.ref;
 -- #####################################################################
 -- 4b. HABER VERİSİ — AGENT SONUÇLARI
 -- agent_results_20261027-215002.json (27 haber: 16 direct, 11 none)
--- agent_results_20261027-215306.json (12 haber: 9 direct, 3 none)
+-- agent_results_20261027-215306.json (11 haber: 8 direct, 3 none)
 -- Her JSON dosyası = bir scan_logs satırı (started_at ile eşlenir).
 -- Aynı URL 4a'da varsa haber yeniden eklenmez, sadece last_seen_scan_id güncellenir;
 -- analiz bu tarama için ayrı satır olur.
 -- Ajandaki supplier_id (Ted. ID 1-9) veritabanı id'si DEĞİL → tedarikçi adı + ürün adı ile eşlenir.
 -- #####################################################################
 
--- ADIM 0: eksik lokasyon (Kızıldeniz / Süveyş haberi bu lokasyona bağlanıyor)
-INSERT INTO locations (code, name, location_type, country_id)
-SELECT NULL, 'Süveyş Kanalı', 'chokepoint', NULL
-WHERE NOT EXISTS (SELECT 1 FROM locations WHERE name = 'Süveyş Kanalı');
 
 -- ADIM 1: scan_logs
 INSERT INTO scan_logs (triggered_by, status, started_at, finished_at)
@@ -364,11 +350,6 @@ FROM (VALUES
    NULL,
    'en', TIMESTAMPTZ '2026-10-17T18:00:00+00:00', NULL),
   (TIMESTAMPTZ '2026-10-27T18:51:53+00:00',
-   'https://example.com/news/2026/10/red-sea-attacks-suez-diversions',
-   'Container lines divert vessels away from Suez Canal after renewed Red Sea attacks',
-   'Several major carriers announced that Asia–Europe services will be rerouted via the Cape of Good Hope, adding 10 to 14 days to transit times.',
-   'en', TIMESTAMPTZ '2026-10-17T12:10:00+00:00', NULL),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00',
    'https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi',
    'Çin menşeli güç kaynaklarına ilave gümrük vergisi artırıldı',
    'Resmî Gazete''de yayımlanan karar ile 8504.40 GTİP pozisyonundaki Çin menşeli güç kaynaklarına uygulanan ilave gümrük vergisi %11''den %20''ye çıkarıldı. Karar 1 Kasım 2026 itibarıyla yürürlüğe girecek.',
@@ -485,7 +466,7 @@ FROM (VALUES
    NULL, NULL, NULL, 3),
   (TIMESTAMPTZ '2026-10-27T18:47:17+00:00', 'https://example.com/pc-test/P13',
    TRUE, 87, 'transport_disruption',
-   'A typhoon has halted container operations at Shenzhen''s Yantian and Shekou ports for 48 hours starting October 19, 2026. This directly disrupts sea shipments for Cooler Master (PC cases), FSP (power supplies), and ASUS (graphics cards), all of which depart from these ports via the Suez Canal to Mersin. Expect a 2-day delay for containers already at these ports and possible further backlog.',
+   'A typhoon has halted container operations at Shenzhen''s Yantian and Shekou ports for 48 hours starting October 19, 2026. This directly disrupts sea shipments for Cooler Master (PC cases), FSP (power supplies), and ASUS (graphics cards), all of which depart from these ports by sea to Mersin. Expect a 2-day delay for containers already at these ports and possible further backlog.',
    NULL, NULL, NULL, 2),
   (TIMESTAMPTZ '2026-10-27T18:47:17+00:00', 'https://example.com/pc-test/P14',
    FALSE, 10, 'not_relevant',
@@ -543,10 +524,6 @@ FROM (VALUES
    FALSE, 10, 'not_relevant',
    'News about football results does not affect cost, availability, or delivery of any component purchased from suppliers.',
    NULL, NULL, NULL, NULL),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions',
-   TRUE, 100, 'transport_disruption',
-   'Major container carriers are rerouting Asia–Europe services away from the Suez Canal due to renewed Red Sea attacks, adding 10–14 days to transit times. This disruption affects all our suppliers that ship by sea via the Suez Canal, delaying deliveries to Mersin port.',
-   NULL, NULL, NULL, 14),
   (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi',
    TRUE, 86, 'tariff_increase',
    'Turkey has increased the additional customs duty (ilave gümrük vergisi) on Chinese desktop power supplies (HS 8504.40) from 11% to 20%, effective 1 November 2026. This directly raises the import cost for supplier FSP''s PC power supplies, which are sourced from China under the same HS code.',
@@ -676,19 +653,6 @@ FROM (VALUES
   (TIMESTAMPTZ '2026-10-27T18:47:17+00:00', 'https://example.com/pc-test/P16', 'country', 'TUR'),
   (TIMESTAMPTZ '2026-10-27T18:47:17+00:00', 'https://example.com/pc-test/P16', 'supplier', 'Samsung'),
   (TIMESTAMPTZ '2026-10-27T18:47:17+00:00', 'https://example.com/pc-test/P16', 'item', 'Monitör'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'location', 'Süveyş Kanalı'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'supplier', 'Noctua'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'item', 'Soğutucu'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'supplier', 'Cooler Master'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'item', 'Kasa'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'supplier', 'FSP'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'item', 'Güç kaynağı'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'supplier', 'ASUS'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'item', 'Ekran kartı'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'supplier', 'Gigabyte'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'item', 'Anakart'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'supplier', 'Samsung'),
-  (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/news/2026/10/red-sea-attacks-suez-diversions', 'item', 'Monitör'),
   (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi', 'country', 'CHN'),
   (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi', 'supplier', 'FSP'),
   (TIMESTAMPTZ '2026-10-27T18:51:53+00:00', 'https://example.com/haber/2026/10/cin-mensheli-guc-kaynaklarina-ilave-gumruk-vergisi', 'item', 'Güç kaynağı'),

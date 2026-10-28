@@ -219,15 +219,15 @@ CREATE INDEX idx_impacts_item     ON article_impacts(item_id);
 -- alerts                      = "şirketimiz için hangi RİSK var" (panelde görünen kart, risk başına)
 --
 -- Aynı risk birden fazla haberde geçebilir. Örnek:
---   Haber A (Reuters):  "Süveyş'te saldırı, gemiler Ümit Burnu'na yönleniyor"
---   Haber B (Bloomberg):"Asya-Avrupa hattında 12 gün gecikme"
---   Haber C (AA):       "Kızıldeniz krizi navlunu artırdı"
--- Üçü de aynı riski anlatıyor: transport_disruption + Süveyş Kanalı.
+--   Haber A (Reuters):  "Mersin Limanı'nda gemiler 4 gün bekliyor"
+--   Haber B (Bloomberg):"Mersin'de konteyner yoğunluğu rekor seviyede"
+--   Haber C (AA):       "Liman yoğunluğu ithalatı geciktiriyor"
+-- Üçü de aynı riski anlatıyor: transport_disruption + Mersin Limanı.
 -- Panelde 3 ayrı kart yerine 1 alert gösterilir; A, B, C bu alert'in kaynaklarıdır
 -- (bağlantı alert_articles tablosunda tutulur).
 --
 -- Risk kimliği = olay türü + etkilenen tek hedef (ülke / lokasyon / tedarikçi / ürün).
--- Bu ikili risk_key sütununda otomatik üretilir, ör. 'transport_disruption:location:12'.
+-- Bu ikili risk_key sütununda otomatik üretilir, ör. 'transport_disruption:location:10'.
 --
 -- Her taramada her alert'in durumu güncellenir:
 --   new       → bu risk ilk kez görüldü

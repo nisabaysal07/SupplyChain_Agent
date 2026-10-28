@@ -36,3 +36,6 @@ db/backup/
 .claude/
 .playwright-mcp/
 .taste-skill
+
+# Veritabanı dökümleri (pg_dump), commit etme
+*.dump

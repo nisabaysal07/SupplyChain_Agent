@@ -59,8 +59,3 @@ locations:
     code: "IST"
     location_type: airport
     country: "TUR"
-  - id: 12
-    name: "Süveyş Kanalı"
-    code: null
-    location_type: chokepoint
-    country: null

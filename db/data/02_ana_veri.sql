@@ -70,8 +70,7 @@ FROM (VALUES
   ( 8, 'CNNBG', 'Ningbo-Zhoushan Limanı',               'port',       'CHN'),
   ( 9, 'VNTOT', 'Cai Mep Limanı',                       'port',       'VNM'),
   (10, 'TRMER', 'Mersin Limanı',                        'port',       'TUR'),
-  (11, 'IST',   'İstanbul Havalimanı',                  'airport',    'TUR'),
-  (12, NULL,    'Süveyş Kanalı',                        'chokepoint', NULL)
+  (11, 'IST',   'İstanbul Havalimanı',                  'airport',    'TUR')
 ) AS v(id, code, name, location_type, iso)
 LEFT JOIN countries c ON c.iso_code = v.iso;
 SELECT setval(pg_get_serial_sequence('locations', 'id'), (SELECT MAX(id) FROM locations));

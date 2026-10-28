@@ -51,10 +51,22 @@ docker compose up -d
 
 ## 3. Veriyi kontrol et
 
-Kontrol (12 çıkmalı):
+Kontrol (11 çıkmalı):
 
 ```powershell
 docker exec proje_postgres psql -U proje_admin -d supply_db -c "SELECT count(*) FROM locations"
+```
+
+Şemanın güncel olduğunu kontrol et (`price_change_pct` sütunu, 1 çıkmalı):
+
+```powershell
+docker exec proje_postgres psql -U proje_admin -d supply_db -c "SELECT count(*) FROM information_schema.columns WHERE table_name = 'article_analyses' AND column_name = 'price_change_pct'"
+```
+
+Süveyş Kanalı verisinin kaldırıldığını kontrol et (0 çıkmalı):
+
+```powershell
+docker exec proje_postgres psql -U proje_admin -d supply_db -c "SELECT count(*) FROM articles WHERE url LIKE '%suez%'"
 ```
 
 0 çıkıyorsa veya tablo yok hatası alıyorsan yükleme kayıtlarına bak (`Yükleniyor: ...` satırları ve varsa hata):
@@ -85,6 +97,11 @@ docker compose up -d
 
 Python kuruluysa aynı işi önce yedek alarak `db/rebuild_db.py` de yapar (bkz. Notlar).
 
+> **Son değişiklik — herkes bir kez sıfırlamalı:** Süveyş Kanalı lokasyonu ve Kızıldeniz/Süveyş haberi
+> (analizleri ve etki bağlantılarıyla) `db/` dosyalarından kaldırıldı, `article_analyses` tablosuna
+> `price_change_pct` sütunu eklendi. Daha önce kurulmuş bir veritabanında Süveyş kayıtları kalır;
+> `git pull` sonrası yukarıdaki üç komutla sıfırla, sonra "3. Veriyi kontrol et" adımındaki kontrolleri çalıştır.
+
 ### Sıfırlamadan güncelleme (yalnızca yeni sütunlar)
 
 Daha önce kurulmuş bir veritabanında veriyi silmeden yalnızca şemaya eklenen sütunları almak için aşağıdaki komutları çalıştır. Birden fazla kez çalıştırmak güvenlidir.
@@ -94,6 +111,37 @@ Daha önce kurulmuş bir veritabanında veriyi silmeden yalnızca şemaya eklene
 ```powershell
 docker exec proje_postgres psql -U proje_admin -d supply_db -c "ALTER TABLE article_analyses ADD COLUMN IF NOT EXISTS price_change_pct numeric(6,2)"
 ```
+
+Bu komut yalnızca sütunu ekler; Süveyş kayıtlarını silmez. Onlar için sıfırlama gerekir.
+
+### Birebir kopya (isteğe bağlı)
+
+`db/` dosyaları kurulumdaki başlangıç verisini içerir. Sonradan taramalarla eklenen haberler, alert'ler
+ve elle yapılan değişiklikler dosyalarda yoktur. Veritabanının o anki hâlinin **aynısını** vermek için:
+
+**Veritabanı sahibi** (kendi bilgisayarında, `kurulum` klasöründe) dışa aktarır:
+
+```powershell
+docker exec proje_postgres pg_dump -U proje_admin -d supply_db -Fc -f /tmp/supply_db.dump
+```
+
+```powershell
+docker cp proje_postgres:/tmp/supply_db.dump .
+```
+
+Oluşan `supply_db.dump` dosyasını arkadaşına gönder (git'e ekleme).
+
+**Arkadaş** 1. ve 2. adımları yaptıktan sonra dosyayı `kurulum` klasörüne koyup içe aktarır:
+
+```powershell
+docker cp supply_db.dump proje_postgres:/tmp/supply_db.dump
+```
+
+```powershell
+docker exec proje_postgres pg_restore -U proje_admin -d supply_db --clean --if-exists --no-owner /tmp/supply_db.dump
+```
+
+Ardından "3. Veriyi kontrol et" adımındaki kontrolleri çalıştır. Kopyada 4. adımda açılan kullanıcılar yer almaz.
 
 ## 4. Takım arkadaşının bağlanmasına izin ver
 
