@@ -25,6 +25,9 @@ export default defineNuxtConfig({
     modelApiToken: '',
     // Hiç kullanıcı yokken ilk yönetici bu bilgilerle oluşturulur (server/plugins/ilkYonetici.ts)
     ilkYonetici: { eposta: '', sifre: '' },
+    // Hız sınırı için istemci adresini taşıyan başlık (NUXT_GUVENILIR_IP_BASLIGI, ör. x-forwarded-for).
+    // Boşsa yalnızca bağlantının adresi kullanılır; yalnızca başlığı kendisi yazan bir proxy arkasında tanımlayın.
+    guvenilirIpBasligi: '',
     // Oturum çerezi şifreli ve httpOnly'dir; 8 saat sonra yeniden giriş gerekir.
     // Şifreleme anahtarı (password) buraya yazılmaz: nuxt-auth-utils onu NUXT_SESSION_PASSWORD'den okur.
     session: { maxAge: 60 * 60 * 8 } as { maxAge: number, password: string }
