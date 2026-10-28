@@ -7,6 +7,7 @@ Outputs:
     clean_news_only_report_final.json -> GIVEN TO THE MODEL (accepted news only)
     rejected_results_debug.json       -> developer only (rejected results + full report)
     scan_logs / articles tables       -> one row per scan, accepted news linked to it
+    cost_impacts / alerts tables      -> refreshed after a successful scan (risk_alerts.py)
 """
 import os
 import sys
@@ -17,6 +18,7 @@ from dotenv import load_dotenv
 from analyzer import CleanNewsOnlySupplyAnalyzer
 from article_store import save_articles
 from models import FinalCleanSupplyReport
+from risk_alerts import update_risks
 from scan_log import ScanFailed, scan_log
 
 # All paths are relative to this file, so the scan works no matter
@@ -87,6 +89,14 @@ def run_scan(triggered_by: str = "manual") -> FinalCleanSupplyReport:
         # Every query failing means the search itself is broken (API key, network)
         if report.reports and errors == len(report.reports):
             raise ScanFailed(f"{errors} sorgunun hepsi arama hatası verdi")
+
+    # The scan is now 'success': refresh cost_impacts / alerts / alert_articles for it.
+    # News analysed by the agent after this point get their alerts with: python risk_alerts.py
+    if scan.id is not None:
+        try:
+            update_risks(scan.id)
+        except Exception as e:
+            print(f"[!] Alert'ler güncellenemedi (tarama kaydedildi): {type(e).__name__}: {e}")
     return report
 
 
