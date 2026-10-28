@@ -80,11 +80,16 @@ export interface Olay {
   gecikmeVar?: boolean
 }
 
+export type RiskBileseniKodu = 'stok' | 'rota' | 'ticaret' | 'sozlesme' | 'olaylar'
+
 export interface RiskBileseni {
+  // Arayüz adı ve açıklamayı kod + degerler ile seçili dilde yazar; ad / aciklama Türkçe özettir (RISK_MODELI.md)
+  kod: RiskBileseniKodu
   ad: string
   puan: number
   enFazla: number
   aciklama: string
+  degerler: Record<string, string | number | boolean>
 }
 
 export interface RiskSonucu {

@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import type { KayitliOlay } from '../shared/types/modelOlayi'
 import { ModelOlaySemasi } from '../shared/utils/modelOlayi'
-import { bildirimIcerigi, bildirimTuruBul, kullaniciIstiyorMu } from '../server/utils/bildirimKurallari'
+import { bildirimIcerigi, bildirimTuruBul, kullaniciIstiyorMu, stokBildirimIcerigi, yeniSiparisGerekenler } from '../server/utils/bildirimKurallari'
+import { tedarikci } from './ornekler'
 
 const BUGUN = '2026-10-24'
 const oku = (id: string): KayitliOlay => ({
@@ -51,5 +52,29 @@ describe('kullanıcı tercihleri', () => {
   })
   it('uygulama içi kapalıysa hiç', () => {
     expect(kullaniciIstiyorMu({ ...tercih, uygulamaIci: false }, 'yuksek')).toBe(false)
+  })
+})
+
+describe('stok bildirimi', () => {
+  const yeterli = tedarikci({ id: 1, stok: { eldeki: 900, rezerve: 0, kullanilabilir: 900, siparisSeviyesi: 438, durum: 'yeterli' } })
+  const dusen = tedarikci({ id: 3 }) // 274 / 438
+  it('parça sipariş seviyesinin altına ilk düştüğünde', () => {
+    expect(yeniSiparisGerekenler([], [yeterli, dusen]).map(t => t.id)).toEqual([3])
+  })
+  it('önceki kontrolde de altındaysa tekrar bildirim yok', () => {
+    expect(yeniSiparisGerekenler([3], [yeterli, dusen])).toEqual([])
+  })
+  it('toparlanıp yeniden düşerse yine bildirilir', () => {
+    // Toparlanınca listeden çıkar (bir sonraki kontrolün öncekisi boştur)
+    expect(yeniSiparisGerekenler([], [dusen]).map(t => t.id)).toEqual([3])
+  })
+  it('seviye: sipariş seviyesinin yarısı veya altı yüksek, değilse orta', () => {
+    expect(stokBildirimIcerigi(dusen)).toEqual({
+      seviye: 'orta',
+      baslik: 'Kingston – Bellek',
+      mesaj: 'Kullanılabilir stok 274, sipariş seviyesi 438'
+    })
+    const kritik = tedarikci({ stok: { eldeki: 200, rezerve: 0, kullanilabilir: 200, siparisSeviyesi: 438, durum: 'siparis_gerekli' } })
+    expect(stokBildirimIcerigi(kritik).seviye).toBe('yuksek')
   })
 })

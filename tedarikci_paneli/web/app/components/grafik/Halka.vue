@@ -30,13 +30,14 @@ const yaylar = computed(() => {
 })
 
 const { kapsayici, ipucu, goster, konumla, gizle } = useIpucu()
+const { t, sayi, yuzde } = useDil()
 const aktif = ref<string | null>(null)
 
 function ipucuGoster(olay: MouseEvent | FocusEvent, d: Dilim & { oran: number }) {
   aktif.value = d.ad
   goster(olay, d.ad, [
-    { ad: 'Sayı', deger: sayiBicimi(d.deger), renk: d.renk },
-    { ad: 'Pay', deger: `%${Math.round(d.oran * 100)}` }
+    { ad: t('alan.sayi'), deger: sayi(d.deger), renk: d.renk },
+    { ad: t('alan.pay'), deger: yuzde(Math.round(d.oran * 100) / 100) }
   ])
 }
 function birak() {
@@ -73,7 +74,7 @@ function birak() {
         <span class="inline-block size-3 rounded-sm shrink-0" :style="{ background: d.renk }" />
         <UIcon v-if="d.ikon" :name="d.ikon" class="size-4 shrink-0 text-muted" />
         <span class="text-default">{{ d.ad }}</span>
-        <span class="ms-auto ps-3 font-semibold text-highlighted tabular-nums">{{ sayiBicimi(d.deger) }}</span>
+        <span class="ms-auto ps-3 font-semibold text-highlighted tabular-nums">{{ sayi(d.deger) }}</span>
       </li>
     </ul>
 

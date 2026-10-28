@@ -1,5 +1,6 @@
 <script setup lang="ts">
-// Uygulama içi bildirimler: model yeni haber veya çıkarım gönderince (Ayarlar'daki tercihlere göre) düşer.
+// Uygulama içi bildirimler: model yeni haber veya çıkarım gönderince ya da bir parçanın stoğu sipariş seviyesinin
+// altına düşünce (Ayarlar'daki tercihlere göre) düşer.
 // Sayfa açıkken dakikada bir ve pencereye dönüldüğünde yenilenir.
 const YENILEME_MS = 60_000
 
@@ -20,18 +21,26 @@ onBeforeUnmount(() => {
 })
 
 const acik = ref(false)
-const TUR_ETIKETI: Record<BildirimTuru, { etiket: string, icon: string }> = {
-  yeni_olay: { etiket: 'Yeni haber', icon: 'i-lucide-newspaper' },
-  yeni_cikarim: { etiket: 'Model çıkarımı', icon: 'i-lucide-bot' }
+const { t, goreli, sayi } = useDil()
+const TUR: Record<BildirimTuru, { anahtar: string, icon: string }> = {
+  yeni_olay: { anahtar: 'bildirim.yeniHaber', icon: 'i-lucide-newspaper' },
+  yeni_cikarim: { anahtar: 'bildirim.modelCikarimi', icon: 'i-lucide-bot' },
+  siparis_gerekli: { anahtar: 'bildirim.siparisGerekli', icon: 'i-lucide-package' }
 }
 
-const goreli = new Intl.RelativeTimeFormat('tr', { numeric: 'auto' })
+// Stok bildiriminin metni arayüz dilinde yazılır; olay bildiriminde modelin metni gösterilir
+function mesaj(b: Bildirim) {
+  return b.stok
+    ? t('bildirim.stokMesaj', { a: sayi(b.stok.kullanilabilir), b: sayi(b.stok.siparisSeviyesi) })
+    : b.mesaj
+}
+
 function neZaman(iso: string) {
   const dakika = Math.round((Date.parse(iso) - Date.now()) / 60_000)
-  if (Math.abs(dakika) < 60) return goreli.format(dakika, 'minute')
+  if (Math.abs(dakika) < 60) return goreli(dakika, 'minute')
   const saat = Math.round(dakika / 60)
-  if (Math.abs(saat) < 24) return goreli.format(saat, 'hour')
-  return goreli.format(Math.round(saat / 24), 'day')
+  if (Math.abs(saat) < 24) return goreli(saat, 'hour')
+  return goreli(Math.round(saat / 24), 'day')
 }
 
 async function ac(b: Bildirim) {
@@ -40,7 +49,9 @@ async function ac(b: Bildirim) {
     await $fetch('/api/bildirimler/okundu', { method: 'POST', body: { id: b.id } })
     await refresh()
   }
-  await navigateTo({ path: '/olaylar', query: { olay: b.olayId } })
+  await navigateTo(b.stok
+    ? { path: '/tedarikciler', query: { stok: 'siparis_gerekli', sirala: 'stok' } }
+    : { path: '/olaylar', query: { olay: b.olayId } })
 }
 
 async function tumunuOkundu() {
@@ -57,25 +68,25 @@ async function tumunuOkundu() {
         variant="ghost"
         square
         icon="i-lucide-bell"
-        :aria-label="data.okunmamis ? `Bildirimler, ${data.okunmamis} okunmamış` : 'Bildirimler'"
+        :aria-label="data.okunmamis ? t('bildirim.okunmamis', { n: data.okunmamis }) : t('bildirim.baslik')"
       />
     </UChip>
 
     <template #content>
       <div class="w-[min(24rem,calc(100vw-2rem))]">
         <div class="flex items-center justify-between gap-2 border-b border-default px-4 py-3">
-          <p class="font-semibold text-highlighted">Bildirimler</p>
+          <p class="font-semibold text-highlighted">{{ t('bildirim.baslik') }}</p>
           <UButton
             v-if="data.okunmamis"
             size="xs"
             variant="link"
-            label="Tümünü okundu say"
+            :label="t('bildirim.tumunuOkundu')"
             @click="tumunuOkundu"
           />
         </div>
 
         <p v-if="!data.bildirimler.length" class="px-4 py-6 text-center text-sm text-muted">
-          Henüz bildirim yok. Model yeni bir haber veya çıkarım gönderdiğinde burada görünecek.
+          {{ t('bildirim.yok') }}
         </p>
 
         <ul v-else class="max-h-[60vh] overflow-y-auto divide-y divide-default">
@@ -87,26 +98,26 @@ async function tumunuOkundu() {
               @click="ac(b)"
             >
               <div class="flex items-center justify-between gap-2 text-xs text-muted">
-                <span class="flex items-center gap-1 font-medium" :class="b.tur === 'yeni_cikarim' ? 'text-primary' : ''">
-                  <UIcon :name="TUR_ETIKETI[b.tur].icon" class="size-3.5" />
-                  {{ TUR_ETIKETI[b.tur].etiket }}
+                <span class="flex items-center gap-1 font-medium" :class="b.tur === 'yeni_cikarim' ? 'text-primary' : b.tur === 'siparis_gerekli' ? 'text-warning' : ''">
+                  <UIcon :name="TUR[b.tur].icon" class="size-3.5" />
+                  {{ t(TUR[b.tur].anahtar) }}
                 </span>
                 <span class="flex items-center gap-1.5">
                   {{ neZaman(b.olusturma) }}
-                  <span v-if="!b.okundu" class="inline-block size-2 rounded-full bg-[var(--ui-primary)]" aria-label="okunmadı" />
+                  <span v-if="!b.okundu" class="inline-block size-2 rounded-full bg-[var(--ui-primary)]" :aria-label="t('bildirim.okunmadi')" />
                 </span>
               </div>
               <div class="mt-1 flex items-start justify-between gap-2">
                 <p class="text-sm font-medium text-highlighted line-clamp-2">{{ b.baslik }}</p>
                 <SeviyeRozeti :seviye="b.seviye" class="shrink-0" />
               </div>
-              <p class="mt-0.5 text-sm text-toned line-clamp-2">{{ b.mesaj }}</p>
+              <p class="mt-0.5 text-sm text-toned line-clamp-2">{{ mesaj(b) }}</p>
             </button>
           </li>
         </ul>
 
         <div class="border-t border-default px-4 py-2 text-xs text-muted">
-          Hangi bildirimlerin geleceği <ULink to="/ayarlar" class="text-primary" @click="acik = false">Ayarlar</ULink>'dan seçilir.
+          {{ t('bildirim.ayarNotu') }} <ULink to="/ayarlar" class="text-primary" @click="acik = false">{{ t('nav.ayarlar') }}</ULink>{{ t('bildirim.ayarNotuSon') }}
         </div>
       </div>
     </template>

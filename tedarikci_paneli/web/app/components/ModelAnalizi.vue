@@ -2,8 +2,9 @@
 // Modelin bir haber (olay) için yaptığı çıkarım. Olaylar sayfasında, olayın genel bilgilerinden sonra gösterilir.
 // Bütün metinler düz metin olarak gösterilir; kaynak bağlantıları şemada https ile sınırlıdır.
 const props = defineProps<{ rapor: ModelCikarimi, tedarikciler: RiskliTedarikci[] }>()
+const { t, sayi, yuzde, tarihSaat } = useDil()
 
-const tedarikciAdi = computed(() => new Map(props.tedarikciler.map(t => [t.id, `${t.firma} · ${t.parca}`])))
+const tedarikciAdi = computed(() => new Map(props.tedarikciler.map(x => [x.id, `${x.firma} · ${x.parca}`])))
 const SIRA: Record<Seviye, number> = { yuksek: 0, orta: 1, dusuk: 2 }
 const bulgular = computed(() => [...props.rapor.bulgular].sort((a, b) => SIRA[a.seviye] - SIRA[b.seviye]))
 const oneriler = computed(() => [...props.rapor.oneriler].sort((a, b) => SIRA[a.oncelik] - SIRA[b.oncelik]))
@@ -15,40 +16,40 @@ const oneriler = computed(() => [...props.rapor.oneriler].sort((a, b) => SIRA[a.
       <div class="min-w-0 space-y-1">
         <p class="flex items-center gap-1.5 text-sm font-medium text-primary">
           <UIcon name="i-lucide-bot" class="size-4" />
-          Model çıkarımı · {{ rapor.model.ad }} {{ rapor.model.surum }}
+          {{ t('model.cikarim', { ad: rapor.model.ad, surum: rapor.model.surum }) }}
         </p>
         <h3 class="text-lg font-semibold text-highlighted">{{ rapor.baslik }}</h3>
-        <p class="text-xs text-muted">{{ tarihSaatBicimi(rapor.olusturma) }}</p>
+        <p class="text-xs text-muted">{{ tarihSaat(rapor.olusturma) }}</p>
       </div>
     </template>
 
     <div class="space-y-5">
       <div class="grid gap-3 grid-cols-3">
         <div class="rounded-md bg-elevated/50 p-3">
-          <p class="text-xs text-muted">Genel değerlendirme</p>
+          <p class="text-xs text-muted">{{ t('model.genel') }}</p>
           <SeviyeRozeti :seviye="rapor.genelDegerlendirme.seviye" buyuk class="mt-1.5" />
         </div>
         <div class="rounded-md bg-elevated/50 p-3">
-          <p class="text-xs text-muted">Risk skoru</p>
+          <p class="text-xs text-muted">{{ t('model.riskSkoru') }}</p>
           <p class="mt-1 text-xl font-semibold text-highlighted">
-            {{ rapor.genelDegerlendirme.skor !== undefined ? `${sayiBicimi(rapor.genelDegerlendirme.skor)} / 100` : '—' }}
+            {{ rapor.genelDegerlendirme.skor !== undefined ? `${sayi(rapor.genelDegerlendirme.skor)} / 100` : '—' }}
           </p>
         </div>
         <div class="rounded-md bg-elevated/50 p-3">
-          <p class="text-xs text-muted">Modelin güveni</p>
+          <p class="text-xs text-muted">{{ t('model.guven') }}</p>
           <p class="mt-1 text-xl font-semibold text-highlighted">
-            {{ rapor.genelDegerlendirme.guven !== undefined ? `%${Math.round(rapor.genelDegerlendirme.guven * 100)}` : '—' }}
+            {{ rapor.genelDegerlendirme.guven !== undefined ? yuzde(Math.round(rapor.genelDegerlendirme.guven * 100) / 100) : '—' }}
           </p>
         </div>
       </div>
 
       <div>
-        <h4 class="text-sm font-semibold text-highlighted">Özet</h4>
+        <h4 class="text-sm font-semibold text-highlighted">{{ t('model.ozet') }}</h4>
         <p class="mt-1 text-default whitespace-pre-line">{{ rapor.ozet }}</p>
       </div>
 
       <div v-if="bulgular.length">
-        <h4 class="text-sm font-semibold text-highlighted">Bulgular ({{ bulgular.length }})</h4>
+        <h4 class="text-sm font-semibold text-highlighted">{{ t('model.bulgular', { n: bulgular.length }) }}</h4>
         <ul class="mt-1 divide-y divide-default">
           <li v-for="(b, i) in bulgular" :key="i" class="py-3 space-y-1.5">
             <div class="flex items-start justify-between gap-3">
@@ -65,7 +66,7 @@ const oneriler = computed(() => [...props.rapor.oneriler].sort((a, b) => SIRA[a.
                 size="sm"
                 icon="i-lucide-building-2"
               >
-                {{ tedarikciAdi.get(tid) ?? `Tedarikçi #${tid}` }}
+                {{ tedarikciAdi.get(tid) ?? t('model.tedarikciNo', { id: tid }) }}
               </UBadge>
             </div>
           </li>
@@ -73,7 +74,7 @@ const oneriler = computed(() => [...props.rapor.oneriler].sort((a, b) => SIRA[a.
       </div>
 
       <div v-if="oneriler.length">
-        <h4 class="text-sm font-semibold text-highlighted">Öneriler</h4>
+        <h4 class="text-sm font-semibold text-highlighted">{{ t('model.oneriler') }}</h4>
         <ul class="mt-2 space-y-2">
           <li v-for="(o, i) in oneriler" :key="i" class="flex items-start gap-3">
             <SeviyeRozeti :seviye="o.oncelik" class="shrink-0 mt-0.5" />
@@ -83,7 +84,7 @@ const oneriler = computed(() => [...props.rapor.oneriler].sort((a, b) => SIRA[a.
       </div>
 
       <div v-if="rapor.kaynaklar.length">
-        <h4 class="text-sm font-semibold text-highlighted">Kaynaklar</h4>
+        <h4 class="text-sm font-semibold text-highlighted">{{ t('model.kaynaklar') }}</h4>
         <ul class="mt-1 space-y-1 text-sm">
           <li v-for="(k, i) in rapor.kaynaklar" :key="i" class="flex items-center gap-1.5 min-w-0">
             <UIcon name="i-lucide-external-link" class="size-3.5 text-muted shrink-0" />
@@ -93,7 +94,7 @@ const oneriler = computed(() => [...props.rapor.oneriler].sort((a, b) => SIRA[a.
       </div>
 
       <p class="text-xs text-muted">
-        Bu değerlendirme {{ rapor.model.ad }} tarafından üretilmiştir; karar vermeden önce bulguları kaynaklarıyla kontrol edin.
+        {{ t('model.uyari', { ad: rapor.model.ad }) }}
       </p>
     </div>
   </UCard>

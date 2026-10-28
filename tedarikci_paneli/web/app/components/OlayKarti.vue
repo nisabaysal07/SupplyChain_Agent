@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{ olay: EtkiliOlay, secili: boolean }>()
 defineEmits<{ sec: [] }>()
+const { t, tarih } = useDil()
 </script>
 
 <template>
@@ -17,18 +18,18 @@ defineEmits<{ sec: [] }>()
     </div>
     <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
       <span class="flex items-center gap-1">
-        <UIcon :name="OLAY_TURU[olay.tur].icon" class="size-3.5" />
-        {{ OLAY_TURU[olay.tur].etiket }}
+        <UIcon :name="OLAY_TURU_IKONU[olay.tur]" class="size-3.5" />
+        {{ t(`olayTuru.${olay.tur}`) }}
       </span>
-      <span>{{ tarihBicimi(olay.tarih) }}</span>
-      <span>{{ olay.etkilenenler.length }} tedarikçi</span>
+      <span>{{ tarih(olay.tarih) }}</span>
+      <span>{{ t('olay.tedarikciSayisi', { n: olay.etkilenenler.length }) }}</span>
       <span v-if="olay.gecikmeVar" class="flex items-center gap-1 font-medium text-toned">
         <UIcon name="i-lucide-clock-alert" class="size-3.5" />
-        Gecikme
+        {{ t('olay.gecikme') }}
       </span>
       <span v-if="olay.analizVar" class="flex items-center gap-1 font-medium text-primary">
         <UIcon name="i-lucide-bot" class="size-3.5" />
-        Model çıkarımı
+        {{ t('olay.modelCikarimi') }}
       </span>
     </div>
   </button>

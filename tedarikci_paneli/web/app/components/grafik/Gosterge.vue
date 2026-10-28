@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // 0–100 risk göstergesi: yarım daire, eşikler (35 ve 60) işaretli, ortada büyük sayı
 const props = defineProps<{ skor: number }>()
+const { t } = useDil()
 
 const R = 80
 const CX = 100
@@ -31,7 +32,7 @@ const esikler = [35, 60].map((e) => {
 
 <template>
   <div class="flex flex-col items-center">
-    <svg viewBox="0 0 200 112" class="w-full max-w-60" role="img" :aria-label="`Portföy risk skoru ${skor} / 100, ${SEVIYE_ETIKETI[seviye]}`">
+    <svg viewBox="0 0 200 112" class="w-full max-w-60" role="img" :aria-label="t('grafik.portfoyAria', { skor, s: t(`seviye.${seviye}`) })">
       <path :d="yay(0, 1)" fill="none" stroke="var(--viz-cizgi)" stroke-width="14" stroke-linecap="round" />
       <path v-if="oran > 0" :d="yay(0, oran)" fill="none" :stroke="SEVIYE_VIZ_RENGI[seviye]" stroke-width="14" stroke-linecap="round" />
       <line
@@ -50,8 +51,8 @@ const esikler = [35, 60].map((e) => {
     <p class="-mt-12 text-4xl font-semibold text-highlighted">{{ skor }}</p>
     <p class="mt-1 flex items-center gap-1 text-sm font-medium text-toned">
       <UIcon :name="SEVIYE_IKONU[seviye]" class="size-4" :style="{ color: SEVIYE_VIZ_RENGI[seviye] }" />
-      {{ SEVIYE_ETIKETI[seviye] }} risk
+      {{ t(`seviyeRisk.${seviye}`) }}
     </p>
-    <p class="mt-1 text-xs text-muted">Eşikler: 35 orta · 60 yüksek</p>
+    <p class="mt-1 text-xs text-muted">{{ t('grafik.esikler') }}</p>
   </div>
 </template>

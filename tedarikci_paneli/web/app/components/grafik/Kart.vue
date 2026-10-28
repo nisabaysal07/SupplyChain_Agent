@@ -3,6 +3,7 @@
 import type { GrafikTablosu } from '~/utils/grafik'
 
 defineProps<{ baslik: string, aciklama?: string, tablo: GrafikTablosu }>()
+const { t } = useDil()
 const tabloAcik = ref(false)
 </script>
 
@@ -20,7 +21,7 @@ const tabloAcik = ref(false)
           color="neutral"
           variant="ghost"
           :icon="tabloAcik ? 'i-lucide-chart-column' : 'i-lucide-table'"
-          :label="tabloAcik ? 'Grafik' : 'Tablo'"
+          :label="t(tabloAcik ? 'genel.grafik' : 'genel.tablo')"
           :aria-pressed="tabloAcik"
           @click="tabloAcik = !tabloAcik"
         />

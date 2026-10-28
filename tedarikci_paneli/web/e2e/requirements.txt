@@ -1,0 +1,5 @@
+# Uçtan uca (E2E) test bağımlılıkları — kurulum:
+#   pip install -r e2e/requirements.txt
+#   playwright install chromium
+pytest>=8
+pytest-playwright>=0.7

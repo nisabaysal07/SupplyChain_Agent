@@ -2,18 +2,19 @@
 import type { DropdownMenuItem, NavigationMenuItem } from '@nuxt/ui'
 
 const { user, clear } = useUserSession()
+const { t } = useDil()
 
 const menu = computed<NavigationMenuItem[]>(() => [
-  { label: 'Kontrol Paneli', icon: 'i-lucide-layout-dashboard', to: '/' },
-  { label: 'Tedarikçiler', icon: 'i-lucide-users', to: '/tedarikciler' },
-  { label: 'Olaylar', icon: 'i-lucide-circle-alert', to: '/olaylar' },
+  { label: t('nav.pano'), icon: 'i-lucide-layout-dashboard', to: '/' },
+  { label: t('nav.tedarikciler'), icon: 'i-lucide-users', to: '/tedarikciler' },
+  { label: t('nav.olaylar'), icon: 'i-lucide-circle-alert', to: '/olaylar' },
   // Veritabanına yazdığı için yalnızca yöneticiye görünür
-  ...(user.value?.rol === 'yonetici' ? [{ label: 'Veri Yükleme', icon: 'i-lucide-upload', to: '/yukleme' }] : [])
+  ...(user.value?.rol === 'yonetici' ? [{ label: t('nav.yukleme'), icon: 'i-lucide-upload', to: '/yukleme' }] : [])
 ])
 
-const altMenu: NavigationMenuItem[] = [
-  { label: 'Ayarlar', icon: 'i-lucide-settings', to: '/ayarlar' }
-]
+const altMenu = computed<NavigationMenuItem[]>(() => [
+  { label: t('nav.ayarlar'), icon: 'i-lucide-settings', to: '/ayarlar' }
+])
 
 const tamAd = computed(() => [user.value?.ad, user.value?.soyad].filter(Boolean).join(' '))
 
@@ -24,8 +25,8 @@ async function cikisYap() {
 
 const kullaniciMenusu = computed<DropdownMenuItem[][]>(() => [
   [{ label: user.value?.eposta ?? '', type: 'label' }],
-  [{ label: 'Ayarlar', icon: 'i-lucide-settings', to: '/ayarlar' }],
-  [{ label: 'Oturumu kapat', icon: 'i-lucide-log-out', color: 'error', onSelect: cikisYap }]
+  [{ label: t('nav.ayarlar'), icon: 'i-lucide-settings', to: '/ayarlar' }],
+  [{ label: t('nav.cikis'), icon: 'i-lucide-log-out', color: 'error', onSelect: cikisYap }]
 ])
 </script>
 
@@ -52,12 +53,12 @@ const kullaniciMenusu = computed<DropdownMenuItem[][]>(() => [
             block
             :square="collapsed"
             class="justify-start"
-            :aria-label="`Kullanıcı menüsü: ${tamAd}`"
+            :aria-label="t('nav.kullaniciMenusu', { ad: tamAd })"
           >
             <UAvatar :alt="tamAd" size="xs" />
             <span v-if="!collapsed" class="min-w-0 text-left">
               <span class="block truncate font-medium text-highlighted">{{ tamAd }}</span>
-              <span class="block truncate text-xs text-muted">{{ user?.rol === 'yonetici' ? 'Yönetici' : 'İzleyici' }}</span>
+              <span class="block truncate text-xs text-muted">{{ t(user?.rol === 'yonetici' ? 'rol.yonetici' : 'rol.izleyici') }}</span>
             </span>
             <UIcon v-if="!collapsed" name="i-lucide-chevrons-up-down" class="ms-auto size-4 text-muted" />
           </UButton>

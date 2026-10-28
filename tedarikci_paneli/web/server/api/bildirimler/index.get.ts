@@ -1,3 +1,6 @@
 export default defineEventHandler(async (event) => {
-  return await bildirimleriGetir(kullaniciGerekli(event).id)
+  const kullanici = kullaniciGerekli(event)
+  // Yeni sipariş gereken parça varsa bildirimi bu listeye yetişsin
+  await stokBildirimleriniKontrolEt()
+  return await bildirimleriGetir(kullanici.id)
 })

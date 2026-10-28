@@ -9,7 +9,8 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      htmlAttrs: { lang: 'tr' },
+      // Varsayılan dil İngilizce; kullanıcı Türkçeye geçerse app.vue günceller
+      htmlAttrs: { lang: 'en' },
       title: 'ChainGuard AI'
     }
   },
@@ -33,10 +34,11 @@ export default defineNuxtConfig({
     session: { maxAge: 60 * 60 * 8 } as { maxAge: number, password: string }
   },
 
-  // Kullanıcılar ve ayarlar sunucuda .data/ klasöründe tutulur (git'e girmez)
+  // Kullanıcılar ve ayarlar sunucuda .data/ klasöründe tutulur (git'e girmez).
+  // E2E testleri CHAINGUARD_VERI_DIZINI ile geçici bir klasör verir; asıl veriye dokunulmaz.
   nitro: {
     storage: {
-      veri: { driver: 'fs', base: './.data/veri' }
+      veri: { driver: 'fs', base: process.env.CHAINGUARD_VERI_DIZINI || './.data/veri' }
     }
   },
 

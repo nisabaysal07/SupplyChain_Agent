@@ -9,6 +9,7 @@ import type { Konum } from '#shared/utils/konumlar'
 // Tedarikçilerin çıkış noktaları (daire: büyüklük = yıllık alım, renk = en yüksek risk) ve Türkiye'ye rotaları.
 // Harita verisi pakete gömülüdür; tarayıcı dışarıdan harita indirmez.
 const props = defineProps<{ tedarikciler: RiskliTedarikci[] }>()
+const { t, para, ulkeAdi, yerAdi } = useDil()
 
 const G = 800
 const Y = 420
@@ -67,7 +68,7 @@ const yol = computed(() => geoPath(projeksiyon.value))
 const xy = (k: Konum) => projeksiyon.value([k.boylam, k.enlem]) ?? [0, 0]
 
 const vurguluUlkeler = computed(() => new Set(
-  [...props.tedarikciler.map(t => t.menseUlke), 'Türkiye'].map(u => ULKE_KODLARI[u]).filter(Boolean)
+  [...props.tedarikciler.map(x => x.menseUlke), 'Türkiye'].map(u => ULKE_KODLARI[u]).filter(Boolean)
 ))
 
 const ulkeYollari = computed(() => ulkeler.map(u => ({
@@ -110,13 +111,13 @@ const { kapsayici, ipucu, goster, konumla, gizle } = useIpucu()
 
 function grupIpucu(olay: MouseEvent | FocusEvent, g: Grup) {
   aktifBolge.value = g.bolge
-  goster(olay, `${g.bolge} · ${[...new Set(g.tedarikciler.map(t => t.menseUlke))].join(', ')}`, [
-    ...g.tedarikciler.map(t => ({
-      ad: `${t.firma} · ${t.parca}`,
-      deger: `${t.risk.skor} · ${SEVIYE_ETIKETI[t.risk.seviye]}`,
-      renk: SEVIYE_VIZ_RENGI[t.risk.seviye]
+  goster(olay, `${yerAdi(g.bolge)} · ${[...new Set(g.tedarikciler.map(x => ulkeAdi(x.menseUlke)))].join(', ')}`, [
+    ...g.tedarikciler.map(x => ({
+      ad: `${x.firma} · ${x.parca}`,
+      deger: `${x.risk.skor} · ${t(`seviye.${x.risk.seviye}`)}`,
+      renk: SEVIYE_VIZ_RENGI[x.risk.seviye]
     })),
-    { ad: 'Yıllık alım', deger: paraBicimi(g.alim) }
+    { ad: t('alan.yillikAlim'), deger: para(g.alim) }
   ])
 }
 
@@ -141,7 +142,7 @@ const SEVIYE_IKONU: Record<Seviye, string> = {
       :viewBox="`0 0 ${G} ${Y}`"
       class="w-full h-auto rounded-md bg-muted"
       role="img"
-      aria-label="Tedarikçi çıkış noktaları ve risk seviyeleri haritası"
+      :aria-label="t('grafik.haritaAria')"
     >
       <g aria-hidden="true">
         <path
@@ -177,7 +178,7 @@ const SEVIYE_IKONU: Record<Seviye, string> = {
           stroke="var(--ui-bg-muted)"
           stroke-width="3"
           paint-order="stroke"
-        >{{ v.bolge }}</text>
+        >{{ yerAdi(v.bolge) }}</text>
       </g>
 
       <!-- Çıkış noktaları -->
@@ -187,7 +188,7 @@ const SEVIYE_IKONU: Record<Seviye, string> = {
         tabindex="0"
         role="button"
         class="cursor-pointer outline-none"
-        :aria-label="`${d.bolge}: ${d.tedarikciler.length} tedarikçi, en yüksek risk ${SEVIYE_ETIKETI[d.seviye]}, yıllık alım ${paraBicimi(d.alim)}`"
+        :aria-label="t('grafik.noktaAria', { bolge: yerAdi(d.bolge), n: d.tedarikciler.length, s: t(`seviye.${d.seviye}`), alim: para(d.alim) })"
         @mouseenter="grupIpucu($event, d)"
         @mousemove="konumla"
         @mouseleave="birak"
@@ -212,7 +213,7 @@ const SEVIYE_IKONU: Record<Seviye, string> = {
           stroke="var(--ui-bg-muted)"
           stroke-width="3"
           paint-order="stroke"
-        >{{ d.bolge }}</text>
+        >{{ yerAdi(d.bolge) }}</text>
       </g>
     </svg>
 
@@ -222,20 +223,20 @@ const SEVIYE_IKONU: Record<Seviye, string> = {
       <span v-for="s in sayilar" :key="s.seviye" class="flex items-center gap-1.5">
         <span class="inline-block size-3 rounded-full" :style="{ background: SEVIYE_VIZ_RENGI[s.seviye] }" />
         <UIcon :name="SEVIYE_IKONU[s.seviye]" class="size-3.5" />
-        {{ SEVIYE_ETIKETI[s.seviye] }} ({{ s.sayi }})
+        {{ t(`seviye.${s.seviye}`) }} ({{ s.sayi }})
       </span>
       <span class="flex items-center gap-1.5">
         <svg width="22" height="6" aria-hidden="true"><line x1="1" y1="3" x2="21" y2="3" stroke="var(--viz-rota)" stroke-width="1.5" /></svg>
-        Deniz
+        {{ t('grafik.deniz') }}
       </span>
       <span class="flex items-center gap-1.5">
         <svg width="22" height="6" aria-hidden="true"><line x1="1" y1="3" x2="21" y2="3" stroke="var(--viz-rota)" stroke-width="1.5" stroke-dasharray="5 4" /></svg>
-        Hava
+        {{ t('grafik.hava') }}
       </span>
-      <span class="text-xs">Daire büyüklüğü: yıllık alım · rotalar temsilidir</span>
+      <span class="text-xs">{{ t('grafik.haritaNotu') }}</span>
     </div>
     <p v-if="bilinmeyenler.length" class="mt-1 text-xs text-muted">
-      Konumu bilinmeyen çıkış noktası: {{ bilinmeyenler.map(t => t.rota.cikis).join(', ') }}
+      {{ t('grafik.bilinmeyen') }} {{ bilinmeyenler.map(x => x.rota.cikis).join(', ') }}
     </p>
   </div>
 </template>

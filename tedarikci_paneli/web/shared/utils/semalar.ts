@@ -1,32 +1,33 @@
 import { z } from 'zod'
 
 // Formlar (tarayıcı) ve API'ler (sunucu) aynı doğrulama kurallarını kullanır.
+// Hata mesajları sözlük anahtarıdır (app/i18n → dogrulama); formlar UFormField'ın #error yuvasında t() ile çevirir.
 // Dışa aktarım sonda topluca yapılır (bkz. shared/utils/etiketler.ts'deki mlly notu).
 
 const SEVIYELER = ['dusuk', 'orta', 'yuksek'] as const
 
-const eposta = z.string().trim().toLowerCase().email('Geçerli bir e-posta girin').max(254)
+const eposta = z.string().trim().toLowerCase().email('dogrulama.eposta').max(254)
 
 const yeniSifre = z.string()
-  .min(12, 'Şifre en az 12 karakter olmalı')
-  .max(128, 'Şifre en fazla 128 karakter olabilir')
+  .min(12, 'dogrulama.sifreMin')
+  .max(128, 'dogrulama.sifreMax')
 
 const GirisSemasi = z.object({
   eposta,
-  sifre: z.string().min(1, 'Şifrenizi girin').max(128)
+  sifre: z.string().min(1, 'dogrulama.sifreGir').max(128)
 })
 
 const ProfilSemasi = z.object({
-  ad: z.string().trim().min(1, 'Ad boş olamaz').max(60),
+  ad: z.string().trim().min(1, 'dogrulama.adBos').max(60),
   soyad: z.string().trim().max(60)
 })
 
 const SifreSemasi = z.object({
-  mevcut: z.string().min(1, 'Mevcut şifrenizi girin').max(128),
+  mevcut: z.string().min(1, 'dogrulama.mevcutGir').max(128),
   yeni: yeniSifre,
   tekrar: z.string()
-}).refine(v => v.yeni === v.tekrar, { message: 'Şifreler aynı değil', path: ['tekrar'] })
-  .refine(v => v.yeni !== v.mevcut, { message: 'Yeni şifre eskisiyle aynı olamaz', path: ['yeni'] })
+}).refine(v => v.yeni === v.tekrar, { message: 'dogrulama.ayniDegil', path: ['tekrar'] })
+  .refine(v => v.yeni !== v.mevcut, { message: 'dogrulama.eskisiyleAyni', path: ['yeni'] })
 
 const BildirimSemasi = z.object({
   eposta: z.boolean(),

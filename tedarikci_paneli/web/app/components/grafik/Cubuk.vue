@@ -10,10 +10,11 @@ const props = withDefaults(
 const enBuyuk = computed(() => Math.max(1, ...props.cubuklar.map(c => c.deger)))
 const { kapsayici, ipucu, goster, konumla, gizle } = useIpucu()
 const aktif = ref<string | null>(null)
+const { t } = useDil()
 
 function ipucuGoster(olay: MouseEvent | FocusEvent, c: Cubuk) {
   aktif.value = c.ad
-  goster(olay, c.ad, [{ ad: 'Değer', deger: c.etiket, renk: props.renk }, ...(c.ayrinti ?? [])])
+  goster(olay, c.ad, [{ ad: t('alan.deger'), deger: c.etiket, renk: props.renk }, ...(c.ayrinti ?? [])])
 }
 function birak() {
   aktif.value = null

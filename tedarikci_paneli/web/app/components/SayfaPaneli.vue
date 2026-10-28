@@ -11,6 +11,7 @@ defineProps<{ baslik: string }>()
         </template>
         <template #right>
           <slot name="sag" />
+          <DilSecici />
           <BildirimZili />
         </template>
       </UDashboardNavbar>

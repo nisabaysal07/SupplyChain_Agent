@@ -1,10 +1,10 @@
 import type { BildirimTercihleri } from '../../shared/types/kullanici'
 import type { BildirimTuru } from '../../shared/types/bildirim'
 import type { KayitliOlay } from '../../shared/types/modelOlayi'
-import type { Seviye } from '../../shared/types/veri'
+import type { Seviye, Tedarikci } from '../../shared/types/veri'
 import { olayAktifMi } from './risk'
 
-// Model bir olay gönderdiğinde bildirim düşüp düşmeyeceğine ve ne yazacağına karar veren saf kurallar
+// Bildirim düşüp düşmeyeceğine ve ne yazacağına karar veren saf kurallar (model olayları ve stok)
 
 const SIRA: Record<Seviye, number> = { yuksek: 0, orta: 1, dusuk: 2 }
 
@@ -36,4 +36,21 @@ export function bildirimIcerigi(olay: KayitliOlay): { seviye: Seviye, mesaj: str
 
 export function kullaniciIstiyorMu(tercih: BildirimTercihleri, seviye: Seviye): boolean {
   return tercih.uygulamaIci && tercih.seviyeler.includes(seviye)
+}
+
+// Stok bildirimleri: parça sipariş seviyesinin altına ilk düştüğünde bir kez. Stok toparlanıp yeniden
+// düşerse yine bildirilir. onceki: bir önceki kontrolde sipariş gereken tedarikçi kimlikleri
+export function yeniSiparisGerekenler(onceki: number[], tedarikciler: Tedarikci[]): Tedarikci[] {
+  const bilinen = new Set(onceki)
+  return tedarikciler.filter(t => t.stok.durum === 'siparis_gerekli' && !bilinen.has(t.id))
+}
+
+// Kullanılabilir stok sipariş seviyesinin yarısına inmişse yüksek, değilse orta
+export function stokBildirimIcerigi(t: Tedarikci): { seviye: Seviye, baslik: string, mesaj: string } {
+  const oran = t.stok.kullanilabilir / Math.max(1, t.stok.siparisSeviyesi)
+  return {
+    seviye: oran <= 0.5 ? 'yuksek' : 'orta',
+    baslik: `${t.firma} – ${t.parca}`,
+    mesaj: `Kullanılabilir stok ${t.stok.kullanilabilir}, sipariş seviyesi ${t.stok.siparisSeviyesi}`
+  }
 }

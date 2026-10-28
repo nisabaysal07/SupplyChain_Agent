@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 
 // Bildirimler kullanıcı başına tutulur: .data/veri/bildirim/<kullaniciId>/<bildirimId>
+// İki kaynağı var: modelin gönderdiği olaylar ve sipariş seviyesinin altına düşen stok
 // Her kullanıcının en yeni 100 bildirimi saklanır.
 
 const EN_FAZLA = 100
@@ -23,24 +24,63 @@ export async function bildirimleriGetir(kullaniciId: string, adet = 30): Promise
   }
 }
 
-// Model olay gönderince çağrılır; bildirim düşen kullanıcı sayısını döner
-export async function olayBildirimiGonder(onceki: KayitliOlay | null, olay: KayitliOlay): Promise<number> {
-  const tur = bildirimTuruBul(onceki, olay, bugunISO())
-  if (!tur) return 0
-  const { seviye, mesaj } = bildirimIcerigi(olay)
-  const alicilar = (await kullanicilariListele()).filter(k => kullaniciIstiyorMu(k.bildirimler, seviye))
-
+// Bildirimi, tercihleri bu seviyeyi isteyen her kullanıcıya yazar; bildirim düşen kullanıcı sayısını döner
+async function bildirimDusur(icerik: Omit<Bildirim, 'id' | 'olusturma' | 'okundu'>): Promise<number> {
+  const alicilar = (await kullanicilariListele()).filter(k => kullaniciIstiyorMu(k.bildirimler, icerik.seviye))
   const olusturma = new Date().toISOString()
   await Promise.all(alicilar.map(async (k) => {
     const id = randomUUID()
-    await depo().setItem(`${onEk(k.id)}:${id}`, {
-      id, olayId: olay.id, tur, seviye, baslik: olay.baslik, mesaj, olusturma, okundu: false
-    })
+    await depo().setItem(`${onEk(k.id)}:${id}`, { ...icerik, id, olusturma, okundu: false })
     // Eski bildirimleri temizle
     const fazlalar = (await kullanicininBildirimleri(k.id)).slice(EN_FAZLA)
     await Promise.all(fazlalar.map(f => depo().removeItem(f.anahtar)))
   }))
   return alicilar.length
+}
+
+// Model olay gönderince çağrılır; bildirim düşen kullanıcı sayısını döner
+export async function olayBildirimiGonder(onceki: KayitliOlay | null, olay: KayitliOlay): Promise<number> {
+  const tur = bildirimTuruBul(onceki, olay, bugunISO())
+  if (!tur) return 0
+  const { seviye, mesaj } = bildirimIcerigi(olay)
+  return await bildirimDusur({ olayId: olay.id, tur, seviye, baslik: olay.baslik, mesaj })
+}
+
+// Stok veritabanından okunur (Excel yüklemesi veya başka bir sistem değiştirebilir), bu yüzden sipariş gereken
+// parçalar zilin her yenilenmesinde kontrol edilir; en fazla dakikada bir, aynı anda tek kontrol.
+// Bir önceki kontrolde sipariş gereken tedarikçiler .data/veri/stok/siparisGerekli'de tutulur.
+const STOK_KONTROL_ARASI_MS = 60_000
+const STOK_ANAHTARI = 'stok:siparisGerekli'
+let sonStokKontrolu = 0
+let suankiStokKontrolu: Promise<void> | null = null
+
+export function stokBildirimleriniKontrolEt(): Promise<void> {
+  if (suankiStokKontrolu) return suankiStokKontrolu
+  if (Date.now() - sonStokKontrolu < STOK_KONTROL_ARASI_MS) return Promise.resolve()
+  sonStokKontrolu = Date.now()
+  suankiStokKontrolu = (async () => {
+    const tedarikciler = await tedarikcileriOku()
+    const kayitliDepo = useStorage<number[]>('veri')
+    const yeniler = yeniSiparisGerekenler((await kayitliDepo.getItem(STOK_ANAHTARI)) ?? [], tedarikciler)
+    for (const t of yeniler) {
+      const { seviye, baslik, mesaj } = stokBildirimIcerigi(t)
+      await bildirimDusur({
+        tur: 'siparis_gerekli',
+        stok: { tedarikciId: t.id, kullanilabilir: t.stok.kullanilabilir, siparisSeviyesi: t.stok.siparisSeviyesi },
+        seviye, baslik, mesaj
+      })
+    }
+    // Toparlanan parçalar listeden çıkar: yeniden düşerlerse yine bildirilir
+    await kayitliDepo.setItem(STOK_ANAHTARI, tedarikciler.filter(t => t.stok.durum === 'siparis_gerekli').map(t => t.id))
+  })()
+    .catch((e) => {
+      // Veritabanı kapalıysa olay bildirimleri yine çalışsın
+      console.error('[ChainGuard] Stok bildirimleri kontrol edilemedi:', (e as Error).message)
+    })
+    .finally(() => {
+      suankiStokKontrolu = null
+    })
+  return suankiStokKontrolu
 }
 
 // id verilmezse kullanıcının bütün bildirimleri okundu sayılır

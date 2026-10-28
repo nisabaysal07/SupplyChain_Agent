@@ -38,21 +38,26 @@ export function olayEslesir(o: Olay, t: Tedarikci): boolean {
 
 function stokBileseni(t: Tedarikci): RiskBileseni {
   const oran = t.stok.kullanilabilir / t.stok.siparisSeviyesi
+  const gun = Math.round(kullanilabilirGun(t))
   return {
+    kod: 'stok',
     ad: 'Stok',
     enFazla: 30,
     // Oran 1,5 ve üstü → 0 puan; 0,5 ve altı → 30 puan; arası doğrusal
     puan: yuvarla(30 * sinirla(1.5 - oran, 0, 1)),
-    aciklama: `Kullanılabilir stok sipariş seviyesinin ${yuzde(oran)}'i (${Math.round(kullanilabilirGun(t))} günlük)`
+    aciklama: `Kullanılabilir stok sipariş seviyesinin ${yuzde(oran)}'i (${gun} günlük)`,
+    degerler: { oran, gun }
   }
 }
 
 function rotaBileseni(t: Tedarikci): RiskBileseni {
   return {
+    kod: 'rota',
     ad: 'Rota',
     enFazla: 20,
     puan: yuvarla(20 * sinirla(t.rota.transitGun / 30, 0, 1)),
-    aciklama: `${t.rota.mod === 'hava' ? 'Hava' : 'Deniz'} yolu, ${t.rota.transitGun} gün`
+    aciklama: `${t.rota.mod === 'hava' ? 'Hava' : 'Deniz'} yolu, ${t.rota.transitGun} gün`,
+    degerler: { mod: t.rota.mod, gun: t.rota.transitGun }
   }
 }
 
@@ -63,34 +68,40 @@ function ticaretBileseni(t: Tedarikci): RiskBileseni {
     vergi > 0 ? `gümrük vergisi + İGV ${yuzde(vergi)}` : 'gümrük vergisi yok'
   ]
   return {
+    kod: 'ticaret',
     ad: 'Ticaret',
     enFazla: 15,
     puan: (t.anlasmaVar ? 0 : 10) + (vergi > 0 ? 5 : 0),
-    aciklama: `${t.menseUlke}: ${nedenler.join(', ')}`
+    aciklama: `${t.menseUlke}: ${nedenler.join(', ')}`,
+    degerler: { ulke: t.menseUlke, anlasma: t.anlasmaVar, vergi }
   }
 }
 
 function sozlesmeBileseni(t: Tedarikci, bugun: string): RiskBileseni {
   const kalan = gunFarki(bugun, t.sozlesmeBitis)
   return {
+    kod: 'sozlesme',
     ad: 'Sözleşme',
     enFazla: 10,
     puan: kalan <= 30 ? 10 : kalan <= 90 ? 5 : 0,
-    aciklama: kalan < 0 ? `Sözleşme ${-kalan} gün önce bitti` : `Sözleşmenin bitmesine ${kalan} gün var`
+    aciklama: kalan < 0 ? `Sözleşme ${-kalan} gün önce bitti` : `Sözleşmenin bitmesine ${kalan} gün var`,
+    degerler: { kalan }
   }
 }
 
 function olayBileseni(eslesen: Olay[]): RiskBileseni {
   if (!eslesen.length) {
-    return { ad: 'Olaylar', enFazla: 25, puan: 0, aciklama: 'Etkileyen aktif olay yok' }
+    return { kod: 'olaylar', ad: 'Olaylar', enFazla: 25, puan: 0, aciklama: 'Etkileyen aktif olay yok', degerler: { sayi: 0 } }
   }
   // En ağır olayın puanı + diğer her olay için 5 puan, en fazla 25
   const enAgir = eslesen[0]!
   return {
+    kod: 'olaylar',
     ad: 'Olaylar',
     enFazla: 25,
     puan: Math.min(25, SIDDET_PUANI[enAgir.siddet] + 5 * (eslesen.length - 1)),
-    aciklama: `${eslesen.length} aktif olay; en ağırı: ${enAgir.baslik}`
+    aciklama: `${eslesen.length} aktif olay; en ağırı: ${enAgir.baslik}`,
+    degerler: { sayi: eslesen.length, enAgir: enAgir.baslik }
   }
 }
 

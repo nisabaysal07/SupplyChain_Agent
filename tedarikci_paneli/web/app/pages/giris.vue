@@ -3,12 +3,14 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type { z } from 'zod'
 
 definePageMeta({ layout: false })
-useHead({ title: 'Giriş · ChainGuard AI' })
+const { t } = useDil()
+useHead({ title: () => t('giris.sayfaBasligi') })
 
 const route = useRoute()
 const { fetch: oturumuYenile } = useUserSession()
 
 const form = reactive({ eposta: '', sifre: '' })
+// Hata sözlük anahtarı olarak tutulur: dil değişince mesaj da değişir
 const hata = ref('')
 const gonderiliyor = ref(false)
 
@@ -22,9 +24,7 @@ async function gonder(e: FormSubmitEvent<z.output<typeof GirisSemasi>>) {
   }
   catch (err) {
     const durum = (err as { statusCode?: number }).statusCode
-    hata.value = durum === 429
-      ? 'Çok fazla deneme yapıldı. Bir dakika sonra tekrar deneyin.'
-      : durum === 401 ? 'E-posta veya şifre hatalı.' : 'Giriş yapılamadı. Lütfen tekrar deneyin.'
+    hata.value = durum === 429 ? 'giris.cokDeneme' : durum === 401 ? 'giris.hatali' : 'giris.hata'
   }
   finally {
     gonderiliyor.value = false
@@ -33,29 +33,33 @@ async function gonder(e: FormSubmitEvent<z.output<typeof GirisSemasi>>) {
 </script>
 
 <template>
-  <main class="min-h-dvh flex items-center justify-center bg-muted px-4">
+  <main class="relative min-h-dvh flex items-center justify-center bg-muted px-4">
+    <DilSecici class="absolute top-4 right-4" />
+
     <UCard class="w-full max-w-sm belir">
       <template #header>
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-shield-check" class="size-7 text-primary" />
           <div>
             <h1 class="font-semibold text-highlighted">ChainGuard AI</h1>
-            <p class="text-sm text-muted">Tedarik zinciri risk paneli</p>
+            <p class="text-sm text-muted">{{ t('giris.altBaslik') }}</p>
           </div>
         </div>
       </template>
 
       <UForm :schema="GirisSemasi" :state="form" class="space-y-4" @submit="gonder">
-        <UFormField label="E-posta" name="eposta">
+        <UFormField :label="t('giris.eposta')" name="eposta">
           <UInput v-model="form.eposta" type="email" autocomplete="username" class="w-full" autofocus />
+          <template #error="{ error }">{{ typeof error === 'string' ? t(error) : '' }}</template>
         </UFormField>
-        <UFormField label="Şifre" name="sifre">
+        <UFormField :label="t('giris.sifre')" name="sifre">
           <UInput v-model="form.sifre" type="password" autocomplete="current-password" class="w-full" />
+          <template #error="{ error }">{{ typeof error === 'string' ? t(error) : '' }}</template>
         </UFormField>
 
-        <UAlert v-if="hata" class="belir" color="error" variant="subtle" icon="i-lucide-circle-alert" :title="hata" />
+        <UAlert v-if="hata" class="belir" color="error" variant="subtle" icon="i-lucide-circle-alert" :title="t(hata)" />
 
-        <UButton type="submit" label="Giriş yap" block :loading="gonderiliyor" />
+        <UButton type="submit" :label="t('giris.girisYap')" block :loading="gonderiliyor" />
       </UForm>
     </UCard>
   </main>
