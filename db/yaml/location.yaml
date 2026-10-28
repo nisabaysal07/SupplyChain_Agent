@@ -2,6 +2,8 @@
 # code: UN/LOCODE (liman) veya IATA (havalimanı); yoksa null
 # location_type: port | airport | border_gate | chokepoint
 # country: ülkenin iso_code'u (country.yaml); uluslararası noktalar için null
+# latitude / longitude: panel haritasındaki konum (ondalık derece); yoksa nokta haritada gösterilmez
+# city: yakın noktalar haritada aynı şehir/bölge adıyla tek daire olur (ör. iki Shenzhen limanı)
 
 locations:
   - id: 1
@@ -9,53 +11,86 @@ locations:
     code: "SGN"
     location_type: airport
     country: "VNM"
+    latitude: 10.82
+    longitude: 106.65
+    city: "Ho Chi Minh"
   - id: 2
     name: "Penang Uluslararası Havalimanı"
     code: "PEN"
     location_type: airport
     country: "MYS"
+    latitude: 5.3
+    longitude: 100.28
+    city: "Penang"
   - id: 3
     name: "Incheon Uluslararası Havalimanı"
     code: "ICN"
     location_type: airport
     country: "KOR"
+    latitude: 37.46
+    longitude: 126.44
+    city: "Incheon"
   - id: 4
     name: "Kaohsiung Limanı"
     code: "TWKHH"
     location_type: port
     country: "TWN"
+    latitude: 22.61
+    longitude: 120.28
+    city: "Kaohsiung"
   - id: 5
     name: "Taoyuan Uluslararası Havalimanı"
     code: "TPE"
     location_type: airport
     country: "TWN"
+    latitude: 25.08
+    longitude: 121.23
+    city: "Taoyuan"
   - id: 6
     name: "Yantian Limanı (Shenzhen)"
     code: "CNYTN"
     location_type: port
     country: "CHN"
+    latitude: 22.57
+    longitude: 114.27
+    city: "Shenzhen"
   - id: 7
     name: "Shekou Limanı (Shenzhen)"
     code: "CNSHK"
     location_type: port
     country: "CHN"
+    latitude: 22.48
+    longitude: 113.91
+    city: "Shenzhen"
   - id: 8
     name: "Ningbo-Zhoushan Limanı"
     code: "CNNBG"
     location_type: port
     country: "CHN"
+    latitude: 29.93
+    longitude: 121.85
+    city: "Ningbo"
   - id: 9
     name: "Cai Mep Limanı"
     code: "VNTOT"
     location_type: port
     country: "VNM"
+    latitude: 10.53
+    longitude: 107.03
+    city: "Ho Chi Minh"
   - id: 10
     name: "Mersin Limanı"
     code: "TRMER"
     location_type: port
     country: "TUR"
+    latitude: 36.79
+    longitude: 34.63
+    city: "Mersin"
   - id: 11
     name: "İstanbul Havalimanı"
     code: "IST"
     location_type: airport
     country: "TUR"
+    latitude: 41.28
+    longitude: 28.75
+    city: "İstanbul"

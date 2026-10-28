@@ -258,15 +258,19 @@ const tr: Sozluk = {
     baglanamadi: 'Bağlanamadı',
     apiAnahtarlari: 'API anahtarları',
     tavily: 'Tavily (haber arama)',
-    nemotron: 'Nemotron (yapay zekâ analizi)',
+    nebius: 'Nebius (ajanın yapay zekâ analizi)',
+    modelErisimi: 'Panele olay gönderimi (panel_sync.py)',
+    bildirimKanallari: 'Dış bildirim kanalları (notify.py)',
     tanimli: 'Tanımlı',
     tanimliDegil: 'Tanımlı değil',
     anahtarNotu: 'Güvenlik için anahtarlar bu ekranda gösterilmez ve buradan değiştirilmez; sunucudaki {dosya} dosyasından yönetilir.',
-    senkron: 'Veri senkronizasyon sıklığı',
-    senkronYardim: 'Canlı olay kaynakları bu aralıkla taranacak.',
-    siklik6: '6 saatte bir',
-    siklik12: '12 saatte bir',
-    siklik24: 'Günde bir'
+    senkron: 'Haber tarama sıklığı',
+    senkronYardim: 'Zamanlayıcı saatte bir uyanır ve son başarılı taramadan bu kadar süre geçtiyse yeniden tarar.',
+    siklikSaat: ['Saatte bir', '{n} saatte bir'],
+    siklikGunde: 'Günde bir',
+    sonTarama: 'Son tarama: {zaman} ({durum}).',
+    sonTaramaYok: 'Henüz tarama yapılmadı.',
+    taramaDurumu: { running: 'sürüyor', success: 'başarılı', failed: 'başarısız' }
   },
   yuk: {
     tablolar: {

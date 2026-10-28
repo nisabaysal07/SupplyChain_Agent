@@ -57,15 +57,3 @@ export async function kullaniciOlustur(veri: { ad: string, soyad: string, eposta
   return kayit
 }
 
-// Sistem ayarları tüm kullanıcılar için ortaktır
-const SISTEM_ANAHTARI = 'sistem:ayarlar'
-const VARSAYILAN_SISTEM: SistemAyarlari = { senkronizasyonSaat: 12 }
-
-export async function sistemAyarlariGetir(): Promise<SistemAyarlari> {
-  const kayit = await useStorage<SistemAyarlari>('veri').getItem(SISTEM_ANAHTARI)
-  return { ...VARSAYILAN_SISTEM, ...kayit }
-}
-
-export async function sistemAyarlariKaydet(ayarlar: SistemAyarlari): Promise<void> {
-  await useStorage<SistemAyarlari>('veri').setItem(SISTEM_ANAHTARI, ayarlar)
-}

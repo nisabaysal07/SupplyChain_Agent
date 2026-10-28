@@ -27,7 +27,11 @@ CREATE TABLE locations (
     code          VARCHAR(5) UNIQUE,                   -- UN/LOCODE (liman) veya IATA (havalimanı)
     location_type VARCHAR(20)  NOT NULL
                   CHECK (location_type IN ('port','airport','border_gate','chokepoint')),
-    country_id    INT REFERENCES countries(id)      -- NULL for international chokepoints
+    country_id    INT REFERENCES countries(id),     -- NULL for international chokepoints
+    -- Panel haritası: konum ve yakın noktaların tek daire olarak toplandığı şehir/bölge (ör. iki Shenzhen limanı)
+    latitude      NUMERIC(8,5) CHECK (latitude  BETWEEN -90  AND 90),
+    longitude     NUMERIC(8,5) CHECK (longitude BETWEEN -180 AND 180),
+    city          VARCHAR(100)
 );
 
 -- Oran kaynağı (ör. Ticaret Bakanlığı TARA); items ve tariffs oranlarının nereden alındığı
@@ -134,6 +138,15 @@ CREATE TABLE inventory (
     reorder_point     NUMERIC(14,3),                   
     updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
     CHECK (reserved <= on_hand)
+);
+
+-- Panelin Ayarlar sayfasından değiştirilen, Python betiklerinin de okuduğu ayarlar.
+--   scan_interval_hours: haber taramasının kaç saatte bir yapılacağı (1, 3, 6, 12, 24; main.py --schedule)
+-- Tablo eski bir veritabanında yoksa panel ilk kayıtta oluşturur.
+CREATE TABLE app_settings (
+    key        VARCHAR(50) PRIMARY KEY,
+    value      JSONB NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ---------------------------------------------------------------------

@@ -58,21 +58,21 @@ FROM (VALUES
 -- ADIM 1c: locations  (kaynak: rotalar tablosundaki çıkış/varış noktaları)
 -- Sıra yaml/location.yaml id'leriyle aynıdır
 -- =====================================================================
-INSERT INTO locations (id, code, name, location_type, country_id)
-SELECT v.id, v.code, v.name, v.location_type, c.id
+INSERT INTO locations (id, code, name, location_type, country_id, latitude, longitude, city)
+SELECT v.id, v.code, v.name, v.location_type, c.id, v.lat, v.lon, v.city
 FROM (VALUES
-  ( 1, 'SGN',   'Tan Son Nhat Uluslararası Havalimanı', 'airport',    'VNM'),
-  ( 2, 'PEN',   'Penang Uluslararası Havalimanı',       'airport',    'MYS'),  -- rotada yok; mock haber verisi kullanıyor
-  ( 3, 'ICN',   'Incheon Uluslararası Havalimanı',      'airport',    'KOR'),
-  ( 4, 'TWKHH', 'Kaohsiung Limanı',                     'port',       'TWN'),
-  ( 5, 'TPE',   'Taoyuan Uluslararası Havalimanı',      'airport',    'TWN'),
-  ( 6, 'CNYTN', 'Yantian Limanı (Shenzhen)',            'port',       'CHN'),
-  ( 7, 'CNSHK', 'Shekou Limanı (Shenzhen)',             'port',       'CHN'),
-  ( 8, 'CNNBG', 'Ningbo-Zhoushan Limanı',               'port',       'CHN'),
-  ( 9, 'VNTOT', 'Cai Mep Limanı',                       'port',       'VNM'),
-  (10, 'TRMER', 'Mersin Limanı',                        'port',       'TUR'),
-  (11, 'IST',   'İstanbul Havalimanı',                  'airport',    'TUR')
-) AS v(id, code, name, location_type, iso)
+  ( 1, 'SGN',   'Tan Son Nhat Uluslararası Havalimanı', 'airport',    'VNM',  10.82,  106.65, 'Ho Chi Minh'),
+  ( 2, 'PEN',   'Penang Uluslararası Havalimanı',       'airport',    'MYS',   5.30,  100.28, 'Penang'),  -- rotada yok; mock haber verisi kullanıyor
+  ( 3, 'ICN',   'Incheon Uluslararası Havalimanı',      'airport',    'KOR',  37.46,  126.44, 'Incheon'),
+  ( 4, 'TWKHH', 'Kaohsiung Limanı',                     'port',       'TWN',  22.61,  120.28, 'Kaohsiung'),
+  ( 5, 'TPE',   'Taoyuan Uluslararası Havalimanı',      'airport',    'TWN',  25.08,  121.23, 'Taoyuan'),
+  ( 6, 'CNYTN', 'Yantian Limanı (Shenzhen)',            'port',       'CHN',  22.57,  114.27, 'Shenzhen'),
+  ( 7, 'CNSHK', 'Shekou Limanı (Shenzhen)',             'port',       'CHN',  22.48,  113.91, 'Shenzhen'),
+  ( 8, 'CNNBG', 'Ningbo-Zhoushan Limanı',               'port',       'CHN',  29.93,  121.85, 'Ningbo'),
+  ( 9, 'VNTOT', 'Cai Mep Limanı',                       'port',       'VNM',  10.53,  107.03, 'Ho Chi Minh'),
+  (10, 'TRMER', 'Mersin Limanı',                        'port',       'TUR',  36.79,   34.63, 'Mersin'),
+  (11, 'IST',   'İstanbul Havalimanı',                  'airport',    'TUR',  41.28,   28.75, 'İstanbul')
+) AS v(id, code, name, location_type, iso, lat, lon, city)
 LEFT JOIN countries c ON c.iso_code = v.iso;
 SELECT setval(pg_get_serial_sequence('locations', 'id'), (SELECT MAX(id) FROM locations));
 

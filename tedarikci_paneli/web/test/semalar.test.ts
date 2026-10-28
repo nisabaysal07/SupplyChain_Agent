@@ -25,7 +25,8 @@ describe('şemalar', () => {
   })
   it('bildirim seviyeleri ve senkronizasyon sıklığı yalnızca izin verilen değerleri alır', () => {
     expect(BildirimSemasi.safeParse({ eposta: true, uygulamaIci: false, seviyeler: ['kritik'] }).success).toBe(false)
-    expect(SistemSemasi.safeParse({ senkronizasyonSaat: 1 }).success).toBe(false)
+    expect(SistemSemasi.safeParse({ senkronizasyonSaat: 2 }).success).toBe(false)
+    expect(SistemSemasi.safeParse({ senkronizasyonSaat: 3 }).success).toBe(true)
     expect(SistemSemasi.safeParse({ senkronizasyonSaat: 24 }).success).toBe(true)
   })
 })

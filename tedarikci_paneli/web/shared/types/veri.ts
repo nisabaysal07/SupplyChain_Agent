@@ -12,6 +12,14 @@ export interface Rota {
   transitGun: number
 }
 
+// Haritadaki bir çıkış/varış noktası (locations tablosundan); anahtarı noktanın resmi adıdır
+export interface HaritaKonumu {
+  enlem: number
+  boylam: number
+  // Yakın noktalar aynı bölgede tek daire olarak görünür
+  bolge: string
+}
+
 export interface Stok {
   eldeki: number
   rezerve: number

@@ -25,7 +25,7 @@ type SutunTuru = 'zorunlu' | 'bos' | 'yeniUrun'
 const TABLOLAR: { tablo: Tablo, sutunlar: [string, SutunTuru][] }[] = [
   { tablo: 'suppliers', sutunlar: [['name', 'zorunlu'], ['country', 'zorunlu'], ['name_original', 'bos']] },
   { tablo: 'items', sutunlar: [['item', 'zorunlu'], ['hs6', 'yeniUrun'], ['gtip', 'yeniUrun'], ['unit', 'yeniUrun']] },
-  { tablo: 'supplier_items', sutunlar: [['item_model', 'zorunlu'], ['assembly_country', 'zorunlu']] },
+  { tablo: 'supplier_items', sutunlar: [['item_model', 'zorunlu'], ['assembly_country', 'zorunlu'], ['annual_quantity', 'bos']] },
   {
     tablo: 'contracts',
     sutunlar: [['contract_start_date', 'zorunlu'], ['currency', 'zorunlu'], ['unit_price', 'zorunlu'], ['contract_end_date', 'bos'], ['purchase_amount', 'bos'], ['price_date', 'bos']]

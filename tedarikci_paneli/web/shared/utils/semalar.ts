@@ -36,7 +36,7 @@ const BildirimSemasi = z.object({
 })
 
 const SistemSemasi = z.object({
-  senkronizasyonSaat: z.union([z.literal(6), z.literal(12), z.literal(24)])
+  senkronizasyonSaat: z.union([z.literal(1), z.literal(3), z.literal(6), z.literal(12), z.literal(24)])
 })
 
 // Giriş sonrası yönlendirme yalnızca site içi bir yola yapılır ("//kotu.site" veya "https://..." reddedilir)

@@ -258,15 +258,19 @@ const en = {
     baglanamadi: 'Connection failed',
     apiAnahtarlari: 'API keys',
     tavily: 'Tavily (news search)',
-    nemotron: 'Nemotron (AI analysis)',
+    nebius: 'Nebius (agent AI analysis)',
+    modelErisimi: 'Sending events to the panel (panel_sync.py)',
+    bildirimKanallari: 'External notification channels (notify.py)',
     tanimli: 'Set',
     tanimliDegil: 'Not set',
     anahtarNotu: 'For security, keys are not shown or changed here; they are managed in the server\'s {dosya} file.',
-    senkron: 'Data sync frequency',
-    senkronYardim: 'Live event sources will be scanned at this interval.',
-    siklik6: 'Every 6 hours',
-    siklik12: 'Every 12 hours',
-    siklik24: 'Once a day'
+    senkron: 'News scan frequency',
+    senkronYardim: 'The scheduler wakes up every hour and scans again once this much time has passed since the last successful scan.',
+    siklikSaat: ['Every hour', 'Every {n} hours'],
+    siklikGunde: 'Once a day',
+    sonTarama: 'Last scan: {zaman} ({durum}).',
+    sonTaramaYok: 'No scan yet.',
+    taramaDurumu: { running: 'running', success: 'successful', failed: 'failed' }
   },
   yuk: {
     tablolar: {

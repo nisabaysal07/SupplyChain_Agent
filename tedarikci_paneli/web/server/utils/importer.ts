@@ -44,6 +44,8 @@ export interface SupplyRow {
   item_on_hand: number | null
   item_reserved: number | null
   reorder_point: number | null
+  // İsteğe bağlı: yılda alınan adet (panelin yıllık alım ve stok günü hesabı); yoksa tedarikçi panelde atlanır
+  annual_quantity?: number | null
   // İsteğe bağlı: sadece veritabanında olmayan YENİ bir ürün eklenirken gerekir
   hs6?: string | null
   gtip?: string | null
@@ -133,6 +135,10 @@ async function importOne(db: Db, r: SupplyRow, ins: Counts, ex: Counts) {
   const onHand = r.item_on_hand ?? 0
   const reserved = r.item_reserved ?? 0
   if (reserved > onHand) throw new RowError(`item_reserved (${reserved}) item_on_hand'den (${onHand}) büyük olamaz`)
+  const annual = r.annual_quantity ?? null
+  if (annual !== null && (!Number.isInteger(annual) || annual < 0)) {
+    throw new RowError(`annual_quantity (${annual}) sıfır veya pozitif bir tam sayı olmalı`)
+  }
   if (r.contract_end_date && r.contract_end_date < r.contract_start_date!) {
     throw new RowError('contract_end_date, contract_start_date\'ten önce olamaz')
   }
@@ -175,9 +181,9 @@ async function importOne(db: Db, r: SupplyRow, ins: Counts, ex: Counts) {
   const supplierItemId = await findOrInsert(db, 'supplier_items', ins, ex,
     `SELECT id FROM supplier_items WHERE supplier_id = $1 AND item_id = $2 AND item_model = $3 LIMIT 1`,
     [supplierId, itemId, r.item_model],
-    `INSERT INTO supplier_items (supplier_id, item_id, item_model, assembly_country_id)
-     VALUES ($1, $2, $3, $4) RETURNING id`,
-    [supplierId, itemId, r.item_model, assemblyCountryId])
+    `INSERT INTO supplier_items (supplier_id, item_id, item_model, assembly_country_id, annual_quantity)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [supplierId, itemId, r.item_model, assemblyCountryId, annual])
 
   // --- 5) contracts ---
   const contractId = await findOrInsert(db, 'contracts', ins, ex,

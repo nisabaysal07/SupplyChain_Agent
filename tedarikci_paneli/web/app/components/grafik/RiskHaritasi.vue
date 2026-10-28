@@ -4,11 +4,10 @@ import type { Feature, FeatureCollection, Geometry } from 'geojson'
 import { feature } from 'topojson-client'
 import type { GeometryCollection, Topology } from 'topojson-specification'
 import dunya from 'world-atlas/countries-110m.json'
-import type { Konum } from '#shared/utils/konumlar'
 
 // Tedarikçilerin çıkış noktaları (daire: büyüklük = yıllık alım, renk = en yüksek risk) ve Türkiye'ye rotaları.
-// Harita verisi pakete gömülüdür; tarayıcı dışarıdan harita indirmez.
-const props = defineProps<{ tedarikciler: RiskliTedarikci[] }>()
+// Harita verisi pakete gömülüdür; tarayıcı dışarıdan harita indirmez. Noktaların konumu veritabanından gelir (/api/konumlar).
+const props = defineProps<{ tedarikciler: RiskliTedarikci[], konumlar: Record<string, HaritaKonumu> }>()
 const { t, para, ulkeAdi, yerAdi } = useDil()
 
 const G = 800
@@ -19,7 +18,7 @@ const ulkeler = (feature(dunya as unknown as Topology, (dunya as unknown as Topo
 
 interface Grup {
   bolge: string
-  konum: Konum
+  konum: HaritaKonumu
   tedarikciler: RiskliTedarikci[]
   alim: number
   seviye: Seviye
@@ -28,7 +27,7 @@ interface Grup {
 const gruplar = computed<Grup[]>(() => {
   const harita = new Map<string, Grup>()
   for (const t of props.tedarikciler) {
-    const k = NOKTALAR[t.rota.cikis]
+    const k = props.konumlar[t.rota.cikis]
     if (!k) continue
     const g = harita.get(k.bolge) ?? { bolge: k.bolge, konum: k, tedarikciler: [], alim: 0, seviye: 'dusuk' as Seviye }
     g.tedarikciler.push(t)
@@ -39,11 +38,11 @@ const gruplar = computed<Grup[]>(() => {
   return [...harita.values()]
 })
 
-const bilinmeyenler = computed(() => props.tedarikciler.filter(t => !NOKTALAR[t.rota.cikis]))
+const bilinmeyenler = computed(() => props.tedarikciler.filter(t => !props.konumlar[t.rota.cikis]))
 
 const varislar = computed(() => [...new Set(props.tedarikciler.map(t => t.rota.varis))]
-  .map(ad => NOKTALAR[ad])
-  .filter((k): k is Konum => Boolean(k)))
+  .map(ad => props.konumlar[ad])
+  .filter((k): k is HaritaKonumu => Boolean(k)))
 
 // Görünür alan: bütün noktaları biraz pay bırakarak kapsar
 const projeksiyon = computed(() => {
@@ -65,7 +64,7 @@ const projeksiyon = computed(() => {
 })
 
 const yol = computed(() => geoPath(projeksiyon.value))
-const xy = (k: Konum) => projeksiyon.value([k.boylam, k.enlem]) ?? [0, 0]
+const xy = (k: HaritaKonumu) => projeksiyon.value([k.boylam, k.enlem]) ?? [0, 0]
 
 const vurguluUlkeler = computed(() => new Set(
   [...props.tedarikciler.map(x => x.menseUlke), 'Türkiye'].map(u => ULKE_KODLARI[u]).filter(Boolean)
@@ -89,17 +88,17 @@ const aktifBolge = ref<string | null>(null)
 
 // Rotalar büyük daire yayı olarak çizilir (gerçek deniz yolu değildir)
 const rotalar = computed(() => props.tedarikciler.flatMap((t) => {
-  const a = NOKTALAR[t.rota.cikis]
-  const b = NOKTALAR[t.rota.varis]
+  const a = props.konumlar[t.rota.cikis]
+  const b = props.konumlar[t.rota.varis]
   if (!a || !b) return []
   const ara = geoInterpolate([a.boylam, a.enlem], [b.boylam, b.enlem])
   const d = yol.value({ type: 'LineString', coordinates: Array.from({ length: 33 }, (_, i) => ara(i / 32)) }) ?? ''
   return [{ id: t.id, d, hava: t.rota.mod === 'hava', bolge: a.bolge }]
 }))
 
-function etiketKonumu(k: Konum, r: number, [x, y]: [number, number]) {
+function etiketKonumu(k: HaritaKonumu, r: number, [x, y]: [number, number]) {
   const pay = r + 5
-  switch (k.etiketYonu) {
+  switch (ETIKET_YONLERI[k.bolge] ?? 'sag') {
     case 'sol': return { x: x - pay, y: y + 4, anchor: 'end' }
     case 'ust': return { x, y: y - pay, anchor: 'middle' }
     case 'alt': return { x, y: y + pay + 9, anchor: 'middle' }

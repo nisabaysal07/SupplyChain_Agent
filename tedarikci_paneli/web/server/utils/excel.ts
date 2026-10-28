@@ -24,15 +24,17 @@ const HEADER_MAP: Record<string, keyof SupplyRow> = {
   item_on_hand: 'item_on_hand',
   item_reserved: 'item_reserved',
   reorder_point: 'reorder_point',
+  annual_quantity: 'annual_quantity',
   // isteğe bağlı kolonlar (sadece yeni ürün eklenirken gerekir)
   hs6: 'hs6',
   gtip: 'gtip',
   unit: 'unit',
 }
-const OPTIONAL_FIELDS = new Set<keyof SupplyRow>(['hs6', 'gtip', 'unit'])
+// annual_quantity sonradan eklendi: başlığı olmayan eski dosyalar da yüklenebilsin
+const OPTIONAL_FIELDS = new Set<keyof SupplyRow>(['hs6', 'gtip', 'unit', 'annual_quantity'])
 
 const NUMBER_FIELDS = new Set<keyof SupplyRow>([
-  'purchase_amount', 'unit_price', 'expected_transit_days', 'item_on_hand', 'item_reserved', 'reorder_point',
+  'purchase_amount', 'unit_price', 'expected_transit_days', 'item_on_hand', 'item_reserved', 'reorder_point', 'annual_quantity',
 ])
 const DATE_FIELDS = new Set<keyof SupplyRow>(['contract_start_date', 'contract_end_date', 'price_date'])
 

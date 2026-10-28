@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const toast = useToast()
-const { t } = useDil()
+const { t, tarihSaat } = useDil()
 const { fetch: oturumuYenile } = useUserSession()
 
 const [{ data: profil, refresh: profiliYenile }, { data: sistem }] = await Promise.all([
@@ -13,7 +13,7 @@ const yonetici = computed(() => profil.value?.rol === 'yonetici')
 // Formlar sunucudaki değerin kopyasıyla çalışır; "Vazgeç" kopyayı sıfırlar
 const profilFormu = reactive({ ad: '', soyad: '' })
 const bildirimFormu = reactive<BildirimTercihleri>({ eposta: true, uygulamaIci: true, seviyeler: [] })
-const sistemFormu = reactive<SistemAyarlari>({ senkronizasyonSaat: 12 })
+const sistemFormu = reactive<SistemAyarlari>({ senkronizasyonSaat: 3 })
 
 function formlariDoldur() {
   if (profil.value) {
@@ -60,11 +60,15 @@ async function kaydet(ne: 'profil' | 'bildirim' | 'sistem') {
 const sifreAcik = ref(false)
 
 const seviyeSecenekleri = computed(() => (['yuksek', 'orta', 'dusuk'] as const).map(s => ({ value: s, label: t(`seviye.${s}`) })))
-const siklikSecenekleri = computed(() => [
-  { value: 6, label: t('ayar.siklik6') },
-  { value: 12, label: t('ayar.siklik12') },
-  { value: 24, label: t('ayar.siklik24') }
-])
+const siklikSecenekleri = computed(() => ([1, 3, 6, 12, 24] as const).map(saat => ({
+  value: saat,
+  label: saat === 24 ? t('ayar.siklikGunde') : t('ayar.siklikSaat', { n: saat })
+})))
+const sonTarama = computed(() => {
+  const s = sistem.value?.sonTarama
+  if (!s) return t('ayar.sonTaramaYok')
+  return t('ayar.sonTarama', { zaman: tarihSaat(s.baslangic), durum: t(`ayar.taramaDurumu.${s.durum}`) })
+})
 const veriKaynagi = computed(() => {
   const k = sistem.value?.veriKaynagi
   if (k?.tur !== 'postgresql') {
@@ -76,8 +80,10 @@ const veriKaynagi = computed(() => {
 })
 
 const anahtarlar = computed(() => [
-  { ad: t('ayar.tavily'), tanimli: sistem.value?.anahtarlar.tavily, degisken: 'NUXT_TAVILY_API_KEY' },
-  { ad: t('ayar.nemotron'), tanimli: sistem.value?.anahtarlar.nemotron, degisken: 'NUXT_NEMOTRON_API_KEY' }
+  { ad: t('ayar.tavily'), tanimli: sistem.value?.anahtarlar.tavily, degisken: 'TAVILY_API_KEY' },
+  { ad: t('ayar.nebius'), tanimli: sistem.value?.anahtarlar.nebius, degisken: 'NEBIUS_API_KEY' },
+  { ad: t('ayar.modelErisimi'), tanimli: sistem.value?.anahtarlar.modelErisimi, degisken: 'NUXT_MODEL_API_TOKEN' },
+  { ad: t('ayar.bildirimKanallari'), tanimli: sistem.value?.anahtarlar.bildirimKanallari, degisken: 'NOTIFY_URLS' }
 ])
 </script>
 
@@ -206,7 +212,7 @@ const anahtarlar = computed(() => [
             </p>
           </div>
 
-          <UFormField :label="t('ayar.senkron')" :help="t('ayar.senkronYardim')">
+          <UFormField :label="t('ayar.senkron')" :help="`${t('ayar.senkronYardim')} ${sonTarama}`">
             <USelect
               v-model="sistemFormu.senkronizasyonSaat"
               :items="siklikSecenekleri"

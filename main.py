@@ -29,7 +29,7 @@ from models import FinalCleanSupplyReport
 from notify import send_alerts
 from panel_sync import sync_panel
 from risk_alerts import update_risks
-from scan_log import ScanFailed, scan_log
+from scan_log import ScanFailed, scan_log, scheduled_scan_due
 
 # All paths are relative to this file, so the scan works no matter
 # which folder it is started from (e.g. by a scheduler or Task Scheduler)
@@ -173,6 +173,12 @@ def run_scan(triggered_by: str = "manual", with_agent: bool = True) -> FinalClea
 def main():
     # Runs started by cron / Task Scheduler pass --schedule; everything else is manual
     triggered_by = "schedule" if "--schedule" in sys.argv else "manual"
+    # The Task Scheduler wakes up every hour; the interval itself is set in the panel (Ayarlar)
+    if triggered_by == "schedule":
+        due, why = scheduled_scan_due()
+        print(f"[{datetime.now():%Y-%m-%d %H:%M}] " + (f"Tarama başlıyor ({why})" if due else f"Tarama atlandı ({why})"))
+        if not due:
+            return
     try:
         run_scan(triggered_by, with_agent="--no-agent" not in sys.argv)
     except ScanFailed as e:

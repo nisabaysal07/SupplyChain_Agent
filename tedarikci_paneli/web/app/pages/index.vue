@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // Bütün görseller /api/tedarikciler ve /api/olaylar verisinden türetilir; ek veritabanı sorgusu gerekmez
-const [{ data: tedarikciler }, { data: olaylar }] = await Promise.all([
+const [{ data: tedarikciler }, { data: olaylar }, { data: konumlar }] = await Promise.all([
   useFetch<RiskliTedarikci[]>('/api/tedarikciler', { default: () => [] }),
-  useFetch<EtkiliOlay[]>('/api/olaylar', { default: () => [] })
+  useFetch<EtkiliOlay[]>('/api/olaylar', { default: () => [] }),
+  useFetch<Record<string, HaritaKonumu>>('/api/konumlar', { default: () => ({}) })
 ])
 
 const { t, para, sayi, yuzde, ulkeAdi } = useDil()
@@ -177,7 +178,7 @@ const ulkeTablosu = computed(() => ({
             :aciklama="t('pano.riskHaritasiAcik')"
             :tablo="haritaTablosu"
           >
-            <GrafikRiskHaritasi :tedarikciler="tedarikciler" />
+            <GrafikRiskHaritasi :tedarikciler="tedarikciler" :konumlar="konumlar" />
           </GrafikKart>
           <GrafikKart :baslik="t('pano.ulkeAlim')" :aciklama="t('pano.ulkeAlimAcik')" :tablo="ulkeTablosu">
             <GrafikCubuk :cubuklar="ulkeler" />

@@ -16,12 +16,9 @@ export default defineNuxtConfig({
   },
 
   // Gizli değerler yalnızca sunucuda kalır; `public` altına hiçbir anahtar konmaz.
-  // Üretimde ortam değişkeniyle verilir: NUXT_TAVILY_API_KEY, NUXT_NEMOTRON_API_KEY,
-  // NUXT_SESSION_PASSWORD, NUXT_ILK_YONETICI_EPOSTA, NUXT_ILK_YONETICI_SIFRE, NUXT_MODEL_API_TOKEN.
+  // Üretimde ortam değişkeniyle verilir: NUXT_SESSION_PASSWORD, NUXT_ILK_YONETICI_EPOSTA, NUXT_ILK_YONETICI_SIFRE, NUXT_MODEL_API_TOKEN.
   // PostgreSQL bağlantısı runtimeConfig'de değil: proje kökündeki .env'nin POSTGRES_* değerleri kullanılır (server/utils/veritabani.ts)
   runtimeConfig: {
-    tavilyApiKey: '',
-    nemotronApiKey: '',
     // Modelin rapor gönderirken kullandığı erişim anahtarı (en az 32 karakter); boşsa model ucu kapalıdır
     modelApiToken: '',
     // Hiç kullanıcı yokken ilk yönetici bu bilgilerle oluşturulur (server/plugins/ilkYonetici.ts)

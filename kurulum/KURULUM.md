@@ -172,18 +172,29 @@ Wi-Fi bölümündeki `IPv4 Address` (ör. `192.168.1.25`) değerini; kullanıcı
 
 ## Otomatik tarama (Görev Zamanlayıcı)
 
-`main.py` tüm zinciri çalıştırır: haber taraması → ajan analizi → maliyet etkisi ve alarmlar. Her 3 saatte bir çalışması için PowerShell'de, proje kökünde:
+`main.py` tüm zinciri çalıştırır: haber taraması → ajan analizi → maliyet etkisi ve alarmlar. Otomatik çalışması için PowerShell'de, proje kökünde:
 
 ```powershell
 .\kurulum\zamanlayici_kur.ps1
 ```
 
+- Tarama sıklığı panelin **Ayarlar → Haber tarama sıklığı** alanından seçilir (1, 3, 6, 12 saat veya günde bir; varsayılan 3 saat) ve `app_settings` tablosuna yazılır. Görev saatte bir uyanır; `main.py --schedule` son başarılı taramadan seçilen süre geçmediyse taramadan çıkar (`logs\tarama.log`'a "Tarama atlandı" yazar). Görevi 3 saatlik eski sürümle kurduysanız betiği bir kez yeniden çalıştırın.
 - Gerekenler: `.venv` kurulu, kökteki `.env` içinde `TAVILY_API_KEY`, `NEBIUS_API_KEY` ve `POSTGRES_*` dolu, Docker Desktop oturum açılınca başlıyor (Ayarlar → General → Start Docker Desktop when you sign in).
 - Görev oturum açıkken (ekran kilitliyken de) pencere açmadan çalışır, böylece `.env`'deki `windows://` masaüstü bildirimleri görünür. Oturum kapalıyken de çalışması için yönetici PowerShell'de `-OturumKapaliyken` ile kurun; bu modda masaüstü bildirimleri görünmez, diğer kanallar (Slack vb.) gelir.
 - Uzun süren tarama bitmeden yenisi başlamaz, kapalıyken kaçırılan çalışma bilgisayar açılınca yapılır.
 - Çıktılar `logs\tarama.log` dosyasına eklenir; her tarama `scan_logs` tablosuna da yazılır.
-- Hemen çalıştır: `Start-ScheduledTask -TaskName 'SupplyChain Tarama'` · Kaldır: `.\kurulum\zamanlayici_kur.ps1 -Kaldir`
-- `Scheduler.py` aynı işi terminal açık kaldığı sürece yapar (geliştirme için).
+- Hemen taramak için: `.venv\Scripts\python main.py` (aralığa bakmaz; `Start-ScheduledTask -TaskName 'SupplyChain Tarama'` ise aralık dolmadıysa atlar) · Kaldır: `.\kurulum\zamanlayici_kur.ps1 -Kaldir`
+- `Scheduler.py` aynı işi terminal açık kaldığı sürece yapar (geliştirme için); o da paneldeki aralığı kullanır.
+
+## Veritabanını güncelleme (yeniden kurmadan)
+
+Bu sürümle `locations` tablosuna harita konumu (`latitude`, `longitude`, `city`), veritabanına da `app_settings` tablosu eklendi. Mevcut bir `supply_db`'de koordinatları eklemek için bir kez:
+
+```powershell
+cd db; ..\.venv\Scripts\python location_download.py; cd ..
+```
+
+`app_settings` tablosunu panel, Ayarlar'da tarama sıklığı ilk kez kaydedilince kendisi oluşturur. `alerts.panel_synced_at` da ilk taramada kendiliğinden eklenir.
 
 ## Notlar
 

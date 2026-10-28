@@ -117,9 +117,6 @@ def sunucu():
         "NUXT_SESSION_PASSWORD": secrets.token_urlsafe(48),
         "NUXT_MODEL_API_TOKEN": model_anahtari,
         **_postgres_ayarlari(),
-        # Dış servisler kapalı
-        "NUXT_TAVILY_API_KEY": "",
-        "NUXT_NEMOTRON_API_KEY": "",
         # Açık bir `npm run dev` varken de ikinci sunucu başlayabilsin
         "NUXT_IGNORE_LOCK": "1",
     }

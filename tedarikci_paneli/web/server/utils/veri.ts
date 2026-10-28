@@ -1,15 +1,12 @@
 // Tedarikçi verisi supply_db'den (.env'deki POSTGRES_* ile Docker'daki Postgres) okunur.
 // Her supplier_items satırı bir tedarikçi kaydıdır: fiyat ve tarihler aktif sözleşmeden, rota en son sevkiyattan,
 // stok inventory'den, vergi ise parçanın birleştirme (menşe) ülkesine göre geçerli tarifeden gelir.
-
-// sirket.md: yılda 10.000 bilgisayar; ekran kartı ve monitör modellerin yarısında (5.000)
-const YARIM_URETIMDEKI_PARCALAR = new Set(['Ekran kartı', 'Monitör'])
-const YILLIK_URETIM = 10_000
+// Yıllık alım adedi supplier_items.annual_quantity'dir (maliyet_etkisi/maliyet_formulu.py ile aynı kaynak).
 
 const TASIMA_MODLARI: Record<string, TasimaModu> = { sea: 'deniz', air: 'hava' }
 
 const TEDARIKCI_SORGUSU = `
-  SELECT si.id,
+  SELECT si.id, si.annual_quantity,
          i.name AS parca, i.hs6, i.gtip,
          s.name AS firma, s.name_original AS firma_resmi_ad,
          mc.name_tr AS mense_ulke, mc.has_trade_agreement AS anlasma_var,
@@ -43,6 +40,7 @@ const TEDARIKCI_SORGUSU = `
 
 type TedarikciSatiri = {
   id: number
+  annual_quantity: number | null
   parca: string
   hs6: string
   gtip: string
@@ -75,6 +73,7 @@ function eksikAlanlar(r: TedarikciSatiri): string[] {
   if (!r.transport_mode || !TASIMA_MODLARI[r.transport_mode] || !r.cikis || !r.varis) eksik.push('sevkiyat')
   if (r.on_hand === null) eksik.push('stok')
   if (r.gv_rate === null) eksik.push('tarife')
+  if (r.annual_quantity === null) eksik.push('yıllık adet')
   return eksik
 }
 
@@ -84,7 +83,7 @@ function tedarikciyeCevir(r: TedarikciSatiri): Tedarikci {
   const siparisSeviyesi = Number(r.reorder_point ?? 0)
   const kullanilabilir = eldeki - rezerve
   const fiyatUsd = Number(r.unit_price)
-  const yillikAdet = YARIM_URETIMDEKI_PARCALAR.has(r.parca) ? YILLIK_URETIM / 2 : YILLIK_URETIM
+  const yillikAdet = Number(r.annual_quantity)
 
   return {
     id: r.id,
@@ -149,4 +148,22 @@ export async function tedarikcileriOku(): Promise<Tedarikci[]> {
     tedarikciler.push(tedarikciyeCevir(r))
   }
   return tedarikciler
+}
+
+type KonumSatiri = { name: string, latitude: string, longitude: string, city: string | null }
+
+// Harita konumları ayrı okunur: sütunları olmayan eski bir veritabanında tedarikçi listesi yine çalışsın
+// (sütunları eklemek ve doldurmak için: python db/location_download.py)
+export async function konumlariOku(): Promise<Record<string, HaritaKonumu>> {
+  const havuz = veritabaniHavuzu()
+  if (!havuz) return {}
+  try {
+    const { rows } = await havuz.query<KonumSatiri>(
+      'SELECT name, latitude, longitude, city FROM locations WHERE latitude IS NOT NULL AND longitude IS NOT NULL')
+    return Object.fromEntries(rows.map(r => [r.name, { enlem: Number(r.latitude), boylam: Number(r.longitude), bolge: r.city ?? r.name }]))
+  }
+  catch (e) {
+    console.error('[ChainGuard] Harita konumları okunamadı (python db/location_download.py çalıştırıldı mı?):', (e as Error).message)
+    return {}
+  }
 }
