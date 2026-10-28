@@ -1,38 +1,34 @@
-# Gizli bilgiler (şifreler, API anahtarları) — asla commit'leme
+# =============================================================================
+# Supply chain news scanner - .gitignore
+# Only the scanner owner runs the searches. Teammates and the model only need
+# the final JSON (clean_news_only_report_final.json) and the source code,
+# so everything local, secret, generated or intermediate stays out of the repo.
+# =============================================================================
+
+# --- Secrets (NEVER commit) ---------------------------------------------------
 .env
 .env.*
-!.env.example
 
-# Python
+# --- Python environment & caches ---------------------------------------------
 .venv/
 venv/
 __pycache__/
 *.py[cod]
-*.sql.tmp
-db/__pycache__/
 
-# Node / Nuxt (web/.gitignore da var)
-node_modules/
-
-# --- Arama (supply chain news scanner) ---------------------------------------
-# Tedarikçi veri seti (diğer parçalar veritabanından okur)
+# --- Supplier dataset (other parts read it from the database) -----------------
 TedarikciSetiYeni/
-# build_suppliers.py tarafından üretilir
-suppliers.json
-# Debug çıktısı (reddedilen sonuçlar, model için DEĞİL)
-rejected_results_debug.json
 
-# Editör / işletim sistemi
+# suppliers.json  : produced by build_suppliers.py from the datase
+suppliers.json
+
+# --- Debug output (rejected results + full report, NOT for the model) --------
+rejected_results_debug.json
+skills-lock.json
+
+# --- Editor / OS files -----------------------------------------------------------
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# Veritabanı yedekleri (db/rebuild_db.py üretir)
-db/backup/
-
-# Claude Code ve Playwright yerel dosyaları (ayarlar, skill'ler, tarayıcı test kayıtları)
-.claude/
-.playwright-mcp/
-.taste-skill
+.claude
