@@ -13,10 +13,12 @@ Python gerekmez; yalnızca **Docker Desktop** (ve projeyi çekmek için Git) kur
 
 | Dosya | İçerik |
 |---|---|
-| `db/supply_db.sql` | Şema: 16 tablo ve indeksler (veri yok) |
+| `db/supply_db.sql` | Şema: 17 tablo ve indeksler (veri yok) |
 | `db/data/01_countries.sql` | 50 ülke |
-| `db/data/02_ana_veri.sql` | Tedarikçiler, ürünler, lokasyonlar, gümrük oranları, sözleşmeler, stok, sevkiyatlar |
-| `db/data/03_haberler.sql` | Taramalar ve haberler (mock haberler + agent sonuçları) |
+| `db/data/02_ana_veri.sql` | Tedarikçiler, ürünler (taban gümrük oranlarıyla), lokasyonlar, gümrük oranları, yıllık adetler, sözleşmeler, stok, sevkiyatlar |
+| `db/data/03_haberler.sql` | Taramalar ve haberler (mock haberler + agent sonuçları, fiyat değişimi yüzdeleri) |
+
+`cost_impacts` tablosu (Görev 3 maliyet etkisi) boş kurulur; maliyet hesabı çalıştıkça dolar.
 
 ## 1. Klasörü hazırla
 
@@ -57,10 +59,16 @@ Kontrol (11 çıkmalı):
 docker exec proje_postgres psql -U proje_admin -d supply_db -c "SELECT count(*) FROM locations"
 ```
 
-Şemanın güncel olduğunu kontrol et (`price_change_pct` sütunu, 1 çıkmalı):
+Şemanın güncel olduğunu kontrol et (17 tablo ve 4 yeni sütun; `17 | 4` çıkmalı):
 
 ```powershell
-docker exec proje_postgres psql -U proje_admin -d supply_db -c "SELECT count(*) FROM information_schema.columns WHERE table_name = 'article_analyses' AND column_name = 'price_change_pct'"
+docker exec proje_postgres psql -U proje_admin -d supply_db -c "SELECT (SELECT count(*) FROM pg_tables WHERE schemaname = 'public') AS tablo, (SELECT count(*) FROM information_schema.columns WHERE (table_name, column_name) IN (('article_analyses','price_change_pct'), ('supplier_items','annual_quantity'), ('items','gv_rate_base'), ('items','igv_rate_base'))) AS yeni_sutun"
+```
+
+Görev 3 verisinin yüklendiğini kontrol et (`80000 | 6` çıkmalı: toplam yıllık adet, fiyat yüzdesi dolu analiz):
+
+```powershell
+docker exec proje_postgres psql -U proje_admin -d supply_db -c "SELECT (SELECT sum(annual_quantity) FROM supplier_items) AS yillik_adet, (SELECT count(*) FROM article_analyses WHERE price_change_pct IS NOT NULL) AS fiyat_yuzdesi"
 ```
 
 Süveyş Kanalı verisinin kaldırıldığını kontrol et (0 çıkmalı):
@@ -97,22 +105,11 @@ docker compose up -d
 
 Python kuruluysa aynı işi önce yedek alarak `db/rebuild_db.py` de yapar (bkz. Notlar).
 
-> **Son değişiklik — herkes bir kez sıfırlamalı:** Süveyş Kanalı lokasyonu ve Kızıldeniz/Süveyş haberi
-> (analizleri ve etki bağlantılarıyla) `db/` dosyalarından kaldırıldı, `article_analyses` tablosuna
-> `price_change_pct` sütunu eklendi. Daha önce kurulmuş bir veritabanında Süveyş kayıtları kalır;
-> `git pull` sonrası yukarıdaki üç komutla sıfırla, sonra "3. Veriyi kontrol et" adımındaki kontrolleri çalıştır.
-
-### Sıfırlamadan güncelleme (yalnızca yeni sütunlar)
-
-Daha önce kurulmuş bir veritabanında veriyi silmeden yalnızca şemaya eklenen sütunları almak için aşağıdaki komutları çalıştır. Birden fazla kez çalıştırmak güvenlidir.
-
-`article_analyses.price_change_pct` (fiyat değişimi %):
-
-```powershell
-docker exec proje_postgres psql -U proje_admin -d supply_db -c "ALTER TABLE article_analyses ADD COLUMN IF NOT EXISTS price_change_pct numeric(6,2)"
-```
-
-Bu komut yalnızca sütunu ekler; Süveyş kayıtlarını silmez. Onlar için sıfırlama gerekir.
+> **Son değişiklik — herkes bir kez sıfırlamalı:** Görev 3 (maliyet etkisi) için şema güncellendi:
+> yeni `cost_impacts` tablosu, `supplier_items.annual_quantity` (yıllık adet), `items.gv_rate_base` /
+> `igv_rate_base` (taban gümrük oranları) ve fiyat haberlerinde dolu `price_change_pct` değerleri.
+> Daha önce kurulmuş bir veritabanı bunları kendiliğinden almaz; `git pull` sonrası yukarıdaki üç komutla
+> sıfırla, sonra "3. Veriyi kontrol et" adımındaki kontrolleri çalıştır.
 
 ### Birebir kopya (isteğe bağlı)
 

@@ -22,6 +22,8 @@ def prepare(cur, r, n, ctx):
         "kdv_rate": r.get("kdv_rate", 20),
         "otv_rate": r.get("otv_rate"),
         "kultur_fonu_rate": r.get("kultur_fonu_rate", 0),
+        "gv_rate_base": r.get("gv_rate_base"),
+        "igv_rate_base": r.get("igv_rate_base"),
         "source_id": resolve(ctx["sources"], r.get("source"), "kaynak", n),
         "checked_at": r.get("checked_at"),
     }

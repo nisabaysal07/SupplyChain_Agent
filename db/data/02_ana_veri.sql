@@ -39,19 +39,20 @@ INSERT INTO rate_sources (id, name, url) VALUES
   (1, 'TARA (Ticaret Bakanlığı)', 'https://ticaret.gov.tr');
 SELECT setval(pg_get_serial_sequence('rate_sources', 'id'), (SELECT MAX(id) FROM rate_sources));
 
-INSERT INTO items (name, hs6, gtip, unit, kdv_rate, otv_rate, kultur_fonu_rate, source_id)
+-- gv_rate_base / igv_rate_base = tercihsiz (taban) oranlar; tariffs bunlardan türetilir (ADIM 2b)
+INSERT INTO items (name, hs6, gtip, unit, kdv_rate, otv_rate, kultur_fonu_rate, gv_rate_base, igv_rate_base, source_id)
 SELECT v.*, (SELECT id FROM rate_sources WHERE name = 'TARA (Ticaret Bakanlığı)')
 FROM (VALUES
-  ('İşlemci',     '854231', '854231900000', 'adet', 20, 0, 0),
-  ('Anakart',     '847330', '847330200000', 'adet', 20, 0, 0),
-  ('Bellek',      '847330', '847330200000', 'adet', 20, 0, 0),
-  ('SSD',         '847170', '847170989000', 'adet', 20, 0, 1),
-  ('Ekran kartı', '847330', '847330200000', 'adet', 20, 0, 0),
-  ('Güç kaynağı', '850440', '850440839019', 'adet', 20, 0, 0),
-  ('Kasa',        '847330', '847330800000', 'adet', 20, 0, 0),
-  ('Soğutucu',    '841459', '841459150000', 'adet', 20, 0, 0),
-  ('Monitör',     '852852', '852852100000', 'adet', 20, 0, 0)
-) AS v(name, hs6, gtip, unit, kdv_rate, otv_rate, kultur_fonu_rate);
+  ('İşlemci',     '854231', '854231900000', 'adet', 20, 0, 0, 0.0,  0.0),
+  ('Anakart',     '847330', '847330200000', 'adet', 20, 0, 0, 0.0,  0.0),
+  ('Bellek',      '847330', '847330200000', 'adet', 20, 0, 0, 0.0,  0.0),
+  ('SSD',         '847170', '847170989000', 'adet', 20, 0, 1, 0.0,  0.0),
+  ('Ekran kartı', '847330', '847330200000', 'adet', 20, 0, 0, 0.0,  0.0),
+  ('Güç kaynağı', '850440', '850440839019', 'adet', 20, 0, 0, 3.3, 11.0),
+  ('Kasa',        '847330', '847330800000', 'adet', 20, 0, 0, 0.0,  0.0),
+  ('Soğutucu',    '841459', '841459150000', 'adet', 20, 0, 0, 2.3,  0.0),
+  ('Monitör',     '852852', '852852100000', 'adet', 20, 0, 0, 0.0,  0.0)
+) AS v(name, hs6, gtip, unit, kdv_rate, otv_rate, kultur_fonu_rate, gv_rate_base, igv_rate_base);
 
 -- =====================================================================
 -- ADIM 1c: locations  (kaynak: rotalar tablosundaki çıkış/varış noktaları)
@@ -79,43 +80,44 @@ SELECT setval(pg_get_serial_sequence('locations', 'id'), (SELECT MAX(id) FROM lo
 -- ADIM 2a: supplier_items  (kaynak: tedarikciler)
 -- Her satır = bir tedarikçi satırı (Ted. ID 1-9)
 -- =====================================================================
-INSERT INTO supplier_items (supplier_id, item_id, item_model, assembly_country_id)
-SELECT s.id, i.id, v.model, a.id
+-- annual_quantity = yılda alınan adet (Görev 3 maliyet hesabı)
+INSERT INTO supplier_items (supplier_id, item_id, item_model, assembly_country_id, annual_quantity)
+SELECT s.id, i.id, v.model, a.id, v.annual_qty
 FROM (VALUES
-  ('Intel',         'İşlemci',     'Intel Core Ultra 5 225 (BX80768225)',                           'VNM'),
-  ('Gigabyte',      'Anakart',     'Gigabyte B860 Gaming X WiFi6E (ATX)',                           'CHN'),
-  ('Kingston',      'Bellek',      'Kingston FURY Beast 32 GB (2x16) DDR5-6000 (KF560C30BBEK2-32)', 'TWN'),
-  ('Samsung',       'SSD',         'Samsung 990 EVO Plus 1 TB (MZ-V9S1T0BW)',                       'KOR'),
-  ('ASUS',          'Ekran kartı', 'ASUS Dual GeForce RTX 5060 OC 8 GB (DUAL-RTX5060-O8G)',         'CHN'),
-  ('FSP',           'Güç kaynağı', 'FSP VITA GM 650 W (ATX 3.1, 80+ Gold)',                         'CHN'),
-  ('Cooler Master', 'Kasa',        'Cooler Master MasterBox TD500 Mesh V2',                         'CHN'),
-  ('Noctua',        'Soğutucu',    'Noctua NH-U12S redux',                                          'TWN'),
-  ('Samsung',       'Monitör',     'Samsung Odyssey G3 24 inç (LS24DG302ENXZA)',                    'VNM')
-) AS v(supplier, item, model, assembly)
+  ('Intel',         'İşlemci',     'Intel Core Ultra 5 225 (BX80768225)',                           'VNM', 10000),
+  ('Gigabyte',      'Anakart',     'Gigabyte B860 Gaming X WiFi6E (ATX)',                           'CHN', 10000),
+  ('Kingston',      'Bellek',      'Kingston FURY Beast 32 GB (2x16) DDR5-6000 (KF560C30BBEK2-32)', 'TWN', 10000),
+  ('Samsung',       'SSD',         'Samsung 990 EVO Plus 1 TB (MZ-V9S1T0BW)',                       'KOR', 10000),
+  ('ASUS',          'Ekran kartı', 'ASUS Dual GeForce RTX 5060 OC 8 GB (DUAL-RTX5060-O8G)',         'CHN',  5000),
+  ('FSP',           'Güç kaynağı', 'FSP VITA GM 650 W (ATX 3.1, 80+ Gold)',                         'CHN', 10000),
+  ('Cooler Master', 'Kasa',        'Cooler Master MasterBox TD500 Mesh V2',                         'CHN', 10000),
+  ('Noctua',        'Soğutucu',    'Noctua NH-U12S redux',                                          'TWN', 10000),
+  ('Samsung',       'Monitör',     'Samsung Odyssey G3 24 inç (LS24DG302ENXZA)',                    'VNM',  5000)
+) AS v(supplier, item, model, assembly, annual_qty)
 JOIN suppliers s ON s.name = v.supplier
 JOIN items i     ON i.name = v.item
 JOIN countries a ON a.iso_code = v.assembly;
 
 -- =====================================================================
 -- ADIM 2b: tariffs  (kaynak: parcalar oranları × ulkeler çarpanları)
--- gv_rate  = parça GV  × ülke GV çarpanı
--- igv_rate = parça İGV × ülke İGV çarpanı (anlaşmalı ülkede 0)
+-- gv_rate  = parça taban GV  (items.gv_rate_base)  × ülke GV çarpanı
+-- igv_rate = parça taban İGV (items.igv_rate_base) × ülke İGV çarpanı (anlaşmalı ülkede 0)
 -- Her tedarikçinin parça × menşe ülkesi = 9 satır (sıra yaml/tariffs.yaml id'leriyle aynı)
 -- =====================================================================
 INSERT INTO tariffs (id, item_id, country_id, gv_rate, igv_rate, valid_from, source_id)
-SELECT r.id, i.id, c.id, r.gv * m.gv_mult, r.igv * m.igv_mult, DATE '2026-01-01', rs.id
+SELECT r.id, i.id, c.id, i.gv_rate_base * m.gv_mult, i.igv_rate_base * m.igv_mult, DATE '2026-01-01', rs.id
 FROM (VALUES
-  -- id, parça,     menşe, GV,  İGV  (tercihsiz oranlar)
-  (1, 'İşlemci',     'VNM', 0.0,  0.0),
-  (2, 'Anakart',     'CHN', 0.0,  0.0),
-  (3, 'Bellek',      'TWN', 0.0,  0.0),
-  (4, 'SSD',         'KOR', 0.0,  0.0),
-  (5, 'Ekran kartı', 'CHN', 0.0,  0.0),
-  (6, 'Güç kaynağı', 'CHN', 3.3, 11.0),
-  (7, 'Kasa',        'CHN', 0.0,  0.0),
-  (8, 'Soğutucu',    'TWN', 2.3,  0.0),
-  (9, 'Monitör',     'VNM', 0.0,  0.0)
-) AS r(id, item, iso, gv, igv)
+  -- id, parça,     menşe
+  (1, 'İşlemci',     'VNM'),
+  (2, 'Anakart',     'CHN'),
+  (3, 'Bellek',      'TWN'),
+  (4, 'SSD',         'KOR'),
+  (5, 'Ekran kartı', 'CHN'),
+  (6, 'Güç kaynağı', 'CHN'),
+  (7, 'Kasa',        'CHN'),
+  (8, 'Soğutucu',    'TWN'),
+  (9, 'Monitör',     'VNM')
+) AS r(id, item, iso)
 JOIN (VALUES
   ('KOR', 0.0, 0.0),
   ('TWN', 1.0, 1.0),

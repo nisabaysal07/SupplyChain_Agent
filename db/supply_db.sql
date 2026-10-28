@@ -46,6 +46,8 @@ CREATE TABLE items (
     kdv_rate        NUMERIC(5,2) NOT NULL DEFAULT 20,  -- VAT %
     otv_rate       NUMERIC(12,4),                     -- % if rate, amount per unit if fixed
     kultur_fonu_rate NUMERIC(5,2) NOT NULL DEFAULT 0,
+    gv_rate_base    NUMERIC(5,2),                      -- tercihsiz (taban) Gümrük Vergisi %, STA'sız ülkeye uygulanan
+    igv_rate_base   NUMERIC(5,2),                      -- tercihsiz (taban) İlave Gümrük Vergisi %
     source_id       INT REFERENCES rate_sources(id),
     checked_at      DATE                               -- oranın kaynaktan en son kontrol edildiği tarih
 );
@@ -88,6 +90,7 @@ CREATE TABLE supplier_items (
     item_id      INT NOT NULL REFERENCES items(id),
     item_model   VARCHAR(100) NOT NULL DEFAULT '',
     assembly_country_id INT REFERENCES countries(id),  -- birleştirme ülkesi
+    annual_quantity     INT CHECK (annual_quantity >= 0),  -- yılda alınan adet (Görev 3 maliyet hesabı)
     UNIQUE (supplier_id, item_id, item_model)
 );
 CREATE INDEX idx_supplier_items_item ON supplier_items(item_id);
@@ -212,6 +215,33 @@ CREATE INDEX idx_impacts_location ON article_impacts(location_id);
 CREATE INDEX idx_impacts_supplier ON article_impacts(supplier_id);
 CREATE INDEX idx_impacts_item     ON article_impacts(item_id);
 
+-- Görev 3: maliyet etkisi. Her analiz için bir satır; aynı analiz tekrar
+-- hesaplanırsa satır güncellenir (ON CONFLICT (article_analysis_id) DO UPDATE).
+-- Çalışma sırası: tarama → article_analyses → cost_impacts → alerts
+-- alerts ile bağlantı: cost_impacts.article_analysis_id = alerts.latest_analysis_id
+CREATE TABLE cost_impacts (
+    id                   SERIAL PRIMARY KEY,
+    article_analysis_id  INT NOT NULL UNIQUE REFERENCES article_analyses(id) ON DELETE CASCADE,
+    status               VARCHAR(15) NOT NULL CHECK (status IN ('hesaplandi', 'hesaplanamadi')),  -- hesaplanamadi → nedeni reason'da
+    calc_type            VARCHAR(30) NOT NULL,         -- vergi_degisikligi / lojistik_gecikme / fiyat_degisikligi (haberin türü değil; trade_restriction → lojistik_gecikme)
+    direction            VARCHAR(20),                  -- artis / azalis / parasal_etki_yok / etkilenen_yok
+    annual_diff_usd      NUMERIC(14,2),                -- yıllık maliyet farkı
+    year_end_diff_usd    NUMERIC(14,2),                -- yürürlük tarihinden 31 Aralık'a kadarki fark
+    per_pc_diff_usd      NUMERIC(10,2),                -- bilgisayar başına fark
+    cost_share_pct       NUMERIC(8,2),                 -- yıllık fark / toplam yıllık parça maliyeti (vergiler dahil) × 100
+    stock_status         VARCHAR(15),                  -- etkilenen parçalardaki en kötü durum: yetersiz / sinira_yakin / yeterli
+    stop_days            NUMERIC(6,1),                 -- üretimin duracağı gün (0 = durmuyor)
+    unbuilt_pc           INT,                          -- üretilemeyecek bilgisayar sayısı
+    duration_unknown     BOOLEAN,                      -- gecikme süresi haberde yoksa true
+    is_draft             BOOLEAN NOT NULL,             -- puan 66–79
+    is_unconfirmed       BOOLEAN NOT NULL,             -- puan 65 ve altı
+    affected_item_ids    INT[] NOT NULL DEFAULT '{}',  -- items.id
+    message              TEXT,                         -- panelde gösterilecek sonuç cümlesi (İngilizce)
+    reason               TEXT,                         -- hesaplanamama nedeni
+    warnings             TEXT[] NOT NULL DEFAULT '{}',
+    calculated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ---------------------------------------------------------------------
 -- 4. ALERTS (Görev 4: hafıza ve değişiklik tespiti)
 -- ---------------------------------------------------------------------
@@ -266,9 +296,12 @@ CREATE TABLE alerts (
     -- 4.4: önem
     current_score       SMALLINT CHECK (current_score BETWEEN 1 AND 100),  -- son taramadaki impact_score
     prev_score          SMALLINT CHECK (prev_score    BETWEEN 1 AND 100),  -- bir önceki taramadaki
-    priority_score      NUMERIC(8,2),                     -- sıralama puanı: skor × maliyet payı × yenilik
+    -- sıralama puanı: skor × maliyet payı (cost_impacts.cost_share_pct) × yenilik.
+    -- Gecikme haberlerinde (calc_type = 'lojistik_gecikme') maliyet payı 0'dır;
+    -- bunlarda maliyet payı yerine stop_days / unbuilt_pc / stock_status kullanılır.
+    priority_score      NUMERIC(8,2),
     severity            VARCHAR(6) NOT NULL
-                        CHECK (severity IN ('low','medium','high')),       -- eşikler Görev 3.4 ile ortak
+                        CHECK (severity IN ('low','medium','high')),       -- eşikler Görev 4'te belirlenir (Görev 3.4 yapılmayacak)
 
     -- Ne zaman görüldü
     latest_analysis_id  INT REFERENCES article_analyses(id) ON DELETE SET NULL,  -- kartta gösterilecek özet

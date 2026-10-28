@@ -706,4 +706,21 @@ WHERE num_nonnulls(c.id, l.id, s.id, i.id) = 1
       AND x.supplier_id IS NOT DISTINCT FROM s.id
       AND x.item_id     IS NOT DISTINCT FROM i.id);
 
+-- #####################################################################
+-- 4c. FİYAT DEĞİŞİMİ YÜZDESİ (article_analyses.price_change_pct)
+-- İşaretli: +40 = %40 artış, -5 = %5 düşüş. Aralık verilen haberlerde orta değer.
+-- #####################################################################
+UPDATE article_analyses aa
+SET price_change_pct = v.pct
+FROM (VALUES
+  ('https://example.com/news/2026/10/dram-contract-prices-surge-q4',    15.0),  -- ~%15 artış
+  ('https://example.com/news/2026/10/nvidia-rtx-5060-supply-shortage',  10.0),  -- %8-12 artış
+  ('https://example.com/news/2026/10/intel-core-ultra-price-cut',       -5.0),  -- ~%5 indirim
+  ('https://example.com/pc-test/P15',                                   40.0)   -- DDR5 ~%40 artış
+) AS v(url, pct)
+JOIN articles a ON a.url = v.url
+WHERE aa.article_id = a.id
+  AND aa.event_type = 'price_change'
+  AND aa.price_change_pct IS NULL;
+
 COMMIT;

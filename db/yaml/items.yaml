@@ -1,5 +1,6 @@
 # Ürünler — items_download.py 'items' tablosuna kaydeder.
 # Oranlar yüzde olarak: 20 = %20 (otv_rate sabit tutarlıysa birim başına tutar)
+# gv_rate_base / igv_rate_base: tercihsiz (taban) GV / İGV oranı
 # hs6 / gtip tırnak içinde yazılır ki baştaki sıfırlar korunsun
 # source: rate_source.yaml'daki kaynak adı (yoksa null), checked_at: YYYY-AA-GG veya null
 
@@ -12,6 +13,8 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
+    gv_rate_base: 0
+    igv_rate_base: 0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 2
@@ -22,6 +25,8 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
+    gv_rate_base: 0
+    igv_rate_base: 0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 3
@@ -32,6 +37,8 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
+    gv_rate_base: 0
+    igv_rate_base: 0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 4
@@ -42,6 +49,8 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 1
+    gv_rate_base: 0
+    igv_rate_base: 0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 5
@@ -52,6 +61,8 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
+    gv_rate_base: 0
+    igv_rate_base: 0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 6
@@ -62,6 +73,8 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
+    gv_rate_base: 3.3
+    igv_rate_base: 11.0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 7
@@ -72,6 +85,8 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
+    gv_rate_base: 0
+    igv_rate_base: 0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 8
@@ -82,6 +97,8 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
+    gv_rate_base: 2.3
+    igv_rate_base: 0.0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
   - id: 9
@@ -92,5 +109,7 @@ items:
     kdv_rate: 20
     otv_rate: 0
     kultur_fonu_rate: 0
+    gv_rate_base: 0
+    igv_rate_base: 0
     source: "TARA (Ticaret Bakanlığı)"
     checked_at: null
