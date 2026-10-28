@@ -1,91 +1,98 @@
-import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { readdirSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { PGlite } from '@electric-sql/pglite'
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket'
-import pg from 'pg'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { csvleriYukle } from '../db/yukleyici'
-import { tedarikcileriBirlestir } from '../server/utils/veri'
-import { csvTablolariniOku, postgresTablolariniOku } from '../server/utils/veriKaynagi'
-import { havuzOlustur } from '../server/utils/veritabani'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { tedarikcileriOku } from '../server/utils/veri'
+import { veritabaniDurumu, veritabaniHavuzu } from '../server/utils/veritabani'
 
-// Gerçek PostgreSQL (PGlite) bir sokette çalışır; uygulamanın kullandığı pg sürücüsüyle bağlanılır
-const CSV_KLASORU = resolve(import.meta.dirname, '..', '..')
+// Gerçek PostgreSQL (PGlite) bir sokette çalışır; uygulama .env'deki POSTGRES_* ile aynı yoldan (pg sürücüsü) bağlanır.
+// Şema ve veri, Docker kurulumunun yüklediği dosyalarla aynıdır: db/supply_db.sql, sonra db/data/*.sql
+const DB_KLASORU = resolve(import.meta.dirname, '..', '..', '..', 'db')
 const PORT = 54_329
+
+// Nuxt otomatik içe aktarımları vitest'te yok; veri.ts bunları çağrı anında global olarak arar
+vi.stubGlobal('veritabaniHavuzu', veritabaniHavuzu)
+vi.stubGlobal('createError', (h: { statusCode: number, statusMessage: string }) =>
+  Object.assign(new Error(h.statusMessage), h))
 
 let db: PGlite
 let sunucu: PGLiteSocketServer
-let havuz: pg.Pool
 
 beforeAll(async () => {
   db = await PGlite.create()
-  // Uygulamanın havuzu tabloları paralel okur (en fazla 5 bağlantı)
+  await db.exec(readFileSync(join(DB_KLASORU, 'supply_db.sql'), 'utf8'))
+  for (const dosya of readdirSync(join(DB_KLASORU, 'data')).filter(d => d.endsWith('.sql')).sort()) {
+    await db.exec(readFileSync(join(DB_KLASORU, 'data', dosya), 'utf8'))
+  }
+
+  // Uygulamanın havuzu en fazla 5 bağlantı açar
   sunucu = new PGLiteSocketServer({ db, port: PORT, host: '127.0.0.1', maxConnections: 5 })
   await sunucu.start()
-  havuz = havuzOlustur(`postgres://postgres@127.0.0.1:${PORT}/postgres?sslmode=disable`)
-}, 30_000)
+  vi.stubEnv('POSTGRES_HOST', '127.0.0.1')
+  vi.stubEnv('POSTGRES_PORT', String(PORT))
+  vi.stubEnv('POSTGRES_USER', 'postgres')
+  vi.stubEnv('POSTGRES_DB', 'postgres')
+}, 60_000)
 
 afterAll(async () => {
-  await havuz?.end()
+  await veritabaniHavuzu()?.end()
   await sunucu?.stop()
   await db?.close()
+  vi.unstubAllEnvs()
 })
 
-describe('PostgreSQL veri kaynağı', () => {
-  it('CSV\'ler şemaya yüklenir', async () => {
-    const istemci = await havuz.connect()
-    try {
-      const sayilar = await csvleriYukle(istemci, CSV_KLASORU)
-      expect(sayilar).toEqual({ ulkeler: 4, firmalar: 8, parcalar: 9, tedarikciler: 9, rotalar: 9 })
-      // Tekrar yüklemek aynı sonucu verir (tablolar boşaltılıp doldurulur)
-      expect(await csvleriYukle(istemci, CSV_KLASORU)).toEqual(sayilar)
-    }
-    finally {
-      istemci.release()
-    }
+describe('PostgreSQL veri kaynağı (supply_db)', () => {
+  it('şema ve veri dosyaları yüklenir, uygulama bağlanır', async () => {
+    const { rows } = await db.query<{ n: number }>('SELECT count(*)::int AS n FROM supplier_items')
+    expect(rows[0]!.n).toBeGreaterThan(0)
+    expect(await veritabaniDurumu()).toBe('bagli')
   })
 
-  it('veritabanından okunan tedarikçiler CSV\'den okunanlarla birebir aynı', async () => {
-    const pgden = tedarikcileriBirlestir(await postgresTablolariniOku(havuz))
-    const csvden = tedarikcileriBirlestir(await csvTablolariniOku(CSV_KLASORU))
-    expect(pgden).toHaveLength(9)
-    expect(pgden).toEqual(csvden)
+  it('her tedarikçi kaydı eksiksiz okunur', async () => {
+    const { rows } = await db.query<{ n: number }>('SELECT count(*)::int AS n FROM supplier_items')
+    const ted = await tedarikcileriOku()
+    expect(ted).toHaveLength(rows[0]!.n)
+    for (const t of ted) {
+      expect(t.fiyatUsd).toBeGreaterThan(0)
+      expect(['deniz', 'hava']).toContain(t.rota.mod)
+      expect(t.stok.kullanilabilir).toBe(t.stok.eldeki - t.stok.rezerve)
+      expect(t.yillikAlimUsd).toBe(Math.round(t.fiyatUsd * t.yillikAdet))
+    }
   })
 
   it('tarihler saat dilimi kaymadan "YYYY-AA-GG" olarak gelir', async () => {
-    const ted = tedarikcileriBirlestir(await postgresTablolariniOku(havuz))
-    expect(ted.find(t => t.firma === 'FSP')!.fiyatTarihi).toBe('2024-04-11')
-    expect(ted.every(t => t.sozlesmeBitis === '2026-12-31')).toBe(true)
+    const ted = await tedarikcileriOku()
+    const tarih = /^\d{4}-\d{2}-\d{2}$/
+    for (const t of ted) {
+      expect(t.fiyatTarihi).toMatch(tarih)
+      expect(t.sozlesmeBaslangic).toMatch(tarih)
+      expect(t.sozlesmeBitis).toMatch(tarih)
+    }
+    const { rows } = await db.query<{ end_date: string }>(
+      'SELECT to_char(end_date, \'YYYY-MM-DD\') AS end_date FROM contracts WHERE supplier_item_id = $1 AND is_active',
+      [ted[0]!.id])
+    expect(ted[0]!.sozlesmeBitis).toBe(rows[0]!.end_date)
   })
 
   it('şema geçersiz değerleri reddeder', async () => {
-    await expect(havuz.query('INSERT INTO rotalar VALUES (999, \'roket\', \'a\', \'b\', \'c\', 1)')).rejects.toThrow()
+    const havuz = veritabaniHavuzu()!
+    await expect(havuz.query('UPDATE shipments SET transport_mode = \'roket\' WHERE id = (SELECT min(id) FROM shipments)'))
+      .rejects.toThrow()
+    await expect(havuz.query('UPDATE inventory SET reserved = on_hand + 1 WHERE id = (SELECT min(id) FROM inventory)'))
+      .rejects.toThrow()
   })
 
-  it('CSV\'lerden biri bozuksa yükleme tamamen geri alınır, eski veri kalır', async () => {
-    const klasor = mkdtempSync(join(tmpdir(), 'chainguard-'))
-    try {
-      for (const ad of ['ulkeler', 'firmalar', 'parcalar', 'tedarikciler', 'rotalar']) {
-        copyFileSync(join(CSV_KLASORU, `${ad}.csv`), join(klasor, `${ad}.csv`))
-      }
-      // Son tablodaki son satır şemaya aykırı: önceki tablolar yazılmış olsa bile hepsi geri alınmalı
-      const rotalar = readFileSync(join(klasor, 'rotalar.csv'), 'utf8').replace(/;deniz;Cai Mep Port/, ';roket;Cai Mep Port')
-      writeFileSync(join(klasor, 'rotalar.csv'), rotalar)
-      await havuz.query('UPDATE firmalar SET firma_adi = \'Eski veri\' WHERE firma_id = 1')
+  it('stoğu olmayan kayıt atlanır, diğerleri okunur', async () => {
+    const once = await tedarikcileriOku()
+    const hedef = once[0]!.id
+    const uyari = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    await db.query('DELETE FROM inventory WHERE supplier_item_id = $1', [hedef])
 
-      const istemci = await havuz.connect()
-      try {
-        await expect(csvleriYukle(istemci, klasor)).rejects.toThrow()
-      }
-      finally {
-        istemci.release()
-      }
-      const { rows } = await havuz.query('SELECT firma_adi, (SELECT count(*)::int FROM rotalar) AS rota FROM firmalar WHERE firma_id = 1')
-      expect(rows[0]).toEqual({ firma_adi: 'Eski veri', rota: 9 })
-    }
-    finally {
-      rmSync(klasor, { recursive: true, force: true })
-    }
+    const sonra = await tedarikcileriOku()
+    expect(sonra).toHaveLength(once.length - 1)
+    expect(sonra.find(t => t.id === hedef)).toBeUndefined()
+    expect(uyari).toHaveBeenCalledWith(expect.stringContaining('eksik: stok'))
+    uyari.mockRestore()
   })
 })
