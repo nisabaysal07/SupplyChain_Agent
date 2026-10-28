@@ -2,9 +2,8 @@
 Görev 3.2 — Maliyet etkisi formülü.
 
 Bir olayın KurguTek'e etkisini hesaplar: birim ve yıllık maliyet farkı, bilgisayar başına fark,
-üretim durması. Veri tabloları yalnızca okunur; klasör sırasıyla MALIYET_VERI_KLASORU ortam
-değişkeninden, bu dosyanın yanındaki data/raw/ klasöründen, ../tedarikci_paneli'den ya da
-../TedarikciSetiYeni'den alınır.
+üretim durması. Şirket verisi ve haberler veritabanından yalnızca okunur (bağlantı: kökteki .env);
+sonuçlar cost_impacts tablosuna yazılır.
 
     from maliyet_formulu import analiz_et, ajan_analiz
     analiz_et({"olay_turu": "vergi_degisikligi", "kapsam": {"mense_ulke": ["Çin"], "parca": ["Güç kaynağı"]},
@@ -30,18 +29,16 @@ Formüller (bir adet için):
     stok günü = (eldeki − rezerve) ÷ günlük kullanım ; durma günü = bekleme − stok günü (eksiyse 0)
     stok durumu: kalan = stok günü − gecikme (olay yoksa 0) ; kalan < yol + gümrük → yetersiz ;
         kalan ≤ sipariş seviyesi günü → sınıra yakın ; yoksa yeterli (stok_uyarisi = durum yeterli değil)
-Anlaşmalı ülkede sanayi ürünlerinde GV ve İGV çarpanı 0'dır (ulkeler.csv ile aynı kural).
+Anlaşmalı ülkede sanayi ürünlerinde GV ve İGV çarpanı 0'dır (countries.has_trade_agreement).
 """
 import copy
-import csv
 import json
 import os
 from datetime import date
 from pathlib import Path
 
-# Şirket ayarları (veri tablolarında yok): yılda 10.000 bilgisayar; ekran kartı ve monitör modellerin yarısında
+# Şirket ayarı (veritabanında yok): yılda 10.000 bilgisayar
 YILLIK_PC = 10_000
-PARCA_ADET_ORANI = {1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0, 5: 0.5, 6: 1.0, 7: 1.0, 8: 1.0, 9: 0.5}
 YIL_GUN = 365
 GUMRUK_GUN = 1   # veri tablosundaki yeniden sipariş seviyesi kuralıyla aynı (yol + gümrük 1 gün + 14 gün)
 STOK_DURUMLARI = ("yetersiz", "sinira_yakin", "yeterli")
@@ -55,31 +52,55 @@ INDIRILEBILIR_VERGILER = ("kdv",)   # maliyete girmez
 OLAY_TURLERI = ("vergi_degisikligi", "anlasma_degisikligi", "lojistik_gecikme", "fiyat_degisikligi")
 
 
-def _veri_klasoru():
-    if os.environ.get("MALIYET_VERI_KLASORU"):
-        return Path(os.environ["MALIYET_VERI_KLASORU"])
-    burasi = Path(__file__).resolve().parent
-    adaylar = [burasi / "data" / "raw", burasi.parent / "tedarikci_paneli", burasi.parent / "TedarikciSetiYeni"]
-    return next((k for k in adaylar if (k / "tedarikciler.csv").exists()), adaylar[-1])
-
-
 class Veri:
-    """Veri tablolarını kimlikleriyle yükler; olaylar bir kopya üzerinde uygulanır."""
+    """Şirket verisini veritabanından kimlikleriyle yükler; olaylar bir kopya üzerinde uygulanır."""
 
-    def __init__(self, klasor=None):
-        klasor = Path(klasor) if klasor else _veri_klasoru()
+    def __init__(self, baglanti=None):
+        b = baglanti or baglan()
+        try:
+            self._yukle(b)
+        finally:
+            if baglanti is None:
+                b.close()
 
-        def oku(ad, anahtar):
-            with open(klasor / f"{ad}.csv", encoding="utf-8-sig") as f:
-                return {r[anahtar]: r for r in csv.DictReader(f, delimiter=";")}
-
-        self.tedarikci = oku("tedarikciler", "tedarikci_id")
-        self.rota = oku("rotalar", "tedarikci_id")
-        self.parca = oku("parcalar", "parca_id")
-        self.ulke = oku("ulkeler", "ulke_id")
-        self.firma = oku("firmalar", "firma_id")
+    def _yukle(self, baglanti):
+        with baglanti.cursor() as c:
+            c.execute(SIRKET_SORGUSU)
+            satirlar = c.fetchall()
+        self.tedarikci, self.rota, self.parca, self.ulke, self.firma = {}, {}, {}, {}, {}
         self.ozel_oran = {}   # (tedarikci_id, vergi) → olayla değişen tercihsiz oran
         self.uygulanan_oran = {}
+        for (item, parca_adi, fid, firma_adi, uid, ulke_adi, anlasma, fiyat, para, gv, igv, gv_taban, igv_taban, kf, otv,
+             adet, eldeki, rezerve, siparis, mod, cikis, varis, transit) in satirlar:
+            tid, fid, uid = str(item), str(fid), str(uid)
+            if tid in self.tedarikci:
+                raise ValueError(f"{parca_adi} has more than one supplier; the formula expects one supplier per part")
+            eksik = [ad for ad, x in (("unit price", fiyat), ("tariff", gv if gv is not None else gv_taban),
+                                      ("additional tariff", igv if igv is not None else igv_taban), ("inventory", eldeki),
+                                      ("reorder point", siparis), ("shipment", transit)) if x is None]
+            if eksik:
+                raise ValueError(f"missing company data for {parca_adi}: {', '.join(eksik)}")
+            if para != "USD":
+                raise ValueError(f"contract currency for {parca_adi} is {para}; the formula expects USD")
+            carpan = "0.0" if anlasma else "1.0"
+            gv = gv_taban * (0 if anlasma else 1) if gv is None else gv
+            igv = igv_taban * (0 if anlasma else 1) if igv is None else igv
+            gv_taban = gv if gv_taban is None else gv_taban
+            igv_taban = igv if igv_taban is None else igv_taban
+            for vergi, taban, uygulanan in (("gv", gv_taban, gv), ("igv", igv_taban, igv)):
+                if abs(float(taban) * float(carpan) - float(uygulanan)) > 1e-9:
+                    self.uygulanan_oran[(tid, vergi)] = float(uygulanan) / 100
+            self.tedarikci[tid] = {"tedarikci_id": tid, "parca_id": tid, "firma_id": fid, "mense_ulke_id": uid,
+                                   "perakende_usd": str(fiyat), "yillik_adet": "" if adet is None else str(adet)}
+            self.rota[tid] = {"tedarikci_id": tid, "tasima_modu": TASIMA_MODU.get(mod, mod), "cikis_noktasi": cikis,
+                              "aktarma_noktasi": "Aktarma yok", "varis_noktasi": varis, "transit_gun": str(transit)}
+            self.parca[tid] = {"parca_id": tid, "parca_adi": parca_adi, "tarife_gv_tercihsiz": str(gv_taban / 100),
+                               "tarife_igv_tercihsiz": str(igv_taban / 100), "kultur_fonu_orani": str(kf / 100),
+                               "otv_orani": str((otv or 0) / 100), "eldeki_stok": str(int(eldeki)),
+                               "rezerve_stok": str(int(rezerve)), "yeniden_siparis_seviyesi": str(int(siparis))}
+            self.ulke[uid] = {"ulke_id": uid, "ulke_adi": ulke_adi, "anlasma_durumu": "1" if anlasma else "0",
+                              "gv_carpani": carpan, "igv_carpani": carpan}
+            self.firma[fid] = {"firma_id": fid, "firma_adi": firma_adi}
 
     def kopya(self):
         return copy.deepcopy(self)
@@ -96,12 +117,9 @@ class Veri:
 # --- formüller ---------------------------------------------------------------------------
 
 def yillik_adet(v, tid):
-    if not _bos(v.tedarikci[tid].get("yillik_adet")):
-        return int(v.tedarikci[tid]["yillik_adet"])
-    pid = v.tedarikci[tid]["parca_id"]
-    if int(pid) not in PARCA_ADET_ORANI:
-        raise ValueError(f"annual quantity unknown for {v.parca[pid]['parca_adi']}")
-    return round(YILLIK_PC * PARCA_ADET_ORANI[int(pid)])
+    if _bos(v.tedarikci[tid].get("yillik_adet")):
+        raise ValueError(f"annual quantity unknown for {v.bilgi(tid)['parca']['parca_adi']}")
+    return int(v.tedarikci[tid]["yillik_adet"])
 
 
 def gunluk_kullanim(v, tid):
@@ -165,7 +183,7 @@ def _stok_ozeti(durumlar):
 
 def stok_raporu(v=None):
     """Olaydan bağımsız, bütün tedarikçilerin bugünkü stok durumu."""
-    v = v or varsayilan_veri()
+    v = v or Veri()
     satirlar = [{"tedarikci_id": tid, "parca": v.bilgi(tid)["parca"]["parca_adi"],
                  "stok_gunu": round(stok_gunu(v, tid), 1), "stok_durumu": stok_durumu(v, tid)}
                 for tid in v.tedarikci]
@@ -257,7 +275,7 @@ UYGULA = {"vergi_degisikligi": _vergi, "anlasma_degisikligi": _anlasma, "fiyat_d
 
 def analiz_et(olay, v=None, bugun=None):
     """Olayın maliyet etkisini döner. Tanınmayan olay ya da hatalı parametrede rakam üretmez."""
-    v = v or varsayilan_veri()
+    v = v or Veri()
     bugun = bugun or date.today()
     tur, p, kapsam = olay.get("olay_turu"), olay.get("parametre") or {}, dict(olay.get("kapsam") or {})
     taslak, belirsiz = bool(olay.get("taslak")), bool(olay.get("belirsiz"))
@@ -460,7 +478,7 @@ def ajan_analiz(ajan_cikti, v=None, bugun=None):
         ajan_cikti = ajan_cikti["results"] or []
     elif isinstance(ajan_cikti, dict):
         ajan_cikti = [ajan_cikti]
-    v = v or varsayilan_veri()
+    v = v or Veri()
     sonuclar = []
     for kayit in ajan_cikti:
         try:
@@ -554,59 +572,8 @@ def veritabani_kayitlari(baglanti):
     return kayitlar
 
 
-def veritabani_verisi(baglanti):
-    with baglanti.cursor() as c:
-        c.execute(SIRKET_SORGUSU)
-        satirlar = c.fetchall()
-    v = object.__new__(Veri)
-    v.tedarikci, v.rota, v.parca, v.ulke, v.firma, v.ozel_oran, v.uygulanan_oran = {}, {}, {}, {}, {}, {}, {}
-    for (item, parca_adi, fid, firma_adi, uid, ulke_adi, anlasma, fiyat, para, gv, igv, gv_taban, igv_taban, kf, otv,
-         adet, eldeki, rezerve, siparis, mod, cikis, varis, transit) in satirlar:
-        tid, fid, uid = str(item), str(fid), str(uid)
-        if tid in v.tedarikci:
-            raise ValueError(f"{parca_adi} has more than one supplier; the formula expects one supplier per part")
-        eksik = [ad for ad, x in (("unit price", fiyat), ("tariff", gv if gv is not None else gv_taban),
-                                  ("additional tariff", igv if igv is not None else igv_taban), ("inventory", eldeki),
-                                  ("reorder point", siparis), ("shipment", transit)) if x is None]
-        if eksik:
-            raise ValueError(f"missing company data for {parca_adi}: {', '.join(eksik)}")
-        if para != "USD":
-            raise ValueError(f"contract currency for {parca_adi} is {para}; the formula expects USD")
-        carpan = "0.0" if anlasma else "1.0"
-        gv = gv_taban * (0 if anlasma else 1) if gv is None else gv
-        igv = igv_taban * (0 if anlasma else 1) if igv is None else igv
-        gv_taban = gv if gv_taban is None else gv_taban
-        igv_taban = igv if igv_taban is None else igv_taban
-        for vergi, taban, uygulanan in (("gv", gv_taban, gv), ("igv", igv_taban, igv)):
-            if abs(float(taban) * float(carpan) - float(uygulanan)) > 1e-9:
-                v.uygulanan_oran[(tid, vergi)] = float(uygulanan) / 100
-        v.tedarikci[tid] = {"tedarikci_id": tid, "parca_id": tid, "firma_id": fid, "mense_ulke_id": uid,
-                            "perakende_usd": str(fiyat), "yillik_adet": "" if adet is None else str(adet)}
-        v.rota[tid] = {"tedarikci_id": tid, "tasima_modu": TASIMA_MODU.get(mod, mod), "cikis_noktasi": cikis,
-                       "aktarma_noktasi": "Aktarma yok", "varis_noktasi": varis, "transit_gun": str(transit)}
-        v.parca[tid] = {"parca_id": tid, "parca_adi": parca_adi, "tarife_gv_tercihsiz": str(gv_taban / 100),
-                        "tarife_igv_tercihsiz": str(igv_taban / 100), "kultur_fonu_orani": str(kf / 100),
-                        "otv_orani": str((otv or 0) / 100), "eldeki_stok": str(int(eldeki)),
-                        "rezerve_stok": str(int(rezerve)), "yeniden_siparis_seviyesi": str(int(siparis))}
-        v.ulke[uid] = {"ulke_id": uid, "ulke_adi": ulke_adi, "anlasma_durumu": "1" if anlasma else "0",
-                       "gv_carpani": carpan, "igv_carpani": carpan}
-        v.firma[fid] = {"firma_id": fid, "firma_adi": firma_adi}
-    return v
-
-
-def varsayilan_veri():
-    try:
-        return Veri()
-    except FileNotFoundError:
-        b = baglan()
-        try:
-            return veritabani_verisi(b)
-        finally:
-            b.close()
-
-
 def veritabani_analiz(baglanti, v=None, bugun=None):
-    return ajan_analiz(veritabani_kayitlari(baglanti), v or veritabani_verisi(baglanti), bugun)
+    return ajan_analiz(veritabani_kayitlari(baglanti), v or Veri(baglanti), bugun)
 
 
 SONUC_SORGUSU = """
