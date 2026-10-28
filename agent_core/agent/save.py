@@ -13,6 +13,7 @@ Articles are matched by
 article_id (database mode) or by URL (results from a JSON file). An article that already
 has an analysis is skipped, so a file can be saved twice without creating duplicates.
 Everything is written in one transaction: if any row fails, nothing is stored.
+After a successful save, risk_alerts.py (repository root) refreshes cost_impacts, alerts and alert_articles.
 """
 
 from __future__ import annotations
@@ -21,7 +22,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .env import load_env
+from .env import ROOT, load_env
 from .news_loader import connect
 
 FIND_ARTICLE_BY_ID = "SELECT id, last_seen_scan_id FROM articles WHERE id = %s"
@@ -130,6 +131,21 @@ def store(results: list[dict]):
     for m in messages:
         print("! " + m)
     print(f"Stored {analyses} analyses and {impacts} impact rows.")
+    if analyses:
+        update_alerts()
+
+
+def update_alerts():
+    """New analyses -> cost_impacts, alerts and alert_articles (risk_alerts.py in the repository root).
+    The analyses are already committed, so a failure here only skips the alerts; run it later with:
+    python risk_alerts.py"""
+    import sys
+    sys.path.insert(0, str(ROOT.parent))
+    try:
+        from risk_alerts import update_risks
+        update_risks()
+    except Exception as e:
+        print(f"! Alerts not updated ({type(e).__name__}: {e}); run 'python risk_alerts.py' in the repository root")
 
 
 if __name__ == "__main__":
