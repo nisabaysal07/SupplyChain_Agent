@@ -1,0 +1,42 @@
+# Agent settings. Changing a model only requires editing this file.
+# Model choice and test results: README.md
+
+provider:
+  base_url: https://api.tokenfactory.nebius.com/v1
+  api_key_env: NEBIUS_API_KEY
+
+defaults:
+  max_retries: 3          # attempts when the answer is not valid JSON
+  rate_limit_retries: 5   # waits on rate limit (429) or connection errors
+  timeout_s: 180
+
+# price_in / price_out: USD per 1M tokens, used only for the cost estimate
+models:
+  filter:
+    model_id: nvidia/nemotron-3-super-120b-a12b
+    price_in: 0.30
+    price_out: 0.90
+    params:
+      temperature: 1.0
+      top_p: 0.95
+      max_tokens: 8000
+      extra_body:
+        chat_template_kwargs:
+          enable_thinking: true
+          low_effort: true
+
+  analysis:
+    model_id: nvidia/Nemotron-3-Ultra-550b-a55b
+    price_in: 1.00
+    price_out: 3.00
+    params:
+      temperature: 1.0
+      top_p: 0.95
+      max_tokens: 8000
+      extra_body:
+        chat_template_kwargs:
+          enable_thinking: true
+          low_effort: true
+
+pipeline:
+  filter_batch_size: 1               # articles per filter call; 1 is the most reliable

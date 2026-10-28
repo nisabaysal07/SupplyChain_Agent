@@ -1,0 +1,648 @@
+{
+  "_note": "Synthetic test articles for the agent, in the news collector's format. 'expected' is the answer key and is ignored by the agent.",
+  "reports": [
+    {
+      "status": "Events Found",
+      "sources_found": [
+        {
+          "news_id": "P01",
+          "title": "Çin menşeli bilgisayar aksamına yüzde 20 ilave gümrük vergisi",
+          "published_date": "2026-10-14",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P01",
+          "summary": "Ticaret Bakanlığı'nın Resmî Gazete'de yayımlanan kararıyla, Çin menşeli 8473.30 GTİP pozisyonundaki bilgisayar aksam ve parçalarına (anakartlar, ekran kartları, kasalar ve benzerleri) uygulanan ilave gümrük vergisi yüzde 0'dan yüzde 20'ye çıkarıldı. Karar 15 Kasım 2026'da yürürlüğe girecek. Tayvan, Malezya ve Güney Kore menşeli ürünler karardan etkilenmiyor.",
+          "language": "tr",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "4",
+              "6",
+              "7"
+            ],
+            "event_type": "tariff_increase",
+            "status": "enacted",
+            "rate_type": "igv",
+            "old_rate_pct": 0,
+            "new_rate_pct": 20,
+            "effective_date": "2026-11-15",
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P02",
+          "title": "Turkey drafts 15% duty on Chinese power supply units",
+          "published_date": "2026-10-15",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P02",
+          "summary": "Turkey's Ministry of Trade has published a draft decree proposing an additional customs duty of 15 percent on power supply units for computers (HS 8504.40) originating in China. The draft is open for industry comments until 20 November 2026; no entry-into-force date has been set.",
+          "language": "en",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "5"
+            ],
+            "event_type": "tariff_increase",
+            "status": "proposed",
+            "rate_type": "igv",
+            "old_rate_pct": null,
+            "new_rate_pct": 15,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P03",
+          "title": "Türkiye ile Vietnam serbest ticaret anlaşması imzalandı",
+          "published_date": "2026-10-16",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P03",
+          "summary": "Türkiye ile Vietnam arasında serbest ticaret anlaşması imzalandı. Anlaşma 1 Ocak 2027'de yürürlüğe girecek ve bilgisayar monitörleri ile işlemciler dahil elektronik ürünlerde Vietnam menşeli mallara uygulanan gümrük vergileri sıfırlanacak.",
+          "language": "tr",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "8",
+              "9"
+            ],
+            "event_type": "tariff_decrease",
+            "status": "enacted",
+            "rate_type": "gv",
+            "old_rate_pct": null,
+            "new_rate_pct": 0,
+            "effective_date": "2027-01-01",
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P27",
+          "title": "Bilgisayar monitörlerinde KDV yüzde 10'a indirildi",
+          "published_date": "2026-10-21",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P27",
+          "summary": "Cumhurbaşkanı Kararı ile bilgisayar monitörlerinde uygulanan katma değer vergisi (KDV) oranı yüzde 20'den yüzde 10'a indirildi. Yeni oran 1 Kasım 2026'dan itibaren uygulanacak.",
+          "language": "tr",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "8"
+            ],
+            "event_type": "tariff_decrease",
+            "status": "enacted",
+            "rate_type": "kdv",
+            "old_rate_pct": 20,
+            "new_rate_pct": 10,
+            "effective_date": "2026-11-01",
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P04",
+          "title": "商务部：自12月1日起对显卡出口实施许可证管理",
+          "published_date": "2026-10-13",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P04",
+          "summary": "商务部发布公告，自2026年12月1日起，对显卡（图形处理卡）出口实施出口许可证管理，未取得许可证的企业不得出口。主板、电源等其他电脑配件不在此次管理范围内。",
+          "language": "zh",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "6"
+            ],
+            "event_type": "trade_restriction",
+            "status": "enacted",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": "2026-12-01",
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P05",
+          "title": "SSD ithalatına lisans şartı getirildi",
+          "published_date": "2026-10-17",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P05",
+          "summary": "Ticaret Bakanlığı, 8471.70 GTİP pozisyonundaki SSD ve diğer depolama birimlerinin ithalatında 1 Aralık 2026'dan itibaren ithalat lisansı şartı aranacağını duyurdu. Şart menşe ülke ayrımı yapılmaksızın tüm ithalatta uygulanacak.",
+          "language": "tr",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "1"
+            ],
+            "event_type": "trade_restriction",
+            "status": "enacted",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": "2026-12-01",
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P06",
+          "title": "Việt Nam dự kiến cấp phép xuất khẩu đối với bộ vi xử lý máy tính",
+          "published_date": "2026-10-18",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P06",
+          "summary": "Bộ Công Thương đang soạn thảo đề xuất yêu cầu giấy phép xuất khẩu đối với bộ vi xử lý máy tính. Đề xuất vẫn đang trong giai đoạn lấy ý kiến và chưa có ngày áp dụng. Màn hình máy tính không nằm trong phạm vi đề xuất.",
+          "language": "vi",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "9"
+            ],
+            "event_type": "trade_restriction",
+            "status": "proposed",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P07",
+          "title": "Mersin Limanı'nda grev: konteyner işlemleri durdu",
+          "published_date": "2026-10-17",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P07",
+          "summary": "Mersin Uluslararası Limanı'nda (MIP) toplu sözleşme görüşmelerinin tıkanması üzerine liman işçileri 17 Ekim 2026'da greve başladı. Konteyner elleçleme durdu; liman işletmesi gemilerin en az 10 gün bekleyeceğini açıkladı.",
+          "language": "tr",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "2",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8"
+            ],
+            "event_type": "transport_disruption",
+            "status": "ongoing_event",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": 10
+          }
+        },
+        {
+          "news_id": "P08",
+          "title": "Customs system failure halts air cargo clearance at Istanbul Airport",
+          "published_date": "2026-10-16",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P08",
+          "summary": "A failure in the customs IT system at Istanbul Airport's cargo terminal has halted the clearance of incoming air freight since 16 October 2026. Authorities expect normal operations to resume within 3 days.",
+          "language": "en",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "1",
+              "3",
+              "9"
+            ],
+            "event_type": "transport_disruption",
+            "status": "ongoing_event",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": 3
+          }
+        },
+        {
+          "news_id": "P09",
+          "title": "Bão đổ bộ, cảng Cái Mép tạm dừng tiếp nhận tàu",
+          "published_date": "2026-10-18",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P09",
+          "summary": "Do ảnh hưởng của bão, cảng Cái Mép (Bà Rịa – Vũng Tàu) tạm dừng tiếp nhận tàu container từ ngày 18/10/2026. Cảng vụ dự kiến hoạt động bình thường trở lại sau khoảng 5 ngày.",
+          "language": "vi",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "8"
+            ],
+            "event_type": "transport_disruption",
+            "status": "ongoing_event",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": 5
+          }
+        },
+        {
+          "news_id": "P10",
+          "title": "Flooding suspends cargo operations at Ho Chi Minh City airport",
+          "published_date": "2026-10-19",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P10",
+          "summary": "Cargo terminal operations at Tan Son Nhat International Airport in Ho Chi Minh City have been suspended since 19 October 2026 due to flash flooding. The airport expects operations to resume within two days.",
+          "language": "en",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "9"
+            ],
+            "event_type": "transport_disruption",
+            "status": "ongoing_event",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": 2
+          }
+        },
+        {
+          "news_id": "P11",
+          "title": "인천공항 화물 하역 노조 파업…최대 일주일 지속 전망",
+          "published_date": "2026-10-20",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P11",
+          "summary": "인천국제공항 화물터미널 하역 노조가 10월 20일 파업에 돌입했다. 노조는 파업이 최대 일주일간 이어질 수 있다고 밝혔다.",
+          "language": "ko",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "1"
+            ],
+            "event_type": "transport_disruption",
+            "status": "ongoing_event",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": 7
+          }
+        },
+        {
+          "news_id": "P12",
+          "title": "颱風來襲 高雄港暫停貨櫃作業三天",
+          "published_date": "2026-10-18",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P12",
+          "summary": "受颱風影響，台灣港務公司高雄港務分公司宣布自10月18日起暫停貨櫃裝卸作業，預計三天後恢復。",
+          "language": "zh",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "2"
+            ],
+            "event_type": "transport_disruption",
+            "status": "ongoing_event",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": 3
+          }
+        },
+        {
+          "news_id": "P13",
+          "title": "受台风影响 深圳盐田港、蛇口港暂停作业48小时",
+          "published_date": "2026-10-19",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P13",
+          "summary": "受台风影响，深圳盐田港和蛇口港自10月19日起暂停集装箱装卸作业，预计停工48小时。",
+          "language": "zh",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "4",
+              "5",
+              "6"
+            ],
+            "event_type": "transport_disruption",
+            "status": "ongoing_event",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": 2
+          }
+        },
+        {
+          "news_id": "P14",
+          "title": "Operasi kargo di Lapangan Terbang Antarabangsa Pulau Pinang digantung",
+          "published_date": "2026-10-19",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P14",
+          "summary": "Operasi terminal kargo di Lapangan Terbang Antarabangsa Pulau Pinang digantung sejak 19 Oktober 2026 akibat banjir kilat. Pihak pengurusan menjangkakan operasi pulih dalam tempoh dua hari.",
+          "language": "ms",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P15",
+          "title": "DDR5 module prices jump 40% as DRAM shortage deepens",
+          "published_date": "2026-10-15",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P15",
+          "summary": "Contract prices for DDR5 memory modules rose about 40 percent this quarter as a DRAM shortage deepened, market tracker data show. Retail prices of desktop memory kits followed.",
+          "language": "en",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "3"
+            ],
+            "event_type": "price_change",
+            "status": "enacted",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P16",
+          "title": "Bilgisayar monitörü ithalatında TSE belgesi zorunlu oluyor",
+          "published_date": "2026-10-21",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P16",
+          "summary": "Ticaret Bakanlığı, 8528.52 GTİP pozisyonundaki bilgisayar monitörlerinin ithalatında 1 Aralık 2026'dan itibaren TSE uygunluk belgesi aranacağını duyurdu. Belgesi olmayan ürünler gümrükten geçemeyecek.",
+          "language": "tr",
+          "expected": {
+            "impact": "direct",
+            "relevant": true,
+            "affected_supplier_ids": [
+              "8"
+            ],
+            "event_type": "trade_restriction",
+            "status": "enacted",
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": "2026-12-01",
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P17",
+          "title": "Fire halts production at Samsung display plant in Vietnam",
+          "published_date": "2026-10-17",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P17",
+          "summary": "A fire broke out at a Samsung Electronics plant in Bac Ninh province, Vietnam, that makes displays, halting production lines for an estimated two weeks.",
+          "language": "en",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P18",
+          "title": "北海道で強い地震、被害状況を確認中",
+          "published_date": "2026-10-17",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P18",
+          "summary": "17日午前、北海道東部でマグニチュード6.5の地震が発生した。現在、気象庁と自治体が被害状況を確認している。工場や港湾への影響については、まだ報告はない。",
+          "language": "ja",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P19",
+          "title": "ท่าเรือแหลมฉบังแออัดหนัก เรือรอเทียบท่านาน 4 วัน",
+          "published_date": "2026-10-14",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P19",
+          "summary": "ท่าเรือแหลมฉบังประสบปัญหาความแออัดอย่างหนักตั้งแต่วันที่ 14 ตุลาคม 2569 เรือคอนเทนเนอร์ต้องรอเทียบท่านานถึง 4 วัน",
+          "language": "th",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P20",
+          "title": "Congestion builds at Shanghai port",
+          "published_date": "2026-10-15",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P20",
+          "summary": "Container congestion at China's Shanghai port worsened this week, with average vessel waiting times rising to three days.",
+          "language": "en",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P21",
+          "title": "US raises tariffs on Chinese graphics cards",
+          "published_date": "2026-10-16",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P21",
+          "summary": "The United States will raise tariffs on graphics cards imported from China to 50 percent from 1 January 2027, the US Trade Representative said.",
+          "language": "en",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P22",
+          "title": "EU imposes anti-dumping duty on Chinese PC power supplies",
+          "published_date": "2026-10-16",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P22",
+          "summary": "The European Commission imposed a provisional anti-dumping duty of 22 percent on computer power supply units from China.",
+          "language": "en",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P23",
+          "title": "Asia-Europe container freight rates rise 15%",
+          "published_date": "2026-10-14",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P23",
+          "summary": "Spot container freight rates on Asia-Europe routes rose 15 percent week on week, according to a freight index, as carriers continued to avoid the Red Sea.",
+          "language": "en",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P24",
+          "title": "Intel unveils new desktop processors",
+          "published_date": "2026-10-21",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P24",
+          "summary": "Intel introduced a new family of desktop processors aimed at gamers, with availability expected early next year.",
+          "language": "en",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P25",
+          "title": "Kingston reports record quarterly revenue",
+          "published_date": "2026-10-21",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P25",
+          "summary": "Kingston Technology reported record revenue for the third quarter, driven by strong demand for memory products.",
+          "language": "en",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        },
+        {
+          "news_id": "P26",
+          "title": "Süper Lig'de derbi heyecanı",
+          "published_date": "2026-10-20",
+          "effective_date": null,
+          "source_name": "Synthetic test data",
+          "url": "https://example.com/pc-test/P26",
+          "summary": "Süper Lig'in 9. haftasında oynanan derbi maçı 2-2 berabere sona erdi.",
+          "language": "tr",
+          "expected": {
+            "impact": "none",
+            "relevant": false,
+            "affected_supplier_ids": [],
+            "event_type": "not_relevant",
+            "status": null,
+            "rate_type": null,
+            "old_rate_pct": null,
+            "new_rate_pct": null,
+            "effective_date": null,
+            "expected_delay_days": null
+          }
+        }
+      ]
+    }
+  ]
+}
