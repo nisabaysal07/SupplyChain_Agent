@@ -30,6 +30,7 @@ suppliers.json
 # --- Debug output (rejected results + full report, NOT for the model) --------
 rejected_results_debug.json
 skills-lock.json
+logs/
 
 # --- Editor / OS files -----------------------------------------------------------
 .vscode/

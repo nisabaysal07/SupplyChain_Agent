@@ -313,6 +313,7 @@ CREATE TABLE alerts (
     is_read             BOOLEAN NOT NULL DEFAULT FALSE,   -- kullanıcı kartı gördü mü
     read_at             TIMESTAMPTZ,
     notified_at         TIMESTAMPTZ,                      -- e-posta / bildirim gönderildi mi
+    panel_synced_at     TIMESTAMPTZ,                      -- panele olay olarak gönderildi mi (panel_sync.py)
 
     created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),

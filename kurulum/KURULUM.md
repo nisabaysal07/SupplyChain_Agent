@@ -170,6 +170,21 @@ Wi-Fi bölümündeki `IPv4 Address` (ör. `192.168.1.25`) değerini; kullanıcı
 - Projenin kök klasöründeki `.env` (`SupplyChain_Agent/.env`, `kurulum/.env` değil) içinde `POSTGRES_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD` bu değerlere ayarlanır.
 - Bağlantıyı test etmek için: `Test-NetConnection <IP> -Port 5432` → `TcpTestSucceeded : True`
 
+## Otomatik tarama (Görev Zamanlayıcı)
+
+`main.py` tüm zinciri çalıştırır: haber taraması → ajan analizi → maliyet etkisi ve alarmlar. Her 3 saatte bir çalışması için PowerShell'de, proje kökünde:
+
+```powershell
+.\kurulum\zamanlayici_kur.ps1
+```
+
+- Gerekenler: `.venv` kurulu, kökteki `.env` içinde `TAVILY_API_KEY`, `NEBIUS_API_KEY` ve `POSTGRES_*` dolu, Docker Desktop oturum açılınca başlıyor (Ayarlar → General → Start Docker Desktop when you sign in).
+- Görev oturum açıkken (ekran kilitliyken de) pencere açmadan çalışır, böylece `.env`'deki `windows://` masaüstü bildirimleri görünür. Oturum kapalıyken de çalışması için yönetici PowerShell'de `-OturumKapaliyken` ile kurun; bu modda masaüstü bildirimleri görünmez, diğer kanallar (Slack vb.) gelir.
+- Uzun süren tarama bitmeden yenisi başlamaz, kapalıyken kaçırılan çalışma bilgisayar açılınca yapılır.
+- Çıktılar `logs\tarama.log` dosyasına eklenir; her tarama `scan_logs` tablosuna da yazılır.
+- Hemen çalıştır: `Start-ScheduledTask -TaskName 'SupplyChain Tarama'` · Kaldır: `.\kurulum\zamanlayici_kur.ps1 -Kaldir`
+- `Scheduler.py` aynı işi terminal açık kaldığı sürece yapar (geliştirme için).
+
 ## Notlar
 
 - İkiniz aynı ağda olmalısınız. Misafir Wi-Fi ağları cihazların birbirini görmesini çoğu zaman engeller.

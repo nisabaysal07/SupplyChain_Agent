@@ -2,7 +2,7 @@
 Risk Alerts Module (Görev 3 → Görev 4):
 Turns the stored news analyses into cost impacts and alerts.
 
-Flow:  scan (main.py) → agent (article_analyses + article_impacts) → THIS → panel / notifications
+Flow:  scan (main.py) → agent (article_analyses + article_impacts) → THIS → panel_sync.py / notify.py
     1. cost_impacts : maliyet_etkisi/maliyet_formulu.py is run on the latest analysis of every article
                       and the results are upserted (one row per analysis).
     2. alerts       : the relevant analyses of the articles seen in a scan are grouped into risks.
@@ -43,6 +43,9 @@ from scan_log import connect
 HERE = Path(__file__).resolve().parent
 RESOLVE_AFTER_SCANS = 3
 NOVELTY = {"new": 1.0, "changed": 0.8, "unchanged": 0.5}
+# alerts.panel_synced_at (panel_sync.py) is missing in a supply_db built before it was added
+ADD_PANEL_COLUMN_SQL = "ALTER TABLE alerts ADD COLUMN IF NOT EXISTS panel_synced_at TIMESTAMPTZ"
+
 # Values compared between the alert's previous analysis and the new one
 TRACKED = ("impact_score", "rate_type", "old_rate_pct", "new_rate_pct", "expected_delay_days", "price_change_pct")
 TARGETS = ("supplier_id", "item_id", "location_id", "country_id")   # risk_key order
@@ -86,7 +89,7 @@ VALUES (%(event_type)s, %(supplier_id)s, %(item_id)s, %(location_id)s, %(country
         %(priority)s, %(severity)s, %(analysis)s, %(scan)s, %(scan)s)
 RETURNING id
 """
-# A change makes the card unread and not notified again, so the panel shows / sends it once more.
+# A change makes the card unread, not notified and not synced to the panel again, so the panel shows / sends it once more.
 # prev_score moves only when a new scan sees the risk, and running the same scan again keeps its
 # change_reason (SET reads the old row values)
 UPDATE_ALERT_SQL = """
@@ -98,14 +101,16 @@ UPDATE alerts SET status = %(status)s, current_score = %(score)s,
        latest_analysis_id = %(analysis)s, last_seen_scan_id = %(scan)s, updated_at = now(),
        is_read     = CASE WHEN %(notify)s THEN false ELSE is_read END,
        read_at     = CASE WHEN %(notify)s THEN NULL ELSE read_at END,
-       notified_at = CASE WHEN %(notify)s THEN NULL ELSE notified_at END
+       notified_at = CASE WHEN %(notify)s THEN NULL ELSE notified_at END,
+       panel_synced_at = CASE WHEN %(notify)s THEN NULL ELSE panel_synced_at END
 WHERE id = %(id)s
 """
 LINK_SQL = """INSERT INTO alert_articles (alert_id, article_id, added_scan_id) VALUES (%s, %s, %s)
               ON CONFLICT (alert_id, article_id) DO NOTHING"""
-# Open alerts whose last sighting is followed by RESOLVE_AFTER_SCANS successful scans (up to S)
+# Open alerts whose last sighting is followed by RESOLVE_AFTER_SCANS successful scans (up to S).
+# The panel gets the end date on the next sync.
 RESOLVE_SQL = """
-UPDATE alerts al SET status = 'resolved', resolved_scan_id = %(scan)s, updated_at = now(),
+UPDATE alerts al SET status = 'resolved', resolved_scan_id = %(scan)s, updated_at = now(), panel_synced_at = NULL,
        change_reason = 'not seen in the last ' || %(n)s || ' successful scans'
 WHERE al.status <> 'resolved' AND al.last_seen_scan_id < %(scan)s
   AND (SELECT count(*) FROM scan_logs s
@@ -163,6 +168,7 @@ def update_alerts(conn, scan_id: int) -> Dict[str, int]:
     """Step 2: alerts + alert_articles for one scan, in one transaction. Returns counts per status."""
     counts = {"new": 0, "changed": 0, "unchanged": 0, "resolved": 0, "skipped": 0}
     with conn.cursor() as cur:
+        cur.execute(ADD_PANEL_COLUMN_SQL)
         cur.execute(SEEN_SQL, {"scan": scan_id})
         rows = cur.fetchall()
 

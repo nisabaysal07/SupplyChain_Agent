@@ -5,6 +5,7 @@ sentence splitting, noise/junk filtering, summary construction, and effective da
 """
 
 import re
+from datetime import date
 from typing import List, Optional
 
 import config as cfg
@@ -150,6 +151,38 @@ def build_summary(hits: List[str]) -> str:
     return " ".join(out)
 
 
-def extract_effective_date(text: str) -> Optional[str]:
+_MONTH_NO = {m: i for i, m in enumerate(
+    ("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"), 1)}
+
+
+def _to_date(raw: str, ref: date) -> Optional[date]:
+    """Text date matched by _DATE_EXPR -> date. A missing year comes from ref (the publish date);
+    a day more than half a year before ref is taken as next year ("effective January 1" in December)."""
+    s = raw.lower().replace(",", " ").replace(".", " ").split()
+    try:
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw):
+            return date.fromisoformat(raw)
+        if m := re.fullmatch(r"(\d{1,2})([./])(\d{1,2})[./](\d{4})", raw):
+            a, b, year = int(m.group(1)), int(m.group(3)), int(m.group(4))
+            # 16.10.2026 is day-first; 10/16/2026 month-first unless the first part cannot be a month
+            day_first = m.group(2) == "." or a > 12
+            return date(year, b, a) if day_first else date(year, a, b)
+        if s[0].isdigit():                      # 16 October [2026]
+            day, month, year = int(s[0]), _MONTH_NO.get(s[1][:3]), s[2] if len(s) > 2 else None
+        else:                                   # October 16[, 2026]
+            month, day, year = _MONTH_NO.get(s[0][:3]), int(s[1]), s[2] if len(s) > 2 else None
+        if month is None:
+            return None
+        if year:
+            return date(int(year), month, day)
+        d = date(ref.year, month, day)
+        return date(ref.year + 1, month, day) if (ref - d).days > 183 else d
+    except (ValueError, IndexError):
+        return None
+
+
+def extract_effective_date(text: str, ref: Optional[date] = None) -> Optional[str]:
+    """Effective date named in the text as YYYY-MM-DD (None if absent or not a real date)."""
     m = _EFFECTIVE.search(normalize(text))
-    return m.group(1) if m else None
+    d = _to_date(m.group(1), ref or date.today()) if m else None
+    return d.isoformat() if d else None

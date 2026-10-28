@@ -170,7 +170,8 @@ class CleanNewsOnlySupplyAnalyzer:
                 published_date=pub.strftime("%Y-%m-%d") if pub else None,
                 date_verified=pub is not None,
                 effective_date=text_utils.extract_effective_date(
-                    (res.get("content") or "") + " " + (res.get("raw_content") or "")[: cfg.MAX_TEXT_CHARS]
+                    (res.get("content") or "") + " " + (res.get("raw_content") or "")[: cfg.MAX_TEXT_CHARS],
+                    pub.date() if pub else None,
                 ),
                 source_name=cfg.SOURCE_DISPLAY_NAMES.get(domain, domain),
                 source_type=sources.source_type_of(domain, official),

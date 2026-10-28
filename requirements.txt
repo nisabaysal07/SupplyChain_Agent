@@ -4,3 +4,8 @@ PyYAML==6.0.3
 # Haber taraması (main.py)
 python-dotenv==1.2.4
 tavily-python==0.8.5
+# Bildirimler (notify.py)
+apprise==2.1.0
+pywin32==311; sys_platform == "win32"   # windows:// masaüstü bildirimi
+# Panele olay gönderimi (panel_sync.py)
+requests==2.34.2
