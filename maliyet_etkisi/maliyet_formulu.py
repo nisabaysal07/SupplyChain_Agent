@@ -96,6 +96,8 @@ class Veri:
 # --- formüller ---------------------------------------------------------------------------
 
 def yillik_adet(v, tid):
+    if not _bos(v.tedarikci[tid].get("yillik_adet")):
+        return int(v.tedarikci[tid]["yillik_adet"])
     pid = v.tedarikci[tid]["parca_id"]
     if int(pid) not in PARCA_ADET_ORANI:
         raise ValueError(f"annual quantity unknown for {v.parca[pid]['parca_adi']}")
@@ -163,7 +165,7 @@ def _stok_ozeti(durumlar):
 
 def stok_raporu(v=None):
     """Olaydan bağımsız, bütün tedarikçilerin bugünkü stok durumu."""
-    v = v or Veri()
+    v = v or varsayilan_veri()
     satirlar = [{"tedarikci_id": tid, "parca": v.bilgi(tid)["parca"]["parca_adi"],
                  "stok_gunu": round(stok_gunu(v, tid), 1), "stok_durumu": stok_durumu(v, tid)}
                 for tid in v.tedarikci]
@@ -255,7 +257,7 @@ UYGULA = {"vergi_degisikligi": _vergi, "anlasma_degisikligi": _anlasma, "fiyat_d
 
 def analiz_et(olay, v=None, bugun=None):
     """Olayın maliyet etkisini döner. Tanınmayan olay ya da hatalı parametrede rakam üretmez."""
-    v = v or Veri()
+    v = v or varsayilan_veri()
     bugun = bugun or date.today()
     tur, p, kapsam = olay.get("olay_turu"), olay.get("parametre") or {}, dict(olay.get("kapsam") or {})
     taslak, belirsiz = bool(olay.get("taslak")), bool(olay.get("belirsiz"))
@@ -458,7 +460,7 @@ def ajan_analiz(ajan_cikti, v=None, bugun=None):
         ajan_cikti = ajan_cikti["results"] or []
     elif isinstance(ajan_cikti, dict):
         ajan_cikti = [ajan_cikti]
-    v = v or Veri()
+    v = v or varsayilan_veri()
     sonuclar = []
     for kayit in ajan_cikti:
         try:
@@ -488,7 +490,7 @@ PUAN_ARALIKLARI = ((80, "enacted"), (66, "proposed"))
 ANALIZ_SORGUSU = """
     SELECT * FROM (
         SELECT DISTINCT ON (aa.article_id) aa.id, aa.is_relevant, aa.impact_score, aa.event_type, aa.rate_type,
-               aa.old_rate_pct, aa.new_rate_pct, aa.expected_delay_days,
+               aa.old_rate_pct, aa.new_rate_pct, aa.expected_delay_days, aa.price_change_pct,
                (a.effective_date AT TIME ZONE 'Europe/Istanbul')::date
         FROM article_analyses aa JOIN articles a ON a.id = aa.article_id
         ORDER BY aa.article_id, aa.scan_log_id DESC) son
@@ -496,8 +498,8 @@ ANALIZ_SORGUSU = """
 ETKI_SORGUSU = "SELECT article_analysis_id, item_id, country_id FROM article_impacts"
 SIRKET_SORGUSU = """
     SELECT si.item_id, i.name, s.id, s.name, co.id, co.name_tr, co.has_trade_agreement, c.unit_price, c.currency,
-           t.gv_rate, t.igv_rate, i.kultur_fonu_rate, i.otv_rate, inv.on_hand, inv.reserved, inv.reorder_point,
-           sh.transport_mode, le.name, ld.name, sh.expected_transit_days
+           t.gv_rate, t.igv_rate, i.gv_rate_base, i.igv_rate_base, i.kultur_fonu_rate, i.otv_rate, si.annual_quantity,
+           inv.on_hand, inv.reserved, inv.reorder_point, sh.transport_mode, le.name, ld.name, sh.expected_transit_days
     FROM supplier_items si
     JOIN items i ON i.id = si.item_id
     JOIN suppliers s ON s.id = si.supplier_id
@@ -521,7 +523,10 @@ def puan_durumu(puan):
 
 
 def baglan(env=Path(__file__).resolve().parent.parent / ".env"):
-    import psycopg
+    try:
+        import psycopg2 as psycopg
+    except ImportError:
+        import psycopg
     ayar = dict(s.strip().split("=", 1) for s in env.read_text(encoding="utf-8").splitlines()
                 if "=" in s and not s.lstrip().startswith("#"))
     ayar.update({k: os.environ[k] for k in ("POSTGRES_HOST", "POSTGRES_PORT", "POSTGRES_USER", "POSTGRES_PASSWORD",
@@ -537,13 +542,14 @@ def veritabani_kayitlari(baglanti):
         c.execute(ANALIZ_SORGUSU)
         analizler = c.fetchall()
     kayitlar = []
-    for aid, ilgili, puan, tur, rate, eski, yeni, gecikme, yururluk in analizler:
+    for aid, ilgili, puan, tur, rate, eski, yeni, gecikme, fiyat, yururluk in analizler:
         satirlar = [(i, u) for a, i, u in etkiler if a == aid]
         kayitlar.append({
             "news_id": aid, "is_relevant": ilgili, "event_type": tur,
             "affected_supplier_ids": sorted({str(i) for i, _ in satirlar if i is not None}, key=int),
             "analysis": {"status": puan_durumu(puan), "rate_type": rate, "old_rate_pct": eski, "new_rate_pct": yeni,
-                         "expected_delay_days": gecikme, "effective_date": yururluk.isoformat() if yururluk else None,
+                         "expected_delay_days": gecikme, "price_change_pct": fiyat,
+                         "effective_date": yururluk.isoformat() if yururluk else None,
                          "ulkeye_ozel": any(u is not None for _, u in satirlar)}})
     return kayitlar
 
@@ -554,30 +560,49 @@ def veritabani_verisi(baglanti):
         satirlar = c.fetchall()
     v = object.__new__(Veri)
     v.tedarikci, v.rota, v.parca, v.ulke, v.firma, v.ozel_oran, v.uygulanan_oran = {}, {}, {}, {}, {}, {}, {}
-    for (item, parca_adi, fid, firma_adi, uid, ulke_adi, anlasma, fiyat, para, gv, igv, kf, otv,
-         eldeki, rezerve, siparis, mod, cikis, varis, transit) in satirlar:
+    for (item, parca_adi, fid, firma_adi, uid, ulke_adi, anlasma, fiyat, para, gv, igv, gv_taban, igv_taban, kf, otv,
+         adet, eldeki, rezerve, siparis, mod, cikis, varis, transit) in satirlar:
         tid, fid, uid = str(item), str(fid), str(uid)
         if tid in v.tedarikci:
             raise ValueError(f"{parca_adi} has more than one supplier; the formula expects one supplier per part")
-        eksik = [ad for ad, x in (("unit price", fiyat), ("tariff", gv), ("inventory", eldeki),
+        eksik = [ad for ad, x in (("unit price", fiyat), ("tariff", gv if gv is not None else gv_taban),
+                                  ("additional tariff", igv if igv is not None else igv_taban), ("inventory", eldeki),
                                   ("reorder point", siparis), ("shipment", transit)) if x is None]
         if eksik:
             raise ValueError(f"missing company data for {parca_adi}: {', '.join(eksik)}")
         if para != "USD":
             raise ValueError(f"contract currency for {parca_adi} is {para}; the formula expects USD")
         carpan = "0.0" if anlasma else "1.0"
+        gv = gv_taban * (0 if anlasma else 1) if gv is None else gv
+        igv = igv_taban * (0 if anlasma else 1) if igv is None else igv
+        gv_taban = gv if gv_taban is None else gv_taban
+        igv_taban = igv if igv_taban is None else igv_taban
+        for vergi, taban, uygulanan in (("gv", gv_taban, gv), ("igv", igv_taban, igv)):
+            if abs(float(taban) * float(carpan) - float(uygulanan)) > 1e-9:
+                v.uygulanan_oran[(tid, vergi)] = float(uygulanan) / 100
         v.tedarikci[tid] = {"tedarikci_id": tid, "parca_id": tid, "firma_id": fid, "mense_ulke_id": uid,
-                            "perakende_usd": str(fiyat)}
+                            "perakende_usd": str(fiyat), "yillik_adet": "" if adet is None else str(adet)}
         v.rota[tid] = {"tedarikci_id": tid, "tasima_modu": TASIMA_MODU.get(mod, mod), "cikis_noktasi": cikis,
                        "aktarma_noktasi": "Aktarma yok", "varis_noktasi": varis, "transit_gun": str(transit)}
-        v.parca[tid] = {"parca_id": tid, "parca_adi": parca_adi, "tarife_gv_tercihsiz": str(gv / 100),
-                        "tarife_igv_tercihsiz": str(igv / 100), "kultur_fonu_orani": str(kf / 100),
+        v.parca[tid] = {"parca_id": tid, "parca_adi": parca_adi, "tarife_gv_tercihsiz": str(gv_taban / 100),
+                        "tarife_igv_tercihsiz": str(igv_taban / 100), "kultur_fonu_orani": str(kf / 100),
                         "otv_orani": str((otv or 0) / 100), "eldeki_stok": str(int(eldeki)),
                         "rezerve_stok": str(int(rezerve)), "yeniden_siparis_seviyesi": str(int(siparis))}
         v.ulke[uid] = {"ulke_id": uid, "ulke_adi": ulke_adi, "anlasma_durumu": "1" if anlasma else "0",
                        "gv_carpani": carpan, "igv_carpani": carpan}
         v.firma[fid] = {"firma_id": fid, "firma_adi": firma_adi}
     return v
+
+
+def varsayilan_veri():
+    try:
+        return Veri()
+    except FileNotFoundError:
+        b = baglan()
+        try:
+            return veritabani_verisi(b)
+        finally:
+            b.close()
 
 
 def veritabani_analiz(baglanti, v=None, bugun=None):
