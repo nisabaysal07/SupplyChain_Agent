@@ -13,6 +13,7 @@ import sys
 from dotenv import load_dotenv
 
 from analyzer import CleanNewsOnlySupplyAnalyzer
+from article_store import save_articles
 from scan_log import ScanFailed, scan_log
 load_dotenv()
 
@@ -65,6 +66,11 @@ def main():
             rejected_count=len(analyzer.rejections),
             error_count=errors,
         )
+
+        # Accepted news go to articles, linked to this scan (skipped if scan_logs was unreachable)
+        if scan.id is not None:
+            saved = save_articles(scan.id, report)
+            print(f"[✓] {len(saved)} haber articles tablosuna kaydedildi")
 
         # Every query failing means the search itself is broken (API key, network)
         if report.reports and errors == len(report.reports):
