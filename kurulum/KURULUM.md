@@ -1,13 +1,22 @@
 # supply_db kurulumu (takım arkadaşının bilgisayarı)
 
-Projedeki `kurulum/` klasörü, `supply_db` veritabanının birebir kopyasını kurmak için gereken her şeyi içerir.
+Projedeki `kurulum/` klasörü, `supply_db` veritabanını kurmak için gereken her şeyi içerir.
 Python gerekmez; yalnızca **Docker Desktop** (ve projeyi çekmek için Git) kurulu olmalı.
 
 | Dosya | Ne işe yarar |
 |---|---|
 | `docker-compose.yml` | PostgreSQL 17 ve Qdrant konteynerlerini başlatır |
 | `.env.example` | Parola ayarları için örnek (`.env` olarak kopyalanır) |
-| `supply_db.sql` | Veritabanının tam kopyası (16 tablo, tüm veri) |
+| `init_db.sh` | İlk başlatmada şemayı ve veriyi otomatik yükler |
+
+Şema ve veri `db/` klasöründen alınır, `kurulum/` içinde kopyası tutulmaz:
+
+| Dosya | İçerik |
+|---|---|
+| `db/supply_db.sql` | Şema: 16 tablo ve indeksler (veri yok) |
+| `db/data/01_countries.sql` | 50 ülke |
+| `db/data/02_ana_veri.sql` | Tedarikçiler, ürünler, lokasyonlar, gümrük oranları, sözleşmeler, stok, sevkiyatlar |
+| `db/data/03_haberler.sql` | Taramalar ve haberler (mock haberler + agent sonuçları) |
 
 ## 1. Klasörü hazırla
 
@@ -33,27 +42,48 @@ Python gerekmez; yalnızca **Docker Desktop** (ve projeyi çekmek için Git) kur
 docker compose up -d
 ```
 
-`docker ps` çıktısında `proje_postgres` satırı `(healthy)` olana kadar ~10 saniye bekle.
+İlk başlatmada şema ve veri otomatik yüklenir (`db/supply_db.sql`, ardından `db/data/*.sql` ad sırasıyla).
+`docker ps` çıktısında `proje_postgres` satırı `(healthy)` olana kadar ~20 saniye bekle.
 
 > Hata alırsan: `proje_postgres` adında başka bir konteyner varsa veya 5432 portu doluysa
 > (bilgisayarda kurulu başka bir PostgreSQL), `docker-compose.yml` içinde `"5432:5432"` satırını
 > `"5433:5432"` yap; bağlantılarda port 5433 olur.
 
-## 3. Veriyi yükle
-
-```powershell
-docker cp supply_db.sql proje_postgres:/tmp/supply_db.sql
-```
-
-```powershell
-docker exec proje_postgres psql -U proje_admin -d supply_db -q -v ON_ERROR_STOP=1 -f /tmp/supply_db.sql
-```
+## 3. Veriyi kontrol et
 
 Kontrol (12 çıkmalı):
 
 ```powershell
 docker exec proje_postgres psql -U proje_admin -d supply_db -c "SELECT count(*) FROM locations"
 ```
+
+0 çıkıyorsa veya tablo yok hatası alıyorsan yükleme kayıtlarına bak (`Yükleniyor: ...` satırları ve varsa hata):
+
+```powershell
+docker logs proje_postgres
+```
+
+> Otomatik yükleme **yalnızca veritabanı boşken** (ilk `docker compose up`) çalışır. Daha önce kurulmuş
+> bir veritabanını `db/` klasöründeki güncel hâline getirmek için aşağıdaki "Veritabanını sıfırla" adımına bak.
+
+## Veritabanını sıfırla (db/ güncellendiğinde)
+
+`db/supply_db.sql` veya `db/data/` değiştiyse (ör. `git pull` sonrası), PostgreSQL verisini silip baştan kur.
+**Veritabanındaki tüm değişiklikler gider**; Qdrant verisine dokunulmaz. `kurulum` klasöründe:
+
+```powershell
+docker compose down
+```
+
+```powershell
+docker volume rm docker_supply_postgres_data
+```
+
+```powershell
+docker compose up -d
+```
+
+Python kuruluysa aynı işi önce yedek alarak `db/rebuild_db.py` de yapar (bkz. Notlar).
 
 ## 4. Takım arkadaşının bağlanmasına izin ver
 
@@ -90,4 +120,5 @@ Wi-Fi bölümündeki `IPv4 Address` (ör. `192.168.1.25`) değerini; kullanıcı
 - İkiniz aynı ağda olmalısınız. Misafir Wi-Fi ağları cihazların birbirini görmesini çoğu zaman engeller.
 - IP adresi modeme yeniden bağlanınca değişebilir; bağlantı koparsa `ipconfig` ile tekrar bak.
 - Veritabanı yalnızca bu bilgisayar ve Docker Desktop açıkken erişilebilir.
-- `db/rebuild_db.py` veritabanını silip baştan kurar; yapılan tüm değişiklikler gider. Çalıştırmadan önce ekibe haber verin.
+- `db/rebuild_db.py` veritabanını silip baştan kurar (önce `db/backup/` altına CSV yedek alır, sonra `db/supply_db.sql` ve `db/data/*.sql` yüklenir); yapılan tüm değişiklikler gider. Çalıştırmadan önce ekibe haber verin.
+- Yeni veri dosyası eklenecekse `db/data/` içine sıra numarasıyla koyun (ör. `04_....sql`); hem otomatik kurulum hem `rebuild_db.py` onu sırayla yükler.

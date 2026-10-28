@@ -1,0 +1,2 @@
+# Konteyner içinde çalışan betikler Windows satır sonuyla (CRLF) bozulur
+*.sh text eol=lf

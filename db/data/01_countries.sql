@@ -1,6 +1,17 @@
--- countries: 50 ülke, ID'ler otomatik atanır
+-- =====================================================================
+-- countries: 50 ülke
 -- has_trade_agreement = TRUE: Türkiye ile yürürlükte STA veya Gümrük Birliği (AB) var
 -- Kaynak: T.C. Ticaret Bakanlığı, yürürlükteki STA listesi (Ekim 2026)
+--
+-- Önce db/supply_db.sql (şema) ve sıradaki önceki dosyalar çalıştırılmış olmalı.
+--
+-- Çalıştırma: python db/rebuild_db.py  (şemayı kurar, sonra db/data/ dosyalarını sırayla yükler)
+-- ya da elle:
+--   docker cp db/data/01_countries.sql proje_postgres:/tmp/x.sql
+--   docker exec proje_postgres psql -U proje_admin -d supply_db -q -v ON_ERROR_STOP=1 -f /tmp/x.sql
+-- =====================================================================
+
+BEGIN;
 
 INSERT INTO countries (iso_code, name_tr, name_en, has_trade_agreement) VALUES
   -- ilk 6
@@ -64,3 +75,5 @@ INSERT INTO countries (iso_code, name_tr, name_en, has_trade_agreement) VALUES
   ('EGY', 'Mısır',                      'Egypt',                  TRUE),
   ('MAR', 'Fas',                        'Morocco',                TRUE),
   ('TUN', 'Tunus',                      'Tunisia',                TRUE);
+
+COMMIT;

@@ -10,11 +10,11 @@ Adımlar:
   1. Yedek   : mevcut veritabanındaki her tablo db/backup/<tarih_saat>/<tablo>.csv olarak kaydedilir
   2. Sil     : DROP DATABASE ... (açık bağlantılar kapatılır)
   3. Oluştur : CREATE DATABASE ...
-  4. Yükle   : sql/supply_risk_schema.sql   → tablolar
-               sql/countries_data.sql        → countries
-               sql/data_inserts.sql          → suppliers, items, locations, tariffs, contracts, ...
-               download_all.py (yaml/)       → countries, rate_sources, locations, items, tariffs (id ile günceller)
-               sql/mock_news_data.sql        → scan_logs, articles, article_analyses, article_impacts
+  4. Yükle   : supply_db.sql            → şema (tablolar, indeksler)
+               data/01_countries.sql    → countries
+               data/02_ana_veri.sql     → rate_sources, suppliers, items, locations, tariffs, contracts, ...
+               data/03_haberler.sql     → scan_logs, articles, article_analyses, article_impacts
+                                          (mock haberler + agent sonuçları)
   5. Özet    : tablo başına satır sayısı
 
 Veritabanı adı ve bağlantı bilgileri proje kökündeki .env'den okunur (POSTGRES_DB vb.).
@@ -27,14 +27,11 @@ from pathlib import Path
 import psycopg2
 from psycopg2 import sql as pgsql
 
-import download_all
-from yaml_db import BASE_DIR, load_env, run
+from yaml_db import BASE_DIR, load_env
 
-SQL_DIR = BASE_DIR / "sql"
+SCHEMA_FILE = BASE_DIR / "supply_db.sql"
+DATA_DIR = BASE_DIR / "data"          # dosyalar ad sırasıyla yüklenir (01_, 02_, ...)
 BACKUP_DIR = BASE_DIR / "backup"
-
-SQL_FILES_BEFORE_YAML = ["supply_risk_schema.sql", "countries_data.sql", "data_inserts.sql"]
-SQL_FILES_AFTER_YAML = ["mock_news_data.sql"]
 
 
 def conn_args(dbname: str) -> dict:
@@ -109,18 +106,17 @@ def recreate(db: str) -> None:
         conn.close()
 
 
-def run_sql_file(db: str, filename: str) -> None:
-    text = (SQL_DIR / filename).read_text(encoding="utf-8-sig")
-    # Şema dosyasındaki CREATE DATABASE satırı burada atlanır (veritabanı zaten oluşturuldu)
-    text = "\n".join(l for l in text.splitlines() if not l.strip().upper().startswith("CREATE DATABASE"))
+def run_sql_file(db: str, path: Path) -> None:
+    text = path.read_text(encoding="utf-8-sig")
+    name = path.relative_to(BASE_DIR).as_posix()
     conn = psycopg2.connect(**conn_args(db))
-    conn.autocommit = True  # dosyalardaki BEGIN/COMMIT kendi transaction'ını yönetir
+    conn.autocommit = True  # dosyadaki BEGIN/COMMIT kendi transaction'ını yönetir
     try:
         with conn.cursor() as cur:
             cur.execute(text)
-        print(f"Yüklendi: sql/{filename}")
+        print(f"Yüklendi: {name}")
     except Exception as e:
-        raise RuntimeError(f"sql/{filename} çalıştırılırken hata: {e}") from e
+        raise RuntimeError(f"{name} çalıştırılırken hata: {e}") from e
     finally:
         conn.close()
 
@@ -158,10 +154,8 @@ def main() -> None:
         print(f"Yedek: '{db}' bulunamadı, yedek alınmadı.")
 
     recreate(db)
-    for f in SQL_FILES_BEFORE_YAML:
-        run_sql_file(db, f)
-    run(*download_all.STEPS)
-    for f in SQL_FILES_AFTER_YAML:
+    run_sql_file(db, SCHEMA_FILE)
+    for f in sorted(DATA_DIR.glob("*.sql")):
         run_sql_file(db, f)
 
     summary(db)

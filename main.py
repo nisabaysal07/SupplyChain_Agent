@@ -40,7 +40,7 @@ def main():
     triggered_by = "schedule" if "--schedule" in sys.argv else "manual"
 
     # Every scan is recorded in scan_logs: 'running' -> 'success' / 'failed'
-    with scan_log(triggered_by):
+    with scan_log(triggered_by) as scan:
         # Run all queries in the search plan
         report = analyzer.execute_scan()
 
@@ -53,9 +53,18 @@ def main():
         # Summarize execution statistics and results
         found = sum(1 for r in report.reports if r.status == "Events Found")
         errors = sum(1 for r in report.reports if r.status == "Search Error")
-        print(f"[✓] {len(report.reports)} sorgu | {found} sorguda haber | {errors} arama hatası "
+        news = sum(len(r.sources_found) for r in report.reports)
+        print(f"[✓] {len(report.reports)} sorgu | {news} haber ({found} sorguda) | {errors} arama hatası "
               f"| {len(analyzer.rejections)} sonuç elendi")
         print(f"    Model için rapor: {output_path} | Elenenler (debug): {debug_path}")
+
+        # Summary counts go to the same scan_logs row
+        scan.set_counts(
+            query_count=len(report.reports),
+            found_count=news,
+            rejected_count=len(analyzer.rejections),
+            error_count=errors,
+        )
 
         # Every query failing means the search itself is broken (API key, network)
         if report.reports and errors == len(report.reports):

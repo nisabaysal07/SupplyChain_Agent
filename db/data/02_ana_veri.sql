@@ -1,8 +1,14 @@
 -- =====================================================================
--- KurguTek veri seti → tablolara ekleme
--- Kaynak: Tablo_Rehberi.docx
--- Önce şema ve countries_data.sql (50 ülke) çalıştırılmış olmalı.
+-- Ana veri (KurguTek veri seti, kaynak: Tablo_Rehberi.docx)
+-- rate_sources, suppliers, items, locations, supplier_items, tariffs, contracts, inventory, shipments
 -- ID'ler otomatik atanır; bağlantılar kod/ad üzerinden kurulur.
+--
+-- Önce db/supply_db.sql (şema) ve sıradaki önceki dosyalar çalıştırılmış olmalı.
+--
+-- Çalıştırma: python db/rebuild_db.py  (şemayı kurar, sonra db/data/ dosyalarını sırayla yükler)
+-- ya da elle:
+--   docker cp db/data/02_ana_veri.sql proje_postgres:/tmp/x.sql
+--   docker exec proje_postgres psql -U proje_admin -d supply_db -q -v ON_ERROR_STOP=1 -f /tmp/x.sql
 -- =====================================================================
 
 BEGIN;
@@ -29,7 +35,13 @@ JOIN countries c ON c.iso_code = v.iso;
 -- ADIM 1b: items  (kaynak: parcalar)
 -- Oranlar yüzdeye çevrildi: 0,2 → 20 ; 0,01 → 1
 -- =====================================================================
-INSERT INTO items (name, hs6, gtip, unit, kdv_rate, otv_rate, kultur_fonu_rate) VALUES
+INSERT INTO rate_sources (id, name, url) VALUES
+  (1, 'TARA (Ticaret Bakanlığı)', 'https://ticaret.gov.tr');
+SELECT setval(pg_get_serial_sequence('rate_sources', 'id'), (SELECT MAX(id) FROM rate_sources));
+
+INSERT INTO items (name, hs6, gtip, unit, kdv_rate, otv_rate, kultur_fonu_rate, source_id)
+SELECT v.*, (SELECT id FROM rate_sources WHERE name = 'TARA (Ticaret Bakanlığı)')
+FROM (VALUES
   ('İşlemci',     '854231', '854231900000', 'adet', 20, 0, 0),
   ('Anakart',     '847330', '847330200000', 'adet', 20, 0, 0),
   ('Bellek',      '847330', '847330200000', 'adet', 20, 0, 0),
@@ -38,7 +50,8 @@ INSERT INTO items (name, hs6, gtip, unit, kdv_rate, otv_rate, kultur_fonu_rate) 
   ('Güç kaynağı', '850440', '850440839019', 'adet', 20, 0, 0),
   ('Kasa',        '847330', '847330800000', 'adet', 20, 0, 0),
   ('Soğutucu',    '841459', '841459150000', 'adet', 20, 0, 0),
-  ('Monitör',     '852852', '852852100000', 'adet', 20, 0, 0);
+  ('Monitör',     '852852', '852852100000', 'adet', 20, 0, 0)
+) AS v(name, hs6, gtip, unit, kdv_rate, otv_rate, kultur_fonu_rate);
 
 -- =====================================================================
 -- ADIM 1c: locations  (kaynak: rotalar tablosundaki çıkış/varış noktaları)
@@ -90,8 +103,8 @@ JOIN countries a ON a.iso_code = v.assembly;
 -- igv_rate = parça İGV × ülke İGV çarpanı (anlaşmalı ülkede 0)
 -- Her tedarikçinin parça × menşe ülkesi = 9 satır (sıra yaml/tariffs.yaml id'leriyle aynı)
 -- =====================================================================
-INSERT INTO tariffs (id, item_id, country_id, gv_rate, igv_rate, valid_from)
-SELECT r.id, i.id, c.id, r.gv * m.gv_mult, r.igv * m.igv_mult, DATE '2026-01-01'
+INSERT INTO tariffs (id, item_id, country_id, gv_rate, igv_rate, valid_from, source_id)
+SELECT r.id, i.id, c.id, r.gv * m.gv_mult, r.igv * m.igv_mult, DATE '2026-01-01', rs.id
 FROM (VALUES
   -- id, parça,     menşe, GV,  İGV  (tercihsiz oranlar)
   (1, 'İşlemci',     'VNM', 0.0,  0.0),
@@ -111,7 +124,8 @@ JOIN (VALUES
   ('VNM', 1.0, 1.0)
 ) AS m(iso, gv_mult, igv_mult) ON m.iso = r.iso
 JOIN items i     ON i.name = r.item
-JOIN countries c ON c.iso_code = r.iso;
+JOIN countries c ON c.iso_code = r.iso
+JOIN rate_sources rs ON rs.name = 'TARA (Ticaret Bakanlığı)';
 SELECT setval(pg_get_serial_sequence('tariffs', 'id'), (SELECT MAX(id) FROM tariffs));
 -- =====================================================================
 -- ADIM 3a: contracts  (kaynak: tedarikciler — fiyat ve sözleşme tarihleri)

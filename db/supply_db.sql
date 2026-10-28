@@ -1,4 +1,14 @@
-CREATE DATABASE supply_db;
+-- =====================================================================
+-- supply_db — ŞEMA: sadece tablolar ve indeksler (veri yok)
+-- Boş bir veritabanında çalıştırılır. Veriler db/data/ klasöründedir.
+--
+-- Çalıştırma: python db/rebuild_db.py  (şemayı kurar, sonra db/data/ dosyalarını sırayla yükler)
+-- ya da elle:
+--   docker cp db/supply_db.sql proje_postgres:/tmp/x.sql
+--   docker exec proje_postgres psql -U proje_admin -d supply_db -q -v ON_ERROR_STOP=1 -f /tmp/x.sql
+-- =====================================================================
+
+BEGIN;
 
 CREATE TABLE countries (
     id          SERIAL PRIMARY KEY,
@@ -20,6 +30,13 @@ CREATE TABLE locations (
     country_id    INT REFERENCES countries(id)      -- NULL for international chokepoints
 );
 
+-- Oran kaynağı (ör. Ticaret Bakanlığı TARA); items ve tariffs oranlarının nereden alındığı
+CREATE TABLE rate_sources (
+    id    SERIAL PRIMARY KEY,
+    name  VARCHAR(100) NOT NULL UNIQUE,   -- 'TARA (Ticaret Bakanlığı)'
+    url   TEXT
+);
+
 CREATE TABLE items (
     id              SERIAL PRIMARY KEY,
     name            VARCHAR(200) NOT NULL,
@@ -28,7 +45,9 @@ CREATE TABLE items (
     unit            VARCHAR(10)  NOT NULL,             -- kg, pcs, ton,
     kdv_rate        NUMERIC(5,2) NOT NULL DEFAULT 20,  -- VAT %
     otv_rate       NUMERIC(12,4),                     -- % if rate, amount per unit if fixed
-    kultur_fonu_rate NUMERIC(5,2) NOT NULL DEFAULT 0
+    kultur_fonu_rate NUMERIC(5,2) NOT NULL DEFAULT 0,
+    source_id       INT REFERENCES rate_sources(id),
+    checked_at      DATE                               -- oranın kaynaktan en son kontrol edildiği tarih
 );
 CREATE INDEX idx_items_hs6 ON items(hs6);
 
@@ -41,6 +60,8 @@ CREATE TABLE tariffs (
     igv_rate          NUMERIC(5,2) NOT NULL DEFAULT 0, -- İlave Gümrük Vergisi %
     valid_from        DATE NOT NULL,
     valid_to          DATE,                            -- NULL = currently in force
+    source_id         INT REFERENCES rate_sources(id),
+    checked_at        DATE,                            -- oranın kaynaktan en son kontrol edildiği tarih
     CHECK (valid_to IS NULL OR valid_to > valid_from),
     UNIQUE (item_id, country_id, valid_from)
 );
@@ -124,7 +145,12 @@ CREATE TABLE scan_logs (
                    CHECK (status IN ('running','success','failed')),
     started_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
     finished_at    TIMESTAMPTZ,
-    error_message  TEXT
+    error_message  TEXT,
+    -- tarama özeti
+    query_count    INT CHECK (query_count >= 0),
+    found_count    INT CHECK (found_count >= 0),
+    rejected_count INT CHECK (rejected_count >= 0),
+    error_count    INT CHECK (error_count >= 0)
 );
 
 CREATE TABLE articles (
@@ -288,16 +314,4 @@ CREATE INDEX idx_alert_articles_article ON alert_articles(article_id);
 --   WHERE a.status <> 'resolved'
 --   ORDER BY a.priority_score DESC NULLS LAST;
 
-
--- oran kaynağı ticaret bakanlığı
-CREATE TABLE rate_sources (
-    id    SERIAL PRIMARY KEY,
-    name  VARCHAR(100) NOT NULL UNIQUE,   -- 'TARA (Ticaret Bakanlığı)'
-    url   TEXT
-);
-
-ALTER TABLE tariffs ADD COLUMN source_id  INT REFERENCES rate_sources(id);
-ALTER TABLE tariffs ADD COLUMN checked_at DATE;   -- oranın kaynaktan en son kontrol edildiği tarih
-
-ALTER TABLE items   ADD COLUMN source_id  INT REFERENCES rate_sources(id);
-ALTER TABLE items   ADD COLUMN checked_at DATE;
+COMMIT;
