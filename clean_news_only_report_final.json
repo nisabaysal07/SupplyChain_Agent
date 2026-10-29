@@ -20,7 +20,7 @@
         "Soğutucu",
         "Monitör"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -37,7 +37,7 @@
         "Bellek",
         "SSD"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -52,7 +52,7 @@
         "Ekran kartı",
         "Güç kaynağı"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -65,7 +65,7 @@
       "products": [
         "İşlemci"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -78,7 +78,7 @@
       "products": [
         "Anakart"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -91,7 +91,7 @@
       "products": [
         "Bellek"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -104,7 +104,7 @@
       "products": [
         "SSD"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -117,7 +117,7 @@
       "products": [
         "Ekran kartı"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -130,7 +130,7 @@
       "products": [
         "Güç kaynağı"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -143,7 +143,7 @@
       "products": [
         "Kasa"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -156,7 +156,7 @@
       "products": [
         "Soğutucu"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -169,7 +169,7 @@
       "products": [
         "Monitör"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -197,7 +197,7 @@
         "Soğutucu",
         "Monitör"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -216,17 +216,8 @@
         "Güç kaynağı",
         "Kasa"
       ],
-      "status": "Events Found",
-      "sources_found": [
-        {
-          "news_id": "Q014-N1",
-          "title": "China's new export curbs draw a line around its AI crown jewels | Reuters",
-          "published_date": "2026-10-28",
-          "source_name": "Reuters",
-          "url": "https://www.reuters.com/business/retail-consumer/chinas-new-export-curbs-draw-line-around-its-ai-crown-jewels-2026-10-28",
-          "summary": "Some Chinese AI developers have also turned to overseas computing facilities to access advanced chips restricted from export to China. Nvidia's (NVDA.O) most advanced processors cannot be exported to China under US restrictions. [...] The broader regulatory oversight adds to the already uncertain macro-environment facing China's tech giants and startups, who are currently wrestling with a meltdown of Chinese AI and semiconductor stocks. That distinction matters for developers that rely on computing facilities abroad, where they can gain access to powerful chips constrained by US export restrictions on China. SINGAPORE/BEIJING, Oct 28 (Reuters) - China's proposed artificial intelligence export curbs will push a business model favoured by Beijing and the industry's biggest players: keeping valuable technology at home while selling access to it abroad as rivalry with the US intensifies."
-        }
-      ]
+      "status": "Search Error",
+      "sources_found": []
     },
     {
       "query_type": "export_control",
@@ -240,7 +231,7 @@
         "İşlemci",
         "Monitör"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -255,7 +246,7 @@
         "Bellek",
         "Soğutucu"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -268,7 +259,7 @@
       "products": [
         "SSD"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -281,7 +272,7 @@
       "products": [
         "İşlemci"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -294,7 +285,7 @@
       "products": [
         "Anakart"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -307,7 +298,7 @@
       "products": [
         "Bellek"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -320,7 +311,7 @@
       "products": [
         "SSD"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -333,7 +324,7 @@
       "products": [
         "Kasa"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -346,7 +337,7 @@
       "products": [
         "Soğutucu"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -359,7 +350,7 @@
       "products": [
         "Monitör"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -378,7 +369,7 @@
         "Güç kaynağı",
         "Kasa"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -393,7 +384,7 @@
         "İşlemci",
         "Monitör"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -408,7 +399,7 @@
         "Bellek",
         "Soğutucu"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     },
     {
@@ -421,7 +412,7 @@
       "products": [
         "SSD"
       ],
-      "status": "No Relevant News Found",
+      "status": "Search Error",
       "sources_found": []
     }
   ]
