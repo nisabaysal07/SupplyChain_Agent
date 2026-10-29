@@ -15,37 +15,37 @@ suppliers in China, Taiwan, Vietnam and South Korea.
 4. Groups the results into alerts that are tracked across scans (`new / changed / unchanged / resolved`).
 5. Shows them on the **ChainGuard** panel and pushes important ones to Slack, Teams, e-mail and other channels.
 
-How we use NVIDIA Nemotron and Nebius Token Factory
+## How we use NVIDIA Nemotron and Nebius Token Factory
 
 The agent step runs on two NVIDIA Nemotron 3 models served by Nebius Token Factory, each sized for its job.
 
-Stage	Model (Token Factory id)	Job	Why this size
-Filter	Nemotron 3 Super (nvidia/nemotron-3-super-120b-a12b)	Reads every article against the supplier list, one article per call. Decides if it is relevant and which suppliers it may affect.	High-volume step: must not miss a relevant article but must stay cheap. Caught every relevant article in our test set at about a third of Ultra's price per token.
-Analysis	Nemotron 3 Ultra (nvidia/Nemotron-3-Ultra-550b-a55b)	Reads only the articles Super lets through. Checks Super's supplier list (removes wrong matches, adds missed ones) and extracts the facts the cost model needs: event type, tax type, old and new rates, effective date, delay in days, price change.	Accuracy matters most here: a wrong rate means a wrong cost. Most precise at matching suppliers and reading numbers across 8 languages.
+| Stage | Model (Token Factory id) | Job | Why this size |
+|---|---|---|---|
+| Filter | Nemotron 3 Super (`nvidia/nemotron-3-super-120b-a12b`) | Reads every article against the supplier list, one article per call. Decides if it is relevant and which suppliers it may affect. | High-volume step: must not miss a relevant article but must stay cheap. Caught every relevant article in our test set at about a third of Ultra's price per token. |
+| Analysis | Nemotron 3 Ultra (`nvidia/Nemotron-3-Ultra-550b-a55b`) | Reads only the articles Super lets through. Checks Super's supplier list (removes wrong matches, adds missed ones) and extracts the facts the cost model needs: event type, tax type, old and new rates, effective date, delay in days, price change. | Accuracy matters most here: a wrong rate means a wrong cost. Most precise at matching suppliers and reading numbers across 8 languages. |
 
-Both models return JSON that is validated against Pydantic schemas (agent_core/agent/schemas.py); an invalid answer is retried. The impact score (1–100) is computed in code from the model's facts (agent_core/agent/scoring.py), so the same facts always give the same score.
+Both models return JSON that is validated against Pydantic schemas ([`agent_core/agent/schemas.py`](agent_core/agent/schemas.py)); an invalid answer is retried. The impact score (0–100) is computed in code from the model's facts ([`agent_core/agent/scoring.py`](agent_core/agent/scoring.py)), so the same facts always give the same score.
 
-How we chose the models
+### How we chose the models
 
 We ran Nemotron Nano, Lightning, Super and Ultra on the same 27-article test set (8 languages: Turkish, English, Chinese, Vietnamese, Korean, Japanese, Thai, Malay; 11 deliberate traps such as the wrong port, the same city but a different point, rumours and good news):
 
-Nano missed real alerts.
-Lightning did not return valid JSON for our schema.
-Super gave the best cost-to-recall balance for screening.
-Ultra gave the most accurate supplier matching and extraction.
+- Nano missed real alerts.
+- Lightning did not return valid JSON for our schema.
+- Super gave the best cost-to-recall balance for screening.
+- Ultra gave the most accurate supplier matching and extraction.
 
-Result: the Super + Ultra pipeline scored 27/27 on the test set, and a full run over 38 articles cost $0.23 (about $0.006 per article). A run with no new articles makes no model calls.
+**Result:** the Super + Ultra pipeline scored 27/27 on the test set, and a full run over 38 articles cost $0.23 (about $0.006 per article). The cost of each run is estimated from token counts and written to the results; a run with no new articles makes no model calls.
 
-Where Token Factory accelerated our workflow
-One OpenAI-compatible API for every Nemotron model. All model settings live in agent_core/agent/config.yaml (base_url: https://api.tokenfactory.nebius.com/v1). Comparing Nano, Lightning, Super and Ultra was a one-line change of model_id, which is how we picked our models in a few test runs instead of building separate integrations.
-Standard OpenAI client. agent_core/agent/llm_client.py uses the regular openai Python package with the Token Factory URL, plus retries on invalid JSON and on rate limits.
-Low cost per run. Because Super screens everything and the larger Ultra only reads relevant articles, a scheduled run costs a few cents. The cost of each run is estimated from token counts and written to the results.
-Reasoning through the same API. Both models run with Nemotron's thinking mode enabled in low-effort form (enable_thinking: true, low_effort: true), set per model in the config file.
+### Where Token Factory accelerated our workflow
 
-Setup: put your Token Factory key in .env as NEBIUS_API_KEY. Without it, the agent step is skipped and the articles wait for the next run. Details, test set and prompts: agent_core/README.md.
+- **One OpenAI-compatible API for every Nemotron model.** All model settings live in [`agent_core/agent/config.yaml`](agent_core/agent/config.yaml) (`base_url: https://api.tokenfactory.nebius.com/v1`). Comparing Nano, Lightning, Super and Ultra was a one-line change of `model_id`, which is how we picked our models in a few test runs instead of building separate integrations.
+- **Standard OpenAI client.** [`agent_core/agent/llm_client.py`](agent_core/agent/llm_client.py) uses the regular `openai` Python package with the Token Factory URL, plus retries on invalid JSON and on rate limits.
+- **Reasoning through the same API.** Both models run with Nemotron's thinking mode enabled in low-effort form (`enable_thinking: true`, `low_effort: true`), set per model in the config file.
 
+The Token Factory key goes in `.env` as `NEBIUS_API_KEY` (see [Configuration](#configuration)). Details, test set and prompts: [agent_core/README.md](agent_core/README.md).
 
-# Quick start
+## Quick start
 
 **For the jury:** a step-by-step guide for installing and trying the project on your own computer, including a
 path that needs no API keys, is in **[docs/JURY_SETUP.md](docs/JURY_SETUP.md)**.
@@ -246,7 +246,7 @@ database, so anything missed is picked up on the next run, and re-running a scan
 
 ### Key design decisions
 
-- **Cheap filter, expensive analyst.** Nemotron 3 Super screens each article one at a time, and only relevant ones reach Ultra, so a run costs a few cents. The impact score is computed in code, so the same facts always give the same score.
+- **Cheap filter, expensive analyst.** Super screens every article and only relevant ones reach Ultra, so a run costs a few cents; see [How we use NVIDIA Nemotron and Nebius Token Factory](#how-we-use-nvidia-nemotron-and-nebius-token-factory).
 - **Rules before the LLM.** Search queries come from the supplier data, and only official, state-agency and trade-press domains are searched. Results are reproducible and the model sees less noise.
 - **The database connects the stages.** Each stage reads its own pending work from Postgres, so it can be re-run alone (`risk_alerts.py --scan N`, `panel_sync.py --all`).
 - **The panel receives events by push.** The pipeline posts events to a token-protected API (`MODEL_ENTEGRASYONU.md`), which keeps the panel independent of any one model producer.
