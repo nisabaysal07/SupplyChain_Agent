@@ -47,6 +47,17 @@ Setup: put your Token Factory key in .env as NEBIUS_API_KEY. Without it, the age
 
 # Quick start
 
+**For the jury:** a step-by-step guide for installing and trying the project on your own computer, including a
+path that needs no API keys, is in **[docs/JURY_SETUP.md](docs/JURY_SETUP.md)**.
+
+Panel login (created automatically on first start, local demo only):
+
+| | |
+|---|---|
+| URL | http://localhost:3000 |
+| E-mail | `yonetici@chainguard.test` |
+| Password | `RCSP0v2Iwsk1H112R_e0` |
+
 Prerequisites: **Docker Desktop**, **Python 3.11+**, **Node.js 22+**, and API keys for Tavily and Nebius Token Factory.
 
 ```bash
